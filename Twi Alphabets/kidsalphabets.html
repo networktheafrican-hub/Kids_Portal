@@ -1,1162 +1,342 @@
-/**
- * ============================================================================
- * SPEAK GHANA — KIDS PORTAL
- * One Cloudflare Worker + one D1 database. No build step, no wrangler, no CLI.
- * ============================================================================
- *
- * ---- SET UP FROM THE CLOUDFLARE DASHBOARD (about 5 minutes) ----------------
- *
- * 1. Storage & Databases -> D1 -> Create database
- *       Name it:  kids_portal_db
- *
- * 2. Open that database -> Console tab -> paste the whole of schema.sql
- *    -> Execute. That builds the tables and seeds the 15 chapters.
- *
- * 3. Compute -> Workers & Pages -> Create -> Start with Hello World -> Deploy
- *       Name it:  kids-portal
- *    Then "Edit code", delete what is there, paste this whole file, Deploy.
- *
- * 4. The Worker -> Settings -> Bindings -> Add -> D1 database
- *       Variable name:  DB
- *       Database:       kids_portal_db
- *
- * 5. Same Settings page -> Variables and Secrets -> Add these four:
- *       GH_USER      (text)    networktheafrican-hub
- *       GH_REPO      (text)    Kids_Portal
- *       GH_BRANCH    (text)    main
- *       ADMIN_TOKEN  (secret)  any long random string you invent — this is
- *                              your teacher password, keep it private
- *
- * 6. Deploy again so the bindings take effect. Done.
- *
- * ---- USING IT --------------------------------------------------------------
- *
- *    /            kids sign in with a name and a 4-digit PIN
- *    /learn       their chapters, activities and stars
- *    /admin       your teacher page: add students, see who is doing what
- *                 (asks for ADMIN_TOKEN once, remembers it on that device)
- *
- * ---- ADDING CONTENT --------------------------------------------------------
- *
- *    Your chapter HTML files live in the GitHub repo, one folder per chapter.
- *    The Worker pulls them from raw.githubusercontent.com and serves them on
- *    its own domain, so there is nothing else to host.
- *
- *    An activity file's only obligation is this one line, when the child ends:
- *
- *        parent.postMessage({type:'sg:complete', score: 4, maxScore: 5}, '*');
- *
- *    Then register it in the D1 Console:
- *
- *        INSERT INTO activities (slug, chapter_id, title, kind, ord,
- *                                star_value, blurb, file)
- *        VALUES ('alphabet-lesson', 1, 'The Twi letters', 'lesson', 2, 3,
- *                'Meet the letters and their sounds.',
- *                'Twi Alphabets/alphabet-lesson.html');
- *
- *    Publish a chapter when it is ready:
- *
- *        UPDATE chapters SET published = 1 WHERE id = 2;
- */
-
-/* --------------------------------------------------------------------------
-   YOUR TEACHER PASSWORD
-   This is what /admin asks for. Change the line below to whatever you want,
-   then paste the file into the Worker editor and press Deploy.
-
-   It sits in the code because you asked for a paste-and-go setup, and that is
-   a fair trade while you are testing. Two things to know about it:
-     - anyone who can see this file can see the password, so do not commit
-       worker.js to a public GitHub repo with a real password in it;
-     - it is the only thing protecting every student account, so do not use
-       your own name or the school name - those are the first guesses.
-
-   When you are ready to do it properly: add a secret named ADMIN_TOKEN in
-   Settings -> Variables and Secrets, then Deploy. The secret overrides this
-   line automatically and you can set the line back to ''.
-   -------------------------------------------------------------------------- */
-const ADMIN_KEY_FALLBACK = 'rA7-kNdX9pQm2vLzT4hJwB6sYeUf';
-
-/* --------------------------------------------------------------------------
-   WHERE YOUR LESSON FILES LIVE
-   These are used unless you set variables of the same name in the dashboard.
-   Change them here if you ever rename the repo or work off another branch.
-   -------------------------------------------------------------------------- */
-const GH = { user: 'networktheafrican-hub', repo: 'Kids_Portal', branch: 'main' };
-
-const SESSION_DAYS = 30;
-const COOKIE = 'sg_kid';
-const CACHE_MINUTES = 5;   // how long a GitHub file is cached at the edge
-
-/* ========================================================================== */
-/* small helpers                                                              */
-/* ========================================================================== */
-
-const json = (d, s = 200, h = {}) =>
-  new Response(JSON.stringify(d), { status: s, headers: { 'content-type': 'application/json; charset=utf-8', ...h } });
-
-const page = (body, s = 200) =>
-  new Response(body, { status: s, headers: {
-    'content-type': 'text/html; charset=utf-8',
-    'x-frame-options': 'SAMEORIGIN',
-    'referrer-policy': 'same-origin',
-    'cache-control': 'no-store',
-  }});
-
-/* Activity content is meant to be framed by /play, so it must NOT carry
-   x-frame-options - that header is what produces "refused to connect"
-   inside the iframe. Only the portal's own pages get frame protection. */
-const framed = (body, s = 200) =>
-  new Response(body, { status: s, headers: {
-    'content-type': 'text/html; charset=utf-8',
-    'referrer-policy': 'same-origin',
-  }});
-
-const b64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf)));
-const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g,
-  (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-const today = () => new Date().toISOString().slice(0, 10);
-
-async function hashPin(pin, saltB64) {
-  const salt = saltB64 ? unb64(saltB64) : crypto.getRandomValues(new Uint8Array(16));
-  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']);
-  const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, key, 256);
-  return { hash: b64(bits), salt: b64(salt) };
-}
-
-function safeEqual(a, b) {
-  if (a.length !== b.length) return false;
-  let d = 0;
-  for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return d === 0;
-}
-
-function cookie(req, name) {
-  for (const part of (req.headers.get('cookie') || '').split(';')) {
-    const [k, ...v] = part.trim().split('=');
-    if (k === name) return decodeURIComponent(v.join('='));
-  }
-  return null;
-}
-
-async function me(req, env) {
-  const t = cookie(req, COOKIE);
-  if (!t) return null;
-  return await env.DB.prepare(
-    `SELECT s.* FROM sessions ss JOIN students s ON s.id = ss.student_id
-      WHERE ss.token = ?1 AND ss.expires_at > datetime('now') AND s.active = 1`
-  ).bind(t).first();
-}
-
-/* ========================================================================== */
-/* router                                                                     */
-/* ========================================================================== */
-
-export default {
-  async fetch(req, env, ctx) {
-    const url = new URL(req.url);
-    const p = url.pathname.replace(/\/+$/, '') || '/';
-    try {
-      if (p === '/')                                     return rootPage(req, env);
-      if (p === '/learn')                                return learnPage(req, env);
-      if (p.startsWith('/play/'))                        return playPage(req, env, p.slice(6));
-      if (p.startsWith('/content/'))                     return contentProxy(req, env, ctx, p.slice(9));
-      if (p.startsWith('/audio/'))                       return audioProxy(req, env, ctx, p.slice(7));
-
-      if (p === '/api/login'    && req.method === 'POST')  return apiLogin(req, env);
-      if (p === '/api/logout'   && req.method === 'POST')  return apiLogout(req, env);
-      if (p === '/api/me')                                 return apiMe(req, env);
-      if (p === '/api/progress' && req.method === 'POST')  return apiProgress(req, env);
-      if (p === '/api/prefs'    && req.method === 'POST')  return apiPrefs(req, env);
-      if (p === '/api/leaderboard')                        return apiLeaderboard(req, env);
-
-      if (p === '/admin')                                       return page(ADMIN_HTML);
-      if (p === '/api/admin/check')                             return adminCheck(req, env);
-      if (p === '/api/admin/students' && req.method === 'POST') return adminAddStudent(req, env);
-      if (p === '/api/admin/report')                            return adminReport(req, env);
-
-      return json({ error: 'not_found' }, 404);
-    } catch (e) {
-      return json({ error: 'server_error', detail: String(e && e.message) }, 500);
-    }
-  },
-};
-
-/* ========================================================================== */
-/* auth                                                                       */
-/* ========================================================================== */
-
-async function rootPage(req, env) {
-  if (await me(req, env)) return Response.redirect(new URL('/learn', req.url).toString(), 302);
-  return page(LOGIN_HTML);
-}
-
-async function apiLogin(req, env) {
-  const { username, pin } = await req.json().catch(() => ({}));
-  const u = String(username || '').trim().toLowerCase();
-  if (!u || !/^\d{4,6}$/.test(String(pin || ''))) return json({ error: 'Type your name and your PIN.' }, 400);
-
-  const s = await env.DB.prepare('SELECT * FROM students WHERE username = ?1 AND active = 1').bind(u).first();
-  const nope = () => json({ error: "That name and PIN don't match. Try again." }, 401);
-  if (!s) { await hashPin(String(pin), null); return nope(); }        // same delay either way
-
-  const { hash } = await hashPin(String(pin), s.pin_salt);
-  if (!safeEqual(hash, s.pin_hash)) return nope();
-
-  // streak = consecutive calendar days
-  const t = today();
-  if (s.last_seen_on !== t) {
-    const y = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-    const streak = s.last_seen_on === y ? (s.streak_days || 0) + 1 : 1;
-    await env.DB.prepare('UPDATE students SET streak_days=?1, last_seen_on=?2 WHERE id=?3')
-      .bind(streak, t, s.id).run();
-  }
-
-  const token = b64(crypto.getRandomValues(new Uint8Array(32))).replace(/[^a-zA-Z0-9]/g, '');
-  await env.DB.prepare('INSERT INTO sessions (token, student_id, expires_at) VALUES (?1,?2,?3)')
-    .bind(token, s.id, new Date(Date.now() + SESSION_DAYS * 86400000).toISOString().replace('T', ' ').slice(0, 19)).run();
-
-  return json({ ok: true }, 200, {
-    'set-cookie': `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_DAYS * 86400}`,
-  });
-}
-
-async function apiLogout(req, env) {
-  const t = cookie(req, COOKIE);
-  if (t) await env.DB.prepare('DELETE FROM sessions WHERE token=?1').bind(t).run();
-  return json({ ok: true }, 200, { 'set-cookie': `${COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0` });
-}
-
-/* ========================================================================== */
-/* learner API                                                                */
-/* ========================================================================== */
-
-async function apiMe(req, env) {
-  const s = await me(req, env);
-  if (!s) return json({ error: 'signed_out' }, 401);
-
-  const rows = await env.DB.prepare(
-    `SELECT c.id AS chapter_id, c.title AS chapter, c.twi_title,
-            a.slug, a.title, a.kind, a.star_value, a.blurb,
-            COALESCE(p.stars,0) AS stars, p.completed_at
-       FROM chapters c
-       LEFT JOIN activities a ON a.chapter_id = c.id AND a.published = 1
-       LEFT JOIN progress p   ON p.activity_id = a.id AND p.student_id = ?1
-      WHERE c.published = 1
-      ORDER BY c.id, a.ord`
-  ).bind(s.id).all();
-
-  const badges = await env.DB.prepare(
-    `SELECT b.key, b.title, b.hint, b.icon, sb.earned_at
-       FROM badges b LEFT JOIN student_badges sb
-         ON sb.badge_key = b.key AND sb.student_id = ?1
-      ORDER BY sb.earned_at IS NULL, b.key`
-  ).bind(s.id).all();
-
-  // Where to send them when they tap "Keep going": the first unfinished
-  // activity in the lowest published chapter.
-  const next = (rows.results || []).find((r) => r.slug && !r.completed_at);
-
-  return json({
-    student: {
-      name: s.display_name, stars: s.stars, streak: s.streak_days,
-      theme: s.theme || 'light', bigText: s.big_text ? 1 : 0,
-      minutes: Math.round((s.seconds_total || 0) / 60),
-    },
-    rows: rows.results || [],
-    badges: badges.results || [],
-    next: next ? { slug: next.slug, title: next.title } : null,
-  });
-}
-
-/* Display preferences, stored per child so they follow them across devices. */
-async function apiPrefs(req, env) {
-  const s = await me(req, env);
-  if (!s) return json({ error: 'signed_out' }, 401);
-  const b = await req.json().catch(() => ({}));
-  const theme = b.theme === 'dark' ? 'dark' : 'light';
-  const big = b.bigText ? 1 : 0;
-  await env.DB.prepare('UPDATE students SET theme=?1, big_text=?2 WHERE id=?3')
-    .bind(theme, big, s.id).run();
-  return json({ ok: true, theme, bigText: big });
-}
-
-/* Leaderboard, scoped to the child's own class and first names only.
-   If a child has no class set, they see only themselves. */
-async function apiLeaderboard(req, env) {
-  const s = await me(req, env);
-  if (!s) return json({ error: 'signed_out' }, 401);
-  const r = await env.DB.prepare(
-    `SELECT id, display_name, stars FROM students
-      WHERE active = 1 AND (class_code IS ?1 OR id = ?2)
-      ORDER BY stars DESC, display_name LIMIT 10`
-  ).bind(s.class_code, s.id).all();
-  return json({ me: s.id, top: r.results || [] });
-}
-
-async function apiProgress(req, env) {
-  const s = await me(req, env);
-  if (!s) return json({ error: 'signed_out' }, 401);
-
-  const b = await req.json().catch(() => ({}));
-  const score = Math.max(0, parseInt(b.score, 10) || 0);
-  const max = Math.max(1, parseInt(b.maxScore, 10) || 1);
-  const seconds = Math.min(3600, Math.max(0, parseInt(b.seconds, 10) || 0));
-
-  const a = await env.DB.prepare('SELECT id, star_value FROM activities WHERE slug=?1 AND published=1')
-    .bind(String(b.slug || '')).first();
-  if (!a) return json({ error: 'unknown_activity' }, 404);
-
-  const ratio = Math.min(1, score / max);
-  const stars = Math.round(a.star_value * ratio);
-
-  const prev = await env.DB.prepare(
-    'SELECT stars, best_score FROM progress WHERE student_id=?1 AND activity_id=?2'
-  ).bind(s.id, a.id).first();
-  const gained = Math.max(0, stars - (prev ? prev.stars : 0));
-  const improved = prev ? score > prev.best_score : false;
-
-  await env.DB.prepare(
-    'INSERT INTO attempts (student_id, activity_id, score, max_score, seconds) VALUES (?1,?2,?3,?4,?5)'
-  ).bind(s.id, a.id, score, max, seconds).run();
-
-  await env.DB.prepare(
-    `INSERT INTO progress (student_id, activity_id, best_score, max_score, stars, attempts, completed_at, updated_at)
-     VALUES (?1,?2,?3,?4,?5,1,?6,datetime('now'))
-     ON CONFLICT(student_id, activity_id) DO UPDATE SET
-       best_score  = MAX(best_score, excluded.best_score),
-       max_score   = excluded.max_score,
-       stars       = MAX(stars, excluded.stars),
-       attempts    = attempts + 1,
-       completed_at= COALESCE(completed_at, excluded.completed_at),
-       updated_at  = datetime('now')`
-  ).bind(s.id, a.id, score, max, stars, ratio >= 0.6 ? new Date().toISOString() : null).run();
-
-  await env.DB.prepare('UPDATE students SET stars = stars + ?1, seconds_total = seconds_total + ?2 WHERE id = ?3')
-    .bind(gained, seconds, s.id).run();
-
-  const fresh = await awardBadges(env, s.id, { improved, perfect: score === max, kind: a.kind });
-
-  return json({ ok: true, stars, gained, totalStars: s.stars + gained, newBadges: fresh });
-}
-
-/* --------------------------------------------------------------------------
-   Badges. Checked after every finished activity. Each rule is deliberately
-   reachable by a child who keeps showing up rather than one who is quickest:
-   streaks, totals, completing a chapter, and beating your own old score.
-   -------------------------------------------------------------------------- */
-async function awardBadges(env, studentId, ctx = {}) {
-  const s = await env.DB.prepare('SELECT stars, streak_days FROM students WHERE id=?1')
-    .bind(studentId).first();
-  const owned = new Set(((await env.DB.prepare(
-    'SELECT badge_key FROM student_badges WHERE student_id=?1').bind(studentId).all()
-  ).results || []).map((r) => r.badge_key));
-
-  const earn = [];
-  if (s.streak_days >= 5) earn.push('sankofa');
-  if (s.stars >= 50) earn.push('dwennimmen');
-  if (s.stars >= 150) earn.push('funtunfunefu');
-  if (ctx.perfect && ctx.kind === 'quiz') earn.push('gyenyame');
-  if (ctx.improved) earn.push('aya');
-
-  const chapterDone = await env.DB.prepare(
-    `SELECT a.chapter_id FROM activities a
-       LEFT JOIN progress p ON p.activity_id = a.id AND p.student_id = ?1
-      WHERE a.published = 1
-      GROUP BY a.chapter_id
-     HAVING COUNT(*) = SUM(CASE WHEN p.completed_at IS NOT NULL THEN 1 ELSE 0 END)`
-  ).bind(studentId).first();
-  if (chapterDone) earn.push('nkyinkyim');
-
-  const fresh = [];
-  for (const k of earn) {
-    if (owned.has(k)) continue;
-    await env.DB.prepare(
-      'INSERT OR IGNORE INTO student_badges (student_id, badge_key) VALUES (?1,?2)'
-    ).bind(studentId, k).run();
-    const b = await env.DB.prepare('SELECT title, icon FROM badges WHERE key=?1').bind(k).first();
-    if (b) fresh.push(b);
-  }
-  return fresh;
-}
-
-/* ========================================================================== */
-/* teacher endpoints — token in a header, no UI                               */
-/* ========================================================================== */
-
-/* The dashboard secret wins when it exists; otherwise the constant above is used. */
-function isAdmin(req, env) {
-  const expected = env.ADMIN_TOKEN || ADMIN_KEY_FALLBACK;
-  if (!expected) return false;
-  return safeEqual(req.headers.get('x-admin-token') || '', expected);
-}
-
-/* Diagnostic. Reports WHERE the password is coming from and whether what you
-   typed matched - never the password itself. Safe to leave in. */
-async function adminCheck(req, env) {
-  const given = req.headers.get('x-admin-token') || '';
-  const fromSecret = !!(env.ADMIN_TOKEN && env.ADMIN_TOKEN.length);
-  const expected = env.ADMIN_TOKEN || ADMIN_KEY_FALLBACK;
-  return json({
-    passwordSource: fromSecret
-      ? 'the ADMIN_TOKEN secret in Settings (this overrides the code)'
-      : (ADMIN_KEY_FALLBACK ? 'the ADMIN_KEY_FALLBACK line in worker.js' : 'NOTHING IS SET'),
-    expectedLength: expected ? expected.length : 0,
-    youSentLength: given.length,
-    matched: !!expected && safeEqual(given, expected),
-    hasDbBinding: !!env.DB,
-    contentRepo: (env.GH_USER || GH.user) + '/' + (env.GH_REPO || GH.repo)
-                 + ' @ ' + (env.GH_BRANCH || GH.branch),
-    codeVersion: 'audio-8',
-  });
-}
-
-async function adminAddStudent(req, env) {
-  if (!isAdmin(req, env)) return json({ error: 'forbidden' }, 403);
-  const { username, displayName, pin, classCode } = await req.json().catch(() => ({}));
-  if (!/^[a-z0-9]{3,16}$/.test(String(username || ''))) return json({ error: 'username must be 3-16 lowercase letters/numbers' }, 400);
-  if (!/^\d{4,6}$/.test(String(pin || ''))) return json({ error: 'pin must be 4-6 digits' }, 400);
-
-  const { hash, salt } = await hashPin(String(pin), null);
-  await env.DB.prepare(
-    'INSERT INTO students (username, display_name, pin_hash, pin_salt, class_code) VALUES (?1,?2,?3,?4,?5)'
-  ).bind(username, displayName || username, hash, salt, classCode || null).run();
-  return json({ ok: true, username });
-}
-
-async function adminReport(req, env) {
-  if (!isAdmin(req, env)) return json({ error: 'forbidden' }, 403);
-  const r = await env.DB.prepare(
-    `SELECT s.display_name, s.username, s.class_code, s.stars, s.streak_days,
-            ROUND(s.seconds_total / 60.0) AS minutes, s.last_seen_on,
-            (SELECT COUNT(*) FROM progress p
-              WHERE p.student_id = s.id AND p.completed_at IS NOT NULL) AS done,
-            (SELECT COUNT(*) FROM student_badges sb WHERE sb.student_id = s.id) AS badges
-       FROM students s ORDER BY s.stars DESC`
-  ).all();
-  return json({ students: r.results || [] });
-}
-
-/* ========================================================================== */
-/* content: pull the chapter HTML out of GitHub and serve it as ours          */
-/* ========================================================================== */
-
-async function contentProxy(req, env, ctx, slug) {
-  if (!(await me(req, env))) return framed('<p style="font-family:system-ui;padding:20px">Please sign in again.</p>', 403);
-
-  const a = await env.DB.prepare('SELECT file FROM activities WHERE slug=?1 AND published=1').bind(slug).first();
-  if (!a) return framed('<p style="font-family:system-ui;padding:20px">This activity is not set up yet.</p>', 404);
-
-  if (a.file === 'builtin:greetings-match') return framed(GREETINGS_MATCH_HTML);
-
-  const user = env.GH_USER || GH.user;
-  const repo = env.GH_REPO || GH.repo;
-  const branch = env.GH_BRANCH || GH.branch;
-  const path = a.file.split('/').map(encodeURIComponent).join('/');
-  const raw = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`;
-
-  const cache = caches.default;
-  const key = new Request(raw, { method: 'GET' });
-  let res = await cache.match(key);
-
-  if (!res) {
-    const up = await fetch(raw, { cf: { cacheTtl: CACHE_MINUTES * 60 } });
-    if (!up.ok) {
-      return framed(`<div style="font-family:system-ui;padding:24px;line-height:1.6">
-        <h2>This lesson could not be loaded</h2>
-        <p>GitHub replied <b>${up.status}</b> for:</p>
-        <p style="word-break:break-all"><code>${esc(raw)}</code></p>
-        <p>Check that the file exists at exactly that path, that the repo is public,
-        and that the branch name is right.</p></div>`, 200);
-    }
-    res = new Response(await up.text(), { headers: {
-      'content-type': 'text/html; charset=utf-8',
-      'cache-control': `public, max-age=${CACHE_MINUTES * 60}`,
-    }});
-    ctx.waitUntil(cache.put(key, res.clone()));
-  }
-  return res;
-}
-
-/* --------------------------------------------------------------------------
-   Audio. Lessons are served from /content/..., so a relative audio path lands
-   back on this Worker rather than on GitHub - this route forwards it.
-   Files live in the repo under  audio/<whatever>/<name>.m4a
-   Cached hard at the edge: recordings change far less often than lessons.
-   -------------------------------------------------------------------------- */
-const AUDIO_TYPES = { m4a: 'audio/mp4', mp3: 'audio/mpeg', ogg: 'audio/ogg',
-                      wav: 'audio/wav', aac: 'audio/aac', webm: 'audio/webm' };
-
-async function audioProxy(req, env, ctx, path) {
-  if (path.includes('..')) return new Response('No.', { status: 400 });
-
-  const ext = path.split('.').pop().toLowerCase();
-  const type = AUDIO_TYPES[ext];
-  if (!type) return new Response('Not an audio file.', { status: 404 });
-
-  const user = env.GH_USER || GH.user;
-  const repo = env.GH_REPO || GH.repo;
-  const branch = env.GH_BRANCH || GH.branch;
-  const safe = path.split('/').map(decodeURIComponent).map(encodeURIComponent).join('/');
-  const raw = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/audio/${safe}`;
-
-  const cache = caches.default;
-  const key = new Request(raw, { method: 'GET' });
-  let res = await cache.match(key);
-
-  if (!res) {
-    const up = await fetch(raw, { cf: { cacheTtl: 86400, cacheEverything: true } });
-    if (!up.ok) return new Response('Recording not found.', { status: 404 });
-    res = new Response(up.body, { headers: {
-      'content-type': type,
-      'cache-control': 'public, max-age=86400',
-      'accept-ranges': 'bytes',
-    }});
-    ctx.waitUntil(cache.put(key, res.clone()));
-  }
-  return res;
-}
-
-/* ========================================================================== */
-/* pages                                                                      */
-/* ========================================================================== */
-
-const CSS = `
-/* --------------------------------------------------------------------------
-   Palette from the Speak Ghana mark. Gold, forest green and flag red lead;
-   each chapter then gets its own hue from a kente-derived ramp so a child
-   navigates by colour before they can navigate by reading.
-   -------------------------------------------------------------------------- */
-:root{--gold:#C8901E;--green:#14563A;--red:#A81B1B;
-  --ink:#14261D;--soft:#5A6B60;--cream:#FBF6EC;--card:#fff;--line:#14563A;--dim:#EFE7D7;
-  --clay:var(--red);--leaf:var(--green);--indigo:var(--green);
-  --shadow:0 3px 0 rgba(20,86,58,.20),0 12px 26px -14px rgba(20,38,29,.45)}
-html[data-theme="dark"]{--gold:#E9B44C;--green:#4FB380;--red:#E8674F;
-  --ink:#EDF3EE;--soft:#9DB0A4;--cream:#0E1A14;--card:#182A22;--line:#31503F;--dim:#1E3529;
-  --shadow:0 3px 0 rgba(0,0,0,.45),0 12px 26px -14px rgba(0,0,0,.8)}
-html[data-big="1"]{font-size:20px}
-
-*{box-sizing:border-box}
-body{margin:0;background:var(--cream);color:var(--ink);
-  font-family:"Nunito",system-ui,sans-serif;font-size:17px;line-height:1.5;
-  -webkit-text-size-adjust:100%;overflow-x:hidden}
-h1,h2,h3{font-family:"Baloo 2","Nunito",cursive;font-weight:800;margin:0;letter-spacing:-.01em}
-a{color:inherit;text-decoration:none}
-button{font:inherit;cursor:pointer;color:inherit}
-:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:8px}
-
-/* Adinkra-ish confetti in the page background: quiet, never behind text. */
-body::before{content:"";position:fixed;inset:0;z-index:-1;opacity:.05;pointer-events:none;
-  background-image:radial-gradient(circle at 12% 18%,var(--green) 0 7px,transparent 8px),
-    radial-gradient(circle at 82% 30%,var(--red) 0 6px,transparent 7px),
-    radial-gradient(circle at 28% 72%,var(--gold) 0 8px,transparent 9px),
-    radial-gradient(circle at 68% 88%,var(--green) 0 5px,transparent 6px);
-  background-size:340px 340px}
-
-.kente{height:10px;display:flex;overflow:hidden}
-.kente i{flex:1 0 16px;height:100%}
-.kente i:nth-child(4n+1){background:var(--gold)}
-.kente i:nth-child(4n+2){background:var(--green)}
-.kente i:nth-child(4n+3){background:var(--red)}
-.kente i:nth-child(4n+4){background:var(--gold)}
-
-.wrap{max-width:900px;margin:0 auto;padding:0 16px 70px}
-.logo{display:inline-flex;align-items:center;gap:11px}
-.logo svg{width:42px;height:42px;flex:0 0 auto}
-.logo .name{font-family:"Baloo 2",cursive;font-weight:800;line-height:.98}
-.logo .name b{display:block;font-size:20px;color:var(--gold)}
-.logo .name i{display:block;font-size:16px;font-style:normal;color:var(--green)}
-
-/* ---------- the greeting banner ---------- */
-.hero{background:var(--card);border:3px solid var(--line);border-radius:26px;
-  box-shadow:var(--shadow);padding:20px;margin-top:16px;
-  display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.hero h1{font-size:30px;line-height:1.1}
-.hero .who{flex:1;min-width:180px}
-.hero p{margin:6px 0 0;color:var(--soft);font-size:15px;font-weight:700}
-.tiles{display:flex;gap:10px;flex-wrap:wrap}
-.tile{background:var(--dim);border:2px solid var(--line);border-radius:18px;
-  padding:9px 14px;text-align:center;min-width:74px}
-.tile b{display:block;font-family:"Baloo 2",cursive;font-size:23px;line-height:1}
-.tile span{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
-  color:var(--soft)}
-.tools{display:flex;gap:8px;margin-left:auto}
-.tool{width:46px;height:46px;border:2px solid var(--line);border-radius:15px;
-  background:var(--card);font-size:20px;display:grid;place-items:center;box-shadow:0 3px 0 var(--line)}
-.tool:active{transform:translateY(3px);box-shadow:none}
-
-/* ---------- resume ---------- */
-.resume{display:flex;align-items:center;gap:16px;margin-top:16px;padding:18px 20px;
-  border:3px solid var(--line);border-radius:24px;background:var(--gold);color:#3A2A05;
-  box-shadow:var(--shadow)}
-.resume .big{font-size:34px;line-height:1}
-.resume h3{font-size:21px}
-.resume small{font-weight:800;text-transform:uppercase;font-size:11px;letter-spacing:.09em;opacity:.75}
-.resume .arrow{margin-left:auto;font-size:26px}
-
-/* ---------- chapters as a climbing path ---------- */
-.ch{position:relative;margin-top:26px;padding-left:64px}
-.ch::before{content:"";position:absolute;left:26px;top:0;bottom:-26px;width:6px;
-  background:var(--dim);border-radius:6px}
-.ch:last-of-type::before{bottom:50%}
-.num{position:absolute;left:0;top:2px;width:56px;height:56px;border-radius:50%;
-  display:grid;place-items:center;font-family:"Baloo 2",cursive;font-size:25px;color:#fff;
-  border:3px solid var(--line);box-shadow:0 3px 0 var(--line);z-index:1}
-.ch.locked .num{background:var(--dim)!important;color:var(--soft)}
-.ch header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:56px}
-.ch h2{font-size:24px}
-.ch .twi{font-weight:800;font-size:15px;opacity:.8}
-.pill{margin-left:auto;background:var(--card);border:2px solid var(--line);border-radius:99px;
-  padding:4px 12px;font-size:12px;font-weight:800}
-.beads{display:flex;gap:5px;margin:10px 0 2px}
-.beads i{width:20px;height:12px;border-radius:4px;background:var(--dim);border:2px solid var(--line)}
-
-.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin-top:12px}
-.card{background:var(--card);border:3px solid var(--line);border-radius:22px;padding:16px;
-  box-shadow:var(--shadow);display:flex;flex-direction:column;gap:7px;position:relative;
-  overflow:hidden;transition:transform .14s ease}
-.card::after{content:"";position:absolute;right:-26px;top:-26px;width:66px;height:66px;
-  border-radius:50%;opacity:.16;background:currentColor}
-.card:hover,.card:focus-visible{transform:translateY(-4px) rotate(-.6deg)}
-.card .ico{font-size:29px;line-height:1}
-.card h3{font-size:19px}
-.card p{margin:0;font-size:14px;color:var(--soft);flex:1}
-.kind{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.09em}
-.stars{font-size:19px;letter-spacing:3px;color:var(--gold)}
-.stars b{color:var(--dim);font-weight:400}
-.card.is-finished{border-style:solid}
-.tick{position:absolute;top:10px;right:12px;font-size:17px}
-.soon{border:3px dashed var(--line);background:var(--dim);color:var(--soft);border-radius:22px;
-  padding:18px;font-size:14px;font-weight:700;text-align:center}
-
-/* ---------- badges ---------- */
-.badges{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));margin-top:12px}
-.badge{border:3px dashed var(--line);border-radius:20px;padding:14px 10px;text-align:center;
-  color:var(--soft);background:var(--dim)}
-.badge .ic{font-size:30px;filter:grayscale(1);opacity:.5}
-.badge b{display:block;font-family:"Baloo 2",cursive;font-size:16px;margin-top:4px}
-.badge small{font-size:12px;line-height:1.3;display:block;margin-top:3px}
-.badge.on{border-style:solid;background:var(--gold);color:#3A2A05}
-.badge.on .ic{filter:none;opacity:1}
-
-/* ---------- class list ---------- */
-.lb{list-style:none;padding:0;margin:12px 0 0}
-.lb li{display:flex;align-items:center;gap:12px;padding:11px 15px;background:var(--card);
-  border:3px solid var(--line);border-radius:18px;margin-bottom:9px;font-weight:800}
-.lb li.you{background:var(--gold);color:#3A2A05}
-.lb .rank{font-family:"Baloo 2",cursive;font-size:21px;width:1.5em}
-.lb .who{flex:1}
-
-/* ---------- sign in ---------- */
-.login{min-height:100dvh;display:grid;place-items:center;padding:22px}
-.login form{background:var(--card);border:4px solid var(--line);border-radius:30px;padding:30px;
-  width:min(430px,100%);box-shadow:var(--shadow);text-align:center}
-.login .logo{flex-direction:column;gap:8px;margin-bottom:8px}
-.login .logo svg{width:88px;height:88px}
-.login .logo .name b{font-size:28px}.login .logo .name i{font-size:22px}
-.login h1{font-size:40px;color:var(--green)}
-.login .sub{color:var(--soft);margin:4px 0 18px;font-weight:700}
-label{display:block;font-weight:800;font-size:14px;margin:15px 0 6px;text-align:left}
-input{width:100%;padding:14px;font:inherit;border:3px solid var(--line);border-radius:16px;
-  background:var(--card);color:var(--ink)}
-input[inputmode=numeric]{letter-spacing:.55em;font-size:26px;text-align:center;
-  font-family:"Baloo 2",cursive}
-.go{width:100%;margin-top:20px;padding:16px;border:none;border-radius:16px;background:var(--red);
-  color:#fff;font-family:"Baloo 2",cursive;font-size:23px;font-weight:800;box-shadow:0 5px 0 #6E1111}
-.go:active{transform:translateY(4px);box-shadow:0 1px 0 #6E1111}
-.err{margin-top:14px;padding:11px;border-radius:14px;background:#FCE4E2;color:#8E2621;
-  font-weight:800;font-size:14px}
-.founder{margin:18px 0 0;padding-top:15px;border-top:3px solid var(--dim);
-  font-size:12px;color:var(--soft);line-height:1.45;font-weight:700}
-
-/* ---------- activity frame ---------- */
-.play{display:flex;flex-direction:column;height:100dvh}
-.play .top{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card);
-  border-bottom:3px solid var(--line)}
-.play .top h1{font-size:18px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.play .top .logo .name{display:none}
-@media(min-width:520px){.play .top .logo .name{display:block}}
-.back{border:3px solid var(--line);background:var(--card);border-radius:14px;padding:8px 14px;
-  font-weight:800;box-shadow:0 3px 0 var(--line)}
-.back:active{transform:translateY(3px);box-shadow:none}
-.play iframe{flex:1;width:100%;border:0;background:var(--card)}
-/* Completion overlay. Named sg-overlay, NOT .done - a card that is finished
-   carries .done, and a shared name made the finished card cover the screen. */
-.sg-overlay{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;
-  justify-content:center;background:rgba(10,26,18,.78);padding:22px;z-index:999;
-  overflow-y:auto;-webkit-overflow-scrolling:touch}
-.sg-overlay>div{background:var(--card);border:4px solid var(--gold);border-radius:30px;padding:30px;
-  text-align:center;max-width:350px;animation:pop .3s ease}
-@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-.chip{background:var(--card);border:2px solid var(--line);border-radius:99px;padding:6px 12px;
-  font-weight:800;font-size:14px;box-shadow:0 2px 0 var(--line)}
-.prog{height:14px;border-radius:99px;overflow:hidden;background:var(--dim);display:flex}
-.prog i{flex:1 0 auto;height:100%;border-right:2px solid var(--cream)}
-.bar{display:flex;align-items:center;gap:12px;padding:14px 0}
-.hello{flex:1;min-width:0}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--card);
-  border:3px solid var(--line);border-radius:18px;padding:14px 20px;box-shadow:var(--shadow);
-  font-weight:800;z-index:9;max-width:90vw;text-align:center}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-`;
-
-const FONTS = `<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">`;
-
-
-/* --------------------------------------------------------------------------
-   The Speak Ghana mark, rebuilt as inline SVG so it costs no image request,
-   stays sharp at any size, sits on any background, and recolours itself in
-   dark mode. currentColor is not used: the three brand colours are named
-   explicitly via CSS variables so the mark stays on-brand in both themes.
-   -------------------------------------------------------------------------- */
-const MARK = `<svg viewBox="0 0 120 120" role="img" aria-label="Speak Ghana"
-  xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linecap="round">
-  <g stroke="var(--gold)" stroke-width="7">
-    <path d="M30 32 C14 50 14 74 30 92"/>
-    <path d="M90 32 C106 50 106 74 90 92"/>
-  </g>
-  <g stroke="var(--red)" stroke-width="7">
-    <path d="M45 26 L52 38"/>
-    <path d="M75 26 L68 38"/>
-    <path d="M45 98 L52 86"/>
-    <path d="M75 98 L68 86"/>
-  </g>
-  <g stroke="var(--gold)" stroke-width="8">
-    <path d="M44 30 C26 48 26 76 44 94"/>
-    <path d="M76 30 C94 48 94 76 76 94"/>
-  </g>
-  <circle cx="60" cy="62" r="21" stroke="var(--green)" stroke-width="11"/>
-  <path d="M60 41 L60 83" stroke="var(--cream)" stroke-width="15"/>
-  <path d="M60 30 L60 100" stroke="var(--gold)" stroke-width="8"/>
-  <circle cx="60" cy="25" r="11" stroke="var(--gold)" stroke-width="8"/>
-</svg>`;
-
-/* Lockup: mark plus the wordmark, in the logo's own two-tone treatment. */
-const LOGO = (cls = '') => `<a class="logo ${cls}" href="/learn">${MARK}
-  <span class="name"><b>Speak</b><i>Ghana</i></span></a>`;
-
-const STRIP = '<div class="kente">' + '<i></i>'.repeat(32) + '</div>';
-
-/* Theme is set on <html> before the stylesheet paints, so a child who chose
-   dark never sees a white flash on load. */
-const THEME_BOOT = `<script>(function(){try{
-  var t=localStorage.getItem('sg_theme'), b=localStorage.getItem('sg_big');
-  if(!t&&matchMedia('(prefers-color-scheme:dark)').matches)t='dark';
-  if(t)document.documentElement.dataset.theme=t;
-  if(b==='1')document.documentElement.dataset.big='1';
-}catch(e){}})();<\/script>`;
-
-const head = (t) => `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<title>${esc(t)} · Speak Ghana Kids</title>${THEME_BOOT}${FONTS}<style>${CSS}</style></head>`;
-
-const LOGIN_HTML = `${head('Sign in')}<body>${STRIP}
-<main class="login"><form id="f" novalidate>
-  ${LOGO()}
-  <h1>Akwaaba!</h1>
-  <p class="sub">Sign in to learn Twi.</p>
-  <label for="u">Your name</label>
-  <input id="u" autocomplete="username" autocapitalize="none" spellcheck="false" required>
-  <label for="p">Your secret number</label>
-  <input id="p" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" required>
-  <button class="go" type="submit">Let's go</button>
-  <p class="err" id="e" hidden></p>
-  <p class="founder">Speak Ghana Language School<br>
-    Founded by Richard Asiamah</p>
-</form></main>
-<script>
-const f=document.getElementById('f'),e=document.getElementById('e'),p=document.getElementById('p');
-f.onsubmit=async(ev)=>{ev.preventDefault();e.hidden=true;
-  const r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},
-    body:JSON.stringify({username:document.getElementById('u').value,pin:p.value})});
-  const d=await r.json().catch(()=>({}));
-  if(r.ok){location.href='/learn';return}
-  e.textContent=d.error||'Something went wrong.';e.hidden=false;p.value='';p.focus();};
-</script></body></html>`;
-
-function learnHTML(name) {
-  return `${head('Learn')}<body>${STRIP}
-<div class="wrap">
-  <div style="padding-top:14px">${LOGO()}</div>
-
-  <div class="hero">
-    <div class="who"><h1>Akwaaba, ${esc(name)}!</h1><p id="line"></p></div>
-    <div class="tiles">
-      <div class="tile"><b id="tStars">0</b><span>Stars</span></div>
-      <div class="tile"><b id="tStreak">0</b><span>Day run</span></div>
-      <div class="tile"><b id="tBadges">0</b><span>Badges</span></div>
-    </div>
-    <div class="tools">
-      <button class="tool" id="theme" aria-label="Change how the screen looks">🌙</button>
-      <button class="tool" id="big" aria-label="Make the words bigger">🔍</button>
-      <button class="tool" id="out" aria-label="Sign out">👋</button>
-    </div>
-  </div>
-
-  <div id="resume"></div>
-  <div id="list"></div>
-
-  <h2 style="margin-top:34px;font-size:25px">Your badges</h2>
-  <div class="badges" id="badges"></div>
-
-  <h2 style="margin-top:34px;font-size:25px">Your class</h2>
-  <ol class="lb" id="lb"></ol>
-</div>
-<script>
-/* Each chapter owns a hue, so a child finds "the orange one" before they can
-   read "Fruits". The ramp is kente-derived and loops every eight chapters. */
-const HUES=['#C8901E','#14563A','#A81B1B','#1D6E8C','#8A4B12','#5B2E86','#0F7A57','#B03A6A'];
-const ICON={lesson:'📖',game:'🎲',quiz:'🏁',audio:'🎧'};
-const KIND={lesson:'Lesson',game:'Game',quiz:'Quiz',audio:'Listen'};
-const $=(i)=>document.getElementById(i);
-const starRow=(g,m)=>{let s='';for(let i=0;i<m;i++)s+=i<g?'★':'<b>★</b>';return s};
-const esc=(v)=>String(v==null?'':v).replace(/[&<>"']/g,
-  (c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-function savePrefs(theme,big){
-  localStorage.setItem('sg_theme',theme);localStorage.setItem('sg_big',big?'1':'0');
-  fetch('/api/prefs',{method:'POST',headers:{'content-type':'application/json'},
-    body:JSON.stringify({theme:theme,bigText:big})}).catch(()=>{});
-}
-const applyTheme=(t)=>{document.documentElement.dataset.theme=t;
-  $('theme').textContent=t==='dark'?'☀️':'🌙'};
-const applyBig=(b)=>{if(b)document.documentElement.dataset.big='1';
-  else delete document.documentElement.dataset.big};
-
-$('theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';
-  applyTheme(t);savePrefs(t,localStorage.getItem('sg_big')==='1')};
-$('big').onclick=()=>{const b=!(localStorage.getItem('sg_big')==='1');
-  applyBig(b);savePrefs(document.documentElement.dataset.theme||'light',b)};
-$('out').onclick=async()=>{await fetch('/api/logout',{method:'POST'});location.href='/'};
-
-// Coming back from a lesson restores this page from the browser's cache,
-// stars and all, frozen as it was before the child played. Redraw instead.
-addEventListener('pageshow',function(e){if(e.persisted)location.reload()});
-
-async function draw(){
-  const r=await fetch('/api/me'); if(r.status===401){location.href='/';return}
-  const d=await r.json();
-
-  applyTheme(d.student.theme); applyBig(!!d.student.bigText);
-  localStorage.setItem('sg_theme',d.student.theme);
-  localStorage.setItem('sg_big',d.student.bigText?'1':'0');
-
-  const badges=d.badges||[], rows=d.rows||[];
-  const earned=badges.filter(b=>b.earned_at).length;
-  $('tStars').textContent=d.student.stars;
-  $('tStreak').textContent=d.student.streak;
-  $('tBadges').textContent=earned;
-
-  const bits=[];
-  if(d.student.streak>1)bits.push(d.student.streak+' days in a row');
-  if(d.student.minutes>0)bits.push(d.student.minutes+' minutes of Twi');
-  $('line').textContent=bits.length?bits.join(' \u00b7 '):'Ready to learn some Twi?';
-
-  // Group rows into chapters. A chapter with no activities still appears,
-  // so a child sees what is coming next.
-  const order=[], ch={};
-  rows.forEach(function(x){
-    const id=x.chapter_id;
-    if(!ch[id]){ch[id]={title:x.chapter||('Chapter '+id),twi:x.twi_title,items:[]};order.push(id)}
-    if(x.slug)ch[id].items.push(x);
-  });
-
-  $('list').innerHTML=order.map(function(id,n){
-    const c=ch[id], hue=HUES[n%HUES.length];
-    const done=c.items.filter(a=>a.completed_at).length;
-    const empty=c.items.length===0;
-    const beads=empty?'':'<div class="beads">'+c.items.map(function(a){
-      return '<i style="background:'+(a.completed_at?hue:'var(--dim)')+'"></i>'}).join('')+'</div>';
-    const body=empty
-      ? '<div class="soon">Nothing here yet \u2014 new activities are coming soon.</div>'
-      : '<div class="grid">'+c.items.map(function(a){
-          return '<a class="card'+(a.completed_at?' is-finished':'')+'" style="color:'+hue+'"'
-            +' href="/play/'+encodeURIComponent(a.slug)+'">'
-            +(a.completed_at?'<span class="tick">\u2705</span>':'')
-            +'<span class="ico">'+(ICON[a.kind]||'\u2b50')+'</span>'
-            +'<span class="kind" style="color:'+hue+'">'+(KIND[a.kind]||a.kind||'')+'</span>'
-            +'<h3 style="color:var(--ink)">'+esc(a.title)+'</h3>'
-            +'<p>'+esc(a.blurb||'')+'</p>'
-            +'<span class="stars">'+starRow(a.stars||0,a.star_value||3)+'</span></a>'}).join('')+'</div>';
-    return '<section class="ch'+(empty?' locked':'')+'">'
-      +'<span class="num" style="background:'+hue+'">'+id+'</span>'
-      +'<header><div><h2>'+esc(c.title)+'</h2>'
-      +(c.twi?'<span class="twi" style="color:'+hue+'">'+esc(c.twi)+'</span>':'')+'</div>'
-      +(empty?'':'<span class="pill">'+done+' / '+c.items.length+'</span>')+'</header>'
-      +beads+body+'</section>';
-  }).join('');
-
-  // Only offer "carry on" once the chapters are actually on screen, so a
-  // rendering failure can never leave this card as the only thing to click.
-  $('resume').innerHTML=d.next
-    ? '<a class="resume" href="/play/'+encodeURIComponent(d.next.slug)+'">'
-      +'<span class="big">\ud83d\ude80</span><span><small>Carry on</small>'
-      +'<h3>'+esc(d.next.title)+'</h3></span><span class="arrow">\u2192</span></a>' : '';
-
-  $('badges').innerHTML=badges.map(function(b){
-    return '<div class="badge'+(b.earned_at?' on':'')+'"><div class="ic">'+b.icon+'</div>'
-      +'<b>'+esc(b.title)+'</b><small>'+esc(b.hint)+'</small></div>'}).join('');
-
-  try{
-    const lb=await (await fetch('/api/leaderboard')).json();
-    $('lb').innerHTML=(lb.top||[]).map(function(p,i){
-      return '<li class="'+(p.id===lb.me?'you':'')+'"><span class="rank">'
-        +(['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'][i]||(i+1))+'</span>'
-        +'<span class="who">'+esc(p.display_name)+'</span><span>\u2b50 '+p.stars+'</span></li>'}).join('');
-  }catch(err){ $('lb').innerHTML=''; }
-}
-
-draw().catch(function(err){
-  $('list').innerHTML='<div class="soon">Something went wrong loading your lessons.<br>'
-    +'<button class="chip" style="margin-top:10px" onclick="location.reload()">Try again</button>'
-    +'<br><small style="opacity:.7">'+esc(String(err&&err.message||err))+'</small></div>';
-});
-<\/script></body></html>`;
-}
-
-async function learnPage(req, env) {
-  const s = await me(req, env);
-  if (!s) return Response.redirect(new URL('/', req.url).toString(), 302);
-  return page(learnHTML(s.display_name));
-}
-
-async function playPage(req, env, slug) {
-  const s = await me(req, env);
-  if (!s) return Response.redirect(new URL('/', req.url).toString(), 302);
-
-  const a = await env.DB.prepare('SELECT slug, title FROM activities WHERE slug=?1 AND published=1')
-    .bind(slug).first();
-  if (!a) return page(`${head('Not here')}<body><div class="wrap"><h1>That activity is not ready yet.</h1>
-    <p><a class="back" href="/learn">← Back to my lessons</a></p></div></body></html>`, 404);
-
-  return page(`${head(a.title)}<body>
-<div class="play">
-  <div class="top"><a class="back" href="/learn">← Back</a><h1>${esc(a.title)}</h1>${LOGO()}</div>
-  <iframe id="frame" src="/content/${esc(a.slug)}" title="${esc(a.title)}"
-    sandbox="allow-scripts allow-same-origin" allow="autoplay"></iframe>
-</div>
-<script>
-const SLUG=${JSON.stringify(a.slug)};let saved=false;
-// Only count time while the tab is actually in front of the child.
-let active=Date.now(),spent=0;
-document.addEventListener('visibilitychange',()=>{
-  if(document.hidden){spent+=Date.now()-active}else{active=Date.now()}});
-addEventListener('message',async(ev)=>{
-  const m=ev.data||{}; if(m.type!=='sg:complete'||saved)return; saved=true;
-  if(!document.hidden)spent+=Date.now()-active;
-  const r=await fetch('/api/progress',{method:'POST',headers:{'content-type':'application/json'},
-    body:JSON.stringify({slug:SLUG,score:m.score,maxScore:m.maxScore,
-      seconds:Math.round(spent/1000)})});
-  const d=await r.json().catch(()=>({}));
-  const box=document.createElement('div');box.className='done';
-  box.innerHTML='<div><h2 style="font-size:30px">Yɛ adeɛ pa!</h2>'
-    +'<p style="font-size:22px;color:var(--gold)">'+'★'.repeat(d.stars||0)+'</p>'
-    +'<p>You scored '+m.score+' out of '+m.maxScore+'.</p>'
-    +((d.newBadges||[]).length
-      ? '<p style="font-size:15px">New badge: '
-        +d.newBadges.map(b=>b.icon+' <b>'+b.title+'</b>').join(', ')+'</p>' : '')
-    +'<p style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
-    +'<button class="back" id="sgBack">Back to my lessons</button>'
-    +'<button class="back" id="sgAgain">Play again</button></p></div>';
-  document.body.appendChild(box);
-  document.getElementById('sgBack').onclick=function(){location.href='/learn'};
-  document.getElementById('sgAgain').onclick=function(){location.reload()};
-  // Tapping the dark area just closes the panel - never trap a child behind it.
-  box.addEventListener('click',function(ev){if(ev.target===box)box.remove()});
-});
-</script></body></html>`);
-}
-
-/* ========================================================================== */
-/* built-in activity: Greeting match                                          */
-/* Kept inside the Worker as the working reference. Every GitHub activity      */
-/* follows the same shape — play, then postMessage the score once.            */
-/* ========================================================================== */
-
-const GREETINGS_MATCH_HTML = `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Greeting match</title>${FONTS}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Twi Alphabet Adventure</title>
+<!--
+  Speak Ghana Kids Portal - activity file
+  Repo path : Twi Alphabets/kidsalphabets.html
+  Slug      : twi-alphabet
+  Reports its score to the portal automatically. Nothing to edit.
+-->
 <style>
-:root{--ink:#1C1633;--soft:#4A4166;--gold:#F2B705;--clay:#C1362F;--leaf:#17643B;--indigo:#21274D;--cream:#FDF3E3}
-*{box-sizing:border-box}
-body{margin:0;padding:22px 18px 40px;background:var(--cream);color:var(--ink);
-  font-family:"Nunito",system-ui,sans-serif;font-size:18px;text-align:center}
-h1{font-family:"Baloo 2",cursive;font-size:27px;margin:0 0 4px}
-.sub{color:var(--soft);margin:0 0 14px;font-size:15px}
-.hear{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:7px 18px;
-  font-weight:800;font-size:14px;color:#4d2f12;margin:0 auto 16px;display:inline-block}
-button.opt.playing{box-shadow:0 0 0 4px var(--leaf),0 4px 0 var(--ink)}
-.say{background:none;border:none;font-size:26px;cursor:pointer;padding:2px 6px;line-height:1}
-.sky{width:min(300px,80vw);aspect-ratio:2/1;margin:0 auto;border-radius:150px 150px 0 0;
-  position:relative;overflow:hidden;border:3px solid var(--ink);border-bottom:none;background:#DCEBF7}
-.sun{position:absolute;width:52px;height:52px;border-radius:50%;background:var(--gold);
-  border:3px solid var(--ink);bottom:-8px;transition:left .5s ease,bottom .5s ease}
-.ground{width:min(300px,80vw);height:14px;margin:0 auto 20px;background:var(--leaf);
-  border:3px solid var(--ink);border-radius:0 0 10px 10px}
-.opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:520px;margin:0 auto}
-button.opt{font-family:"Baloo 2",cursive;font-size:22px;font-weight:700;padding:14px 24px;
-  border:3px solid var(--ink);border-radius:18px;background:#fff;cursor:pointer;box-shadow:0 4px 0 var(--ink)}
-button.opt:active{transform:translateY(4px);box-shadow:0 0 0 var(--ink)}
-button.opt.right{background:var(--leaf);color:#fff}
-button.opt.wrong{background:var(--clay);color:#fff}
-.score{margin-top:22px;font-weight:800;color:var(--soft);min-height:2.6em}
-.fin{font-family:"Baloo 2",cursive;font-size:22px;padding:14px 26px;border:none;border-radius:16px;
-  background:var(--clay);color:#fff;box-shadow:0 4px 0 #8E2621;cursor:pointer}
-:focus-visible{outline:3px solid var(--indigo);outline-offset:3px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-</style></head><body>
-<h1>Greeting match</h1>
-<p class="sub">Look at where the sun is. Pick the right greeting.</p>
-<p class="hear">🔊 Tap a greeting to hear it first</p>
-<div class="sky"><div class="sun" id="sun"></div></div>
-<div class="ground"></div>
-<div class="opts" id="opts"></div>
-<p class="score" id="score"></p>
-<div id="done" hidden><button class="fin" onclick="finish()">I'm finished</button></div>
-<script>
-/* Recordings live in the repo at audio/greetings/<name>.m4a and are served
-   through the Worker's /audio/ route. Missing file = silent tap, no error. */
-var SOUND={'Maakye':'maakye','Maaha':'maaha','Maadwo':'maadwo'};
-var playing=null,playEl=null;
-function say(word,el){
-  var f=SOUND[word]; if(!f)return;
-  if(playing){playing.pause()}
-  if(playEl){playEl.classList.remove('playing')}
-  var a=new Audio('/audio/greetings/'+f+'.m4a');
-  playing=a; playEl=el||null;
-  if(el)el.classList.add('playing');
-  var stop=function(){if(el)el.classList.remove('playing')};
-  a.addEventListener('ended',stop); a.addEventListener('error',stop);
-  a.play().catch(stop);
-}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:14px 12px 40px;color:#2d1b0a}
+  .card{max-width:1000px;margin:0 auto;background:#FFF8E6;border-radius:34px;
+    box-shadow:0 12px 26px rgba(0,0,0,.13);padding:20px 16px 26px;border:6px solid #C8901E}
+  h1{font-size:2rem;text-align:center;color:#A81B1B;text-shadow:3px 3px 0 #feda7a;line-height:1.2}
+  .subhead{display:block;text-align:center;font-size:1.05rem;font-weight:bold;color:#4d2f12;
+    background:#ffe39c;padding:6px 20px;border-radius:60px;margin:12px auto 4px;max-width:340px;
+    border:3px solid #f8b86a}
 
-const R=[{a:'Maakye',l:8,b:-8,g:'Good morning'},{a:'Maaha',l:46,b:52,g:'Good afternoon'},
-  {a:'Maadwo',l:82,b:-8,g:'Good evening'},{a:'Maaha',l:46,b:52,g:'Good afternoon'},
-  {a:'Maakye',l:8,b:-8,g:'Good morning'}];
-const C=['Maakye','Maaha','Maadwo'];
-let i=0,score=0,lock=false;
-const sun=document.getElementById('sun'),opts=document.getElementById('opts'),sc=document.getElementById('score');
-function draw(){const r=R[i];sun.style.left=r.l+'%';sun.style.bottom=r.b+'px';lock=false;opts.innerHTML='';
-  C.forEach(c=>{
-    const b=document.createElement('button');b.className='opt';b.textContent=c;
-    b.onclick=()=>pick(b,c,r);
-    /* A small speaker beside each word: hearing it before choosing is the
-       point of the exercise, not a hint. */
-    const sp=document.createElement('button');sp.className='say';sp.type='button';
-    sp.textContent='🔊';sp.setAttribute('aria-label','Hear '+c);
-    sp.onclick=(e)=>{e.stopPropagation();say(c,b)};
-    const wrap=document.createElement('span');
-    wrap.style.cssText='display:inline-flex;align-items:center;gap:2px';
-    wrap.appendChild(b);wrap.appendChild(sp);
-    opts.appendChild(wrap)});
-  sc.textContent='Question '+(i+1)+' of '+R.length}
-function pick(btn,c,r){if(lock)return;lock=true;const ok=c===r.a;if(ok)score++;
-  btn.classList.add(ok?'right':'wrong');
-  say(r.a);
-  opts.querySelectorAll('button.opt').forEach(b=>{b.disabled=true;
-    if(!ok&&b.textContent===r.a)b.classList.add('right')});
-  opts.querySelectorAll('button.say').forEach(b=>{b.disabled=true});
-  sc.textContent=ok?'Yes! '+r.a+' means '+r.g+'.':r.a+' is the one — it means '+r.g+'.';
-  setTimeout(()=>{i++;if(i<R.length)draw();else{opts.innerHTML='';
-    sc.textContent='You got '+score+' out of '+R.length+'.';document.getElementById('done').hidden=false}},1400)}
-function finish(){parent.postMessage({type:'sg:complete',score:score,maxScore:R.length},'*')}
-draw();
-<\/script></body></html>`;
+  .banner{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;background:#d9e9b0;
+    padding:14px 12px;border-radius:26px;margin:16px 0;border:5px solid #14563A}
+  .lc{font-size:1.35rem;font-weight:bold;background:#fff;padding:3px 12px;border-radius:40px;
+    color:#1f3a2f;min-width:42px;text-align:center;box-shadow:0 3px 0 #b0a58b}
+  .lc.red{background:#ffb3b3;color:#a10000;border:2px solid #A81B1B;box-shadow:0 0 0 3px #ffd966}
 
-/* ========================================================================== */
-/* teacher page — /admin                                                      */
-/* The token is typed once and kept in this browser tab's storage; it is sent */
-/* as a header on each request and never stored in the database.              */
-/* ========================================================================== */
+  .stars2{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;background:#fcedd3;
+    border-radius:26px;padding:14px;margin:16px 0;border:5px solid #ed9a4a}
+  .star{display:flex;align-items:center;gap:12px;font-size:1.05rem;background:#fff1c7;
+    padding:10px 18px;border-radius:50px;border:3px solid #f7b86a;flex:1 1 260px}
+  .star .bub{width:56px;height:56px;border-radius:50%;background:#FFD966;border:3px solid #b45f2b;
+    display:grid;place-items:center;font-size:2rem;font-weight:bold;color:#a10000;flex:0 0 auto}
+  .star .bub.o{background:#FFB347;color:#993300}
 
-const ADMIN_HTML = `${head('Teacher')}<body>${STRIP}
-<div class="wrap">
-  <div style="padding-top:16px">${LOGO()}</div>
-  <div class="bar"><div class="hello"><h1>Teacher page</h1>
-    <p>Add students and see how they are doing.</p></div>
-    <button class="chip" id="forget" hidden>Lock</button></div>
+  .sect{font-size:1.35rem;font-weight:bold;background:#14563A;color:#fff;padding:7px 26px;
+    border-radius:50px;display:block;margin:24px auto 12px;border:3px solid #a6e0b0;text-align:center;
+    max-width:340px}
+  .sect.o{background:#d9772b;border-color:#fbc78f}
 
-  <section class="ch" id="gate">
-    <header><h2>Enter your teacher password</h2></header>
-    <div style="max-width:380px">
-      <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
-      <button class="go" id="unlock" style="font-size:19px;padding:13px">Unlock</button>
-      <p class="err" id="gerr" hidden></p>
-    </div>
-  </section>
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;
+    background:#feeac2;padding:14px;border-radius:26px;border:5px solid #c28d4b}
+  .row{background:#fff;border-radius:40px;padding:10px 14px;display:flex;align-items:center;gap:9px;
+    border:3px solid #efc48c;font-weight:bold;box-shadow:0 4px 0 #b6956a}
+  .row .L{font-size:1.7rem;background:#c0d9b4;min-width:48px;text-align:center;border-radius:40px;
+    color:#1e4a2b;border:2px solid #7eae6a;flex:0 0 auto}
+  .row .w{background:#ffe1b3;padding:2px 12px;border-radius:30px;font-size:1.05rem;color:#492f16}
+  .row .m{background:#d6e9ff;padding:2px 11px;border-radius:30px;font-size:.9rem;color:#004080}
+  .row .e{font-size:2.2rem;margin-left:auto}
+  .grid.v{background:#f7d4b0;border-color:#b46f3a}
+  .grid.v .row{background:#fef8e6;border-color:#f3b87a}
+  .grid.v .L{background:#f3b58a;color:#3d1f0a;border-color:#d1874a}
 
-  <div id="panel" hidden>
-    <section class="ch">
-      <header><h2>Add a student</h2></header>
-      <div style="max-width:420px">
-        <label for="dn">Their name (shown in the portal)</label>
-        <input id="dn" placeholder="Ama">
-        <label for="un">Sign-in name (lowercase, no spaces)</label>
-        <input id="un" autocapitalize="none" spellcheck="false" placeholder="ama">
-        <label for="pn">Secret number (4 digits)</label>
-        <input id="pn" inputmode="numeric" maxlength="6" placeholder="4821">
-        <label for="cc">Class (optional)</label>
-        <input id="cc" placeholder="P3">
-        <button class="go" id="add" style="font-size:19px;padding:13px">Add student</button>
-        <p class="err" id="aerr" hidden></p>
-      </div>
-    </section>
+  .missing{background:#b2d8e8;border-radius:28px;padding:14px;margin:18px 0;display:flex;
+    flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;border:4px dashed #2a6d8c;
+    font-size:1.05rem;font-weight:bold;color:#003153}
+  .missing i{font-style:normal;font-size:1.5rem;background:#fff;padding:2px 14px;border-radius:40px;
+    box-shadow:0 3px 0 #597b8f}
 
-    <section class="ch">
-      <header><h2>Students</h2><button class="chip" id="refresh">Refresh</button></header>
-      <div id="tbl"></div>
-    </section>
+  .challenge{background:#ffd966;border-radius:28px;padding:16px;margin:18px 0;border:5px solid #cb7b2c;
+    text-align:center;font-size:1.05rem;font-weight:bold;line-height:1.9}
+  .challenge b{background:#14563A;color:#fff;padding:4px 16px;border-radius:40px;font-size:1rem}
+
+  /* ---------- game ---------- */
+  .game{background:#f9e7b3;border-radius:34px;padding:18px 14px 22px;margin:24px 0 12px;
+    border:6px solid #d48d3a}
+  .game h2{font-size:1.55rem;text-align:center;color:#2d1a07;background:#fcf3d4;padding:7px 24px;
+    border-radius:50px;margin:0 auto 12px;border:4px solid #b48b3a;max-width:300px}
+  .status{display:block;text-align:center;font-size:1.05rem;background:#14563A;color:#f9f2d9;
+    padding:9px 16px;border-radius:40px;margin:0 auto 16px;border:3px solid #f3d48a;max-width:520px;
+    min-height:2.6em;font-weight:bold}
+  .pics{display:flex;flex-wrap:wrap;justify-content:center;gap:11px;margin-bottom:16px}
+  .pic{background:#fffcf0;border-radius:26px;padding:12px 10px;width:132px;text-align:center;
+    border:4px solid #f3b87a;box-shadow:0 5px 0 #a5713e;cursor:pointer;transition:.15s;font-weight:bold}
+  .pic:hover{transform:scale(1.04)}
+  .pic .em{font-size:3rem;display:block}
+  .pic .tw{font-size:.95rem;background:#f0e4c8;border-radius:20px;padding:1px 8px;display:inline-block;
+    margin-top:3px}
+  .pic .hn{font-size:.8rem;background:#e9dbbd;padding:1px 10px;border-radius:20px;display:inline-block;
+    margin-top:3px;color:#3d2b0f}
+  .pic.sel{border-color:#ff6b35;box-shadow:0 0 0 4px #ffd966,0 5px 0 #a5713e;transform:scale(1.04)}
+  .pic.ok{border-color:#14563A;background:#d4edda;box-shadow:0 0 0 4px #a3d8a3,0 5px 0 #14563A}
+  .pic.no{border-color:#A81B1B;background:#f8d7da;animation:shake .4s}
+  .letters{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
+  .lb{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:8px 4px;width:66px;
+    font-size:1.9rem;font-weight:bold;box-shadow:0 5px 0 #7a5a1f;cursor:pointer;color:#1f3a2f;
+    font-family:inherit;transition:.12s}
+  .lb:hover{transform:scale(1.05)}
+  .lb:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .lb.used{opacity:.35;pointer-events:none}
+  .lb.ok{background:#14563A;color:#fff;border-color:#0f3d29}
+  .lb.no{background:#A81B1B;color:#fff;border-color:#6E1111}
+  .reset{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:11px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:14px;display:block;margin-left:auto;margin-right:auto}
+  .reset:active{transform:translateY(3px);box-shadow:0 2px 0 #7a4d1a}
+  .win{font-size:1.35rem;background:#f1c40f;padding:10px 22px;border-radius:50px;border:4px solid #b48b3a;
+    display:inline-block;margin-top:12px;font-weight:bold;color:#1f3a1f;animation:pop .5s}
+  .cheer{background:#f5c542;font-size:1.25rem;padding:14px;border-radius:34px;text-align:center;
+    border:5px solid #af6f2a;margin-top:22px;font-weight:bold}
+
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}
+    75%{transform:translateX(9px)}}
+  @keyframes pop{0%{transform:scale(.6);opacity:0}80%{transform:scale(1.08)}100%{transform:scale(1)}}
+  .lc,.row .L,.pic{cursor:pointer}
+  .lc:hover,.row .L:hover{filter:brightness(1.06)}
+  .lc.playing,.row .L.playing{box-shadow:0 0 0 4px #14563A}
+  .sayhint{text-align:center;font-size:.95rem;font-weight:bold;color:#4d2f12;background:#fff1c7;
+    padding:7px 16px;border-radius:40px;max-width:400px;margin:10px auto 0;border:3px solid #f7b86a}
+  .sayhint .sp{font-size:1.2rem}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media (min-width:760px){
+    body{padding:20px}
+    h1{font-size:2.6rem}
+    .card{padding:26px 24px 32px}
+    .lc{font-size:1.6rem;min-width:50px}
+    .pic{width:150px}
+    .pic .em{font-size:3.6rem}
+    .lb{font-size:2.3rem;width:76px}
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <h1>🌟 Twi Alphabet Adventure 🌟</h1>
+  <span class="subhead">🐒 22 letters · 2 secret stars 🐒</span>
+
+  <p class="sayhint"><span class="sp">🔊</span> Tap any letter to hear it</p>
+  <div class="banner">
+    <span class="lc">A</span><span class="lc">B</span><span class="lc">D</span><span class="lc">E</span>
+    <span class="lc red">Ɛ</span><span class="lc">F</span><span class="lc">G</span><span class="lc">H</span>
+    <span class="lc">I</span><span class="lc">K</span><span class="lc">L</span><span class="lc">M</span>
+    <span class="lc">N</span><span class="lc">O</span><span class="lc red">Ɔ</span><span class="lc">P</span>
+    <span class="lc">R</span><span class="lc">S</span><span class="lc">T</span><span class="lc">U</span>
+    <span class="lc">W</span><span class="lc">Y</span>
   </div>
+
+  <div class="stars2">
+    <div class="star"><span class="bub">Ɛ</span><span>“Eh” like BED 🛏️</span></div>
+    <div class="star"><span class="bub o">Ɔ</span><span>“Aw” like Ɔwɔ — snake 🐍</span></div>
+  </div>
+
+  <span class="sect">🦁 Consonant zoo (15)</span>
+  <div class="grid">
+    <div class="row"><span class="L">B</span><span class="w">Bankye</span><span class="m">cassava</span><span class="e">🍠</span></div>
+    <div class="row"><span class="L">D</span><span class="w">Dadeɛ</span><span class="m">metal</span><span class="e">🔨</span></div>
+    <div class="row"><span class="L">F</span><span class="w">Fitaa</span><span class="m">white</span><span class="e">☁️</span></div>
+    <div class="row"><span class="L">G</span><span class="w">Gogo</span><span class="m">loose</span><span class="e">🫳</span></div>
+    <div class="row"><span class="L">H</span><span class="w">Hunu</span><span class="m">see</span><span class="e">👀</span></div>
+    <div class="row"><span class="L">K</span><span class="w">Kuruwa</span><span class="m">cup</span><span class="e">🥤</span></div>
+    <div class="row"><span class="L">L</span><span class="w">Lɔre</span><span class="m">lorry</span><span class="e">🚛</span></div>
+    <div class="row"><span class="L">M</span><span class="w">Mukaase</span><span class="m">kitchen</span><span class="e">🍳</span></div>
+    <div class="row"><span class="L">N</span><span class="w">Nante</span><span class="m">walk</span><span class="e">🚶</span></div>
+    <div class="row"><span class="L">P</span><span class="w">Pra</span><span class="m">sweep</span><span class="e">🧹</span></div>
+    <div class="row"><span class="L">R</span><span class="w">Raw</span><span class="m">scratch</span><span class="e">✍️</span></div>
+    <div class="row"><span class="L">S</span><span class="w">Samina</span><span class="m">soap</span><span class="e">🧼</span></div>
+    <div class="row"><span class="L">T</span><span class="w">Tafere</span><span class="m">lick</span><span class="e">👅</span></div>
+    <div class="row"><span class="L">W</span><span class="w">Wie</span><span class="m">finish</span><span class="e">🏁</span></div>
+    <div class="row"><span class="L">Y</span><span class="w">Yoma</span><span class="m">camel</span><span class="e">🐫</span></div>
+  </div>
+
+  <span class="sect o">🎤 Vowel singers (7)</span>
+  <div class="grid v">
+    <div class="row"><span class="L">A</span><span class="w">Akoma</span><span class="m">heart</span><span class="e">❤️</span></div>
+    <div class="row"><span class="L">E</span><span class="w">Ekuro</span><span class="m">wound</span><span class="e">🩹</span></div>
+    <div class="row"><span class="L">Ɛ</span><span class="w">Ɛkɔm</span><span class="m">hunger</span><span class="e">🍽️</span></div>
+    <div class="row"><span class="L">I</span><span class="w">Di</span><span class="m">eat</span><span class="e">🍚</span></div>
+    <div class="row"><span class="L">O</span><span class="w">Osuro</span><span class="m">fear</span><span class="e">😨</span></div>
+    <div class="row"><span class="L">Ɔ</span><span class="w">Ɔwɔ</span><span class="m">snake</span><span class="e">🐍</span></div>
+    <div class="row"><span class="L">U</span><span class="w">Wukuada</span><span class="m">Wednesday</span><span class="e">📅</span></div>
+  </div>
+
+  <div class="missing">
+    🚫 On vacation!
+    <i>J</i><i>Q</i><i>V</i><i>X</i><i>Z</i>
+    <span style="font-size:1.6rem">🕶️🏖️</span>
+    <span style="background:#ffddbb;padding:2px 16px;border-radius:40px">Gone fishing! 🎣</span>
+  </div>
+
+  <div class="challenge">
+    🧠 Catchy challenge 🧠<br>
+    If I say <b>Ɔ (Aw)</b> → point to the snake 🐍<br>
+    If I say <b>Ɛ (Eh)</b> → point to the bed 🛏️<br>
+    If I say <b>M</b> → pretend to cook in the kitchen 🍳
+  </div>
+
+  <div class="game">
+    <h2>🎯 Match &amp; win!</h2>
+    <span class="status" id="status">⭐ Tap a picture, then tap its letter.</span>
+    <div class="pics" id="pics"></div>
+    <div class="letters" id="letters"></div>
+    <button class="reset" id="reset">🔄 New round</button>
+    <div style="text-align:center" id="winBox"></div>
+  </div>
+
+  <div class="cheer">🏆 Twi alphabet champion! 🖐️</div>
 </div>
+
 <script>
-let TOKEN=sessionStorage.getItem('sg_admin')||'';
-const $=(id)=>document.getElementById(id);
-const show=(el,msg)=>{el.textContent=msg;el.hidden=false};
+(function(){
+  /* ------------------------------------------------------------------
+     Sound. Files live in the repo under  audio/twi-alphabet/letter-x.m4a
+     Filenames are lowercase; the two special vowels use their own glyph,
+     exactly as the files are named in the repo.
+     Nothing breaks if a file is missing - the tap just stays silent.
+     ------------------------------------------------------------------ */
+  var AUDIO_BASE='../audio/twi-alphabet/';
+  var FILE={'A':'letter-a','B':'letter-b','D':'letter-d','E':'letter-e','Ɛ':'letter-ɛ',
+    'F':'letter-f','G':'letter-g','H':'letter-h','I':'letter-i','K':'letter-k','L':'letter-l',
+    'M':'letter-m','N':'letter-n','O':'letter-o','Ɔ':'letter-ɔ','P':'letter-p','R':'letter-r',
+    'S':'letter-s','T':'letter-t','U':'letter-u','W':'letter-w','Y':'letter-y'};
 
-function api(path,opts={}){
-  return fetch(path,{...opts,headers:{'content-type':'application/json','x-admin-token':TOKEN,...(opts.headers||{})}});
-}
+  var current=null, lastEl=null;
+  function say(letter,el){
+    var name=FILE[letter]; if(!name)return;
+    if(current){current.pause();current=null}
+    if(lastEl){lastEl.classList.remove('playing');lastEl=null}
+    var a=new Audio(AUDIO_BASE+encodeURIComponent(name)+'.m4a');
+    current=a;
+    if(el){el.classList.add('playing');lastEl=el}
+    a.addEventListener('ended',function(){if(el)el.classList.remove('playing')});
+    a.addEventListener('error',function(){if(el)el.classList.remove('playing')});
+    a.play().catch(function(){ if(el)el.classList.remove('playing') });
+  }
 
-async function load(){
-  const r=await api('/api/admin/report');
-  if(r.status===403){TOKEN='';sessionStorage.removeItem('sg_admin');
-    $('panel').hidden=true;$('gate').hidden=false;show($('gerr'),'That password is not right.');return}
-  const d=await r.json();
-  $('gate').hidden=true;$('panel').hidden=false;$('forget').hidden=false;
-  if(!d.students.length){$('tbl').innerHTML='<div class="soon">No students yet. Add the first one above.</div>';return}
-  $('tbl').innerHTML='<div class="grid">'+d.students.map(s=>
-    '<div class="card"><span class="kind lesson">'+(s.class_code||'no class')+'</span>'
-    +'<h3>'+s.display_name+'</h3>'
-    +'<p>signs in as <b>'+s.username+'</b></p>'
-    +'<p>'+s.done+' finished · '+s.streak_days+' day streak · '+(s.minutes||0)+' min</p>'
-    +'<p>'+(s.badges||0)+' badges · last seen '+(s.last_seen_on||'never')+'</p>'
-    +'<span class="stars">⭐ '+s.stars+'</span></div>').join('')+'</div>';
-}
+  /* Make every letter chip and every row letter speak when tapped. */
+  function wireSpeakers(){
+    var nodes=document.querySelectorAll('.lc, .row .L');
+    Array.prototype.forEach.call(nodes,function(n){
+      var L=n.textContent.trim();
+      if(!FILE[L])return;
+      n.setAttribute('role','button');
+      n.setAttribute('tabindex','0');
+      n.setAttribute('aria-label','Hear the letter '+L);
+      n.onclick=function(){say(L,n)};
+      n.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();say(L,n)}};
+    });
+  }
+  wireSpeakers();
 
-$('unlock').onclick=async()=>{
-  $('gerr').hidden=true;
-  TOKEN=$('tok').value.trim();
-  if(!TOKEN)return show($('gerr'),'Type the password first.');
-  sessionStorage.setItem('sg_admin',TOKEN);
-  $('tok').value='';
-  load();
-};
+  var pairs=[
+    {em:'🐍',w:'Ɔwɔ',L:'Ɔ',h:'snake'},
+    {em:'❤️',w:'Akoma',L:'A',h:'heart'},
+    {em:'🍚',w:'Di',L:'I',h:'eat'},
+    {em:'🍳',w:'Mukaase',L:'M',h:'kitchen'},
+    {em:'🐫',w:'Yoma',L:'Y',h:'camel'},
+    {em:'🚛',w:'Lɔre',L:'L',h:'lorry'},
+    {em:'🍠',w:'Bankye',L:'B',h:'cassava'},
+    {em:'🧼',w:'Samina',L:'S',h:'soap'}
+  ];
+  var all=['A','B','D','E','Ɛ','F','G','H','I','K','L','M','N','O','Ɔ','P','R','S','T','U','W','Y'];
+  var ROUND=4;
 
-$('add').onclick=async()=>{
-  $('aerr').hidden=true;
-  const r=await api('/api/admin/students',{method:'POST',body:JSON.stringify({
-    username:$('un').value.trim().toLowerCase(), displayName:$('dn').value.trim(),
-    pin:$('pn').value.trim(), classCode:$('cc').value.trim()||null})});
-  const d=await r.json().catch(()=>({}));
-  if(!r.ok)return show($('aerr'),d.error||'Could not add that student.');
-  $('dn').value='';$('un').value='';$('pn').value='';
-  load();
-};
+  var round=[],sel=null,matched=0,wrong=0,over=false;
+  var picsEl=document.getElementById('pics'),lettersEl=document.getElementById('letters'),
+      statusEl=document.getElementById('status'),winEl=document.getElementById('winBox');
 
-$('refresh').onclick=load;
-$('forget').onclick=()=>{sessionStorage.removeItem('sg_admin');location.reload()};
-if(TOKEN)load(); else sessionStorage.removeItem('sg_admin');
-<\/script></body></html>`;
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+    var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+  function render(){
+    sel=null;matched=0;wrong=0;over=false;winEl.innerHTML='';
+    statusEl.textContent='⭐ Tap a picture, then tap its letter.';
+    statusEl.style.background='#14563A';statusEl.style.color='#f9f2d9';
+
+    round=shuffle(pairs.slice()).slice(0,ROUND);
+    picsEl.innerHTML='';
+    round.forEach(function(p,i){
+      var d=document.createElement('button');
+      d.className='pic';d.type='button';d.dataset.i=i;d.dataset.L=p.L;
+      d.innerHTML='<span class="em">'+p.em+'</span><span class="tw">'+p.w+'</span><br>'
+                 +'<span class="hn">'+p.h+'</span>';
+      d.onclick=function(){pickPic(d)};
+      picsEl.appendChild(d);
+    });
+
+    var correct=round.map(function(p){return p.L});
+    var pool=shuffle(all.filter(function(l){return correct.indexOf(l)<0})).slice(0,4);
+    shuffle(correct.concat(pool)).forEach(function(L){
+      var b=document.createElement('button');
+      b.className='lb';b.type='button';b.textContent=L;b.dataset.L=L;
+      b.onclick=function(){pickLetter(b)};
+      lettersEl.appendChild(b);
+    });
+  }
+
+  function pickPic(el){
+    if(over||el.classList.contains('ok'))return;
+    say(el.dataset.L);
+    Array.prototype.forEach.call(picsEl.children,function(c){c.classList.remove('sel')});
+    el.classList.add('sel');sel=el;
+    statusEl.textContent='🔍 Now tap the letter it starts with.';
+  }
+
+  function pickLetter(btn){
+    if(over||btn.classList.contains('used'))return;
+    if(!sel){statusEl.textContent='👆 Tap a picture first.';return}
+
+    if(btn.dataset.L===sel.dataset.L){
+      sel.classList.remove('sel');sel.classList.add('ok');
+      btn.classList.add('used','ok');
+      say(btn.dataset.L,btn);
+      matched++;sel=null;
+      statusEl.textContent='✅ Yes! Keep going.';
+      if(matched===round.length)finish();
+    }else{
+      wrong++;
+      btn.classList.add('no');sel.classList.add('no');
+      var p=sel;
+      statusEl.textContent='❌ Not that one. Try again.';
+      setTimeout(function(){btn.classList.remove('no');p.classList.remove('no')},500);
+    }
+  }
+
+  function finish(){
+    over=true;
+    statusEl.textContent='🏆 You matched them all!';
+    statusEl.style.background='#f1c40f';statusEl.style.color='#1f3a1f';
+    winEl.innerHTML='<div class="win">🌟 Amazing! 🌟</div>';
+    // Score out of 5: all four matched earns full marks, each wrong guess costs one,
+    // and it never drops below 2 - a child who finished still finished.
+    report(Math.max(2,5-wrong),5);
+  }
+
+  // Tell the portal how it went. Fires once; harmless if opened outside the portal.
+  var sent=false;
+  function report(score,max){
+    if(sent||window.parent===window)return;
+    sent=true;
+    parent.postMessage({type:'sg:complete',score:score,maxScore:max},'*');
+  }
+
+  document.getElementById('reset').onclick=function(){lettersEl.innerHTML='';render()};
+  render();
+})();
+</script>
+</body>
+</html>

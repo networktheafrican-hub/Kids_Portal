@@ -104,6 +104,12 @@
   @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}
     75%{transform:translateX(9px)}}
   @keyframes pop{0%{transform:scale(.6);opacity:0}80%{transform:scale(1.08)}100%{transform:scale(1)}}
+  .lc,.row .L,.pic{cursor:pointer}
+  .lc:hover,.row .L:hover{filter:brightness(1.06)}
+  .lc.playing,.row .L.playing{box-shadow:0 0 0 4px #14563A}
+  .sayhint{text-align:center;font-size:.95rem;font-weight:bold;color:#4d2f12;background:#fff1c7;
+    padding:7px 16px;border-radius:40px;max-width:400px;margin:10px auto 0;border:3px solid #f7b86a}
+  .sayhint .sp{font-size:1.2rem}
   :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
   @media (min-width:760px){
@@ -123,6 +129,7 @@
   <h1>🌟 Twi Alphabet Adventure 🌟</h1>
   <span class="subhead">🐒 22 letters · 2 secret stars 🐒</span>
 
+  <p class="sayhint"><span class="sp">🔊</span> Tap any letter to hear it</p>
   <div class="banner">
     <span class="lc">A</span><span class="lc">B</span><span class="lc">D</span><span class="lc">E</span>
     <span class="lc red">Ɛ</span><span class="lc">F</span><span class="lc">G</span><span class="lc">H</span>
@@ -195,6 +202,46 @@
 
 <script>
 (function(){
+  /* ------------------------------------------------------------------
+     Sound. Files live in the repo under  audio/twi-alphabet/letter-x.m4a
+     Filenames are lowercase; the two special vowels use their own glyph,
+     exactly as the files are named in the repo.
+     Nothing breaks if a file is missing - the tap just stays silent.
+     ------------------------------------------------------------------ */
+  var AUDIO_BASE='../audio/twi-alphabet/';
+  var FILE={'A':'letter-a','B':'letter-b','D':'letter-d','E':'letter-e','Ɛ':'letter-ɛ',
+    'F':'letter-f','G':'letter-g','H':'letter-h','I':'letter-i','K':'letter-k','L':'letter-l',
+    'M':'letter-m','N':'letter-n','O':'letter-o','Ɔ':'letter-ɔ','P':'letter-p','R':'letter-r',
+    'S':'letter-s','T':'letter-t','U':'letter-u','W':'letter-w','Y':'letter-y'};
+
+  var current=null, lastEl=null;
+  function say(letter,el){
+    var name=FILE[letter]; if(!name)return;
+    if(current){current.pause();current=null}
+    if(lastEl){lastEl.classList.remove('playing');lastEl=null}
+    var a=new Audio(AUDIO_BASE+encodeURIComponent(name)+'.m4a');
+    current=a;
+    if(el){el.classList.add('playing');lastEl=el}
+    a.addEventListener('ended',function(){if(el)el.classList.remove('playing')});
+    a.addEventListener('error',function(){if(el)el.classList.remove('playing')});
+    a.play().catch(function(){ if(el)el.classList.remove('playing') });
+  }
+
+  /* Make every letter chip and every row letter speak when tapped. */
+  function wireSpeakers(){
+    var nodes=document.querySelectorAll('.lc, .row .L');
+    Array.prototype.forEach.call(nodes,function(n){
+      var L=n.textContent.trim();
+      if(!FILE[L])return;
+      n.setAttribute('role','button');
+      n.setAttribute('tabindex','0');
+      n.setAttribute('aria-label','Hear the letter '+L);
+      n.onclick=function(){say(L,n)};
+      n.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();say(L,n)}};
+    });
+  }
+  wireSpeakers();
+
   var pairs=[
     {em:'🐍',w:'Ɔwɔ',L:'Ɔ',h:'snake'},
     {em:'❤️',w:'Akoma',L:'A',h:'heart'},
@@ -243,6 +290,7 @@
 
   function pickPic(el){
     if(over||el.classList.contains('ok'))return;
+    say(el.dataset.L);
     Array.prototype.forEach.call(picsEl.children,function(c){c.classList.remove('sel')});
     el.classList.add('sel');sel=el;
     statusEl.textContent='🔍 Now tap the letter it starts with.';
@@ -255,6 +303,7 @@
     if(btn.dataset.L===sel.dataset.L){
       sel.classList.remove('sel');sel.classList.add('ok');
       btn.classList.add('used','ok');
+      say(btn.dataset.L,btn);
       matched++;sel=null;
       statusEl.textContent='✅ Yes! Keep going.';
       if(matched===round.length)finish();

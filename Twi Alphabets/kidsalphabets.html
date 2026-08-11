@@ -1,819 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎮 Twi Alphabet – Match & Play Game!</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      background: linear-gradient(145deg, #fcf3e0 0%, #fde9c9 100%);
-      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', cursive, sans-serif;
-      padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .lesson-card {
-      max-width: 1100px;
-      width: 100%;
-      background: rgba(255, 248, 230, 0.92);
-      backdrop-filter: blur(3px);
-      border-radius: 80px 80px 50px 50px;
-      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
-      padding: 30px 30px 40px;
-      border: 8px solid #ffaa3a;
-    }
-    h1 {
-      font-size: 3.2rem;
-      text-align: center;
-      color: #b33a1e;
-      text-shadow: 5px 5px 0 #feda7a;
-      letter-spacing: 2px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 10px 20px;
-      margin-top: -6px;
-    }
-    h1 span {
-      background: #ffdd99;
-      padding: 0 24px;
-      border-radius: 80px;
-      font-size: 2.4rem;
-      border: 5px dashed #a5541a;
-    }
-    .subhead {
-      text-align: center;
-      font-size: 1.7rem;
-      font-weight: bold;
-      color: #4d2f12;
-      background: #ffe39c;
-      display: inline-block;
-      padding: 6px 35px;
-      border-radius: 80px;
-      margin: 6px auto 16px;
-      box-shadow: 0 8px 0 #b47b4a;
-      border: 3px solid #f8b86a;
-    }
-    .jungle-banner {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 10px 14px;
-      background: #d9e9b0;
-      padding: 18px 16px;
-      border-radius: 120px;
-      margin: 14px 0 16px;
-      border: 6px solid #7f9f4b;
-      box-shadow: inset 0 -6px 0 #4f6b2a;
-    }
-    .letter-cloud {
-      font-size: 2.2rem;
-      font-weight: bold;
-      background: white;
-      padding: 4px 16px;
-      border-radius: 60px;
-      box-shadow: 0 6px 0 #b0a58b;
-      color: #1f3a2f;
-      display: inline-block;
-      min-width: 48px;
-      text-align: center;
-    }
-    .letter-cloud.red {
-      background: #ffb3b3;
-      color: #a10000;
-      border: 3px solid #c42b2b;
-      transform: scale(1.06);
-      box-shadow: 0 0 0 4px #ffd966, 0 6px 0 #7a3a3a;
-    }
-    .star-duo {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px 50px;
-      background: #fcedd3;
-      border-radius: 100px;
-      padding: 18px 28px;
-      margin: 16px 0 20px;
-      border: 8px solid #ed9a4a;
-    }
-    .star-item {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      font-size: 2.0rem;
-      background: #fff1c7;
-      padding: 8px 28px 8px 18px;
-      border-radius: 80px;
-      box-shadow: 0 8px 0 #b07d44;
-      border: 4px solid #f7b86a;
-    }
-    .star-item img {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
-      filter: drop-shadow(3px 6px 6px rgba(0,0,0,0.2));
-    }
-    .section-title {
-      font-size: 2.6rem;
-      font-weight: bold;
-      background: #24936e;
-      color: white;
-      padding: 6px 40px;
-      border-radius: 80px;
-      display: inline-block;
-      margin: 24px 0 10px 0;
-      box-shadow: 0 8px 0 #0f553f;
-      border: 4px solid #a6e0b0;
-    }
-    .section-title.orange {
-      background: #d9772b;
-      box-shadow: 0 8px 0 #8f4a19;
-      border-color: #fbc78f;
-    }
-    .grid-table {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px 12px;
-      background: #feeac2;
-      padding: 20px 18px;
-      border-radius: 70px;
-      border: 8px solid #c28d4b;
-      margin: 8px 0 18px;
-    }
-    .grid-item {
-      background: white;
-      border-radius: 60px;
-      padding: 12px 10px 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 6px 12px;
-      flex-wrap: wrap;
-      box-shadow: 0 8px 0 #b6956a;
-      border: 4px solid #efc48c;
-      font-size: 1.3rem;
-      font-weight: bold;
-    }
-    .grid-item .letter-big {
-      font-size: 2.6rem;
-      background: #c0d9b4;
-      min-width: 58px;
-      text-align: center;
-      border-radius: 50px;
-      padding: 0 6px;
-      color: #1e4a2b;
-      border: 3px solid #7eae6a;
-    }
-    .grid-item .word {
-      background: #ffe1b3;
-      padding: 0 14px;
-      border-radius: 40px;
-      font-size: 1.4rem;
-      color: #492f16;
-    }
-    .grid-item .meaning {
-      background: #d6e9ff;
-      padding: 0 14px;
-      border-radius: 40px;
-      font-size: 1.2rem;
-      color: #004080;
-    }
-    .grid-item .emoji-big {
-      font-size: 4.0rem;
-      margin-left: auto;
-      padding-right: 4px;
-      filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.1));
-    }
-    .vowel-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 14px;
-      background: #f7d4b0;
-      padding: 20px;
-      border-radius: 70px;
-      border: 8px solid #b46f3a;
-      margin: 8px 0 18px;
-    }
-    .vowel-item {
-      background: #fef8e6;
-      border-radius: 60px;
-      padding: 12px 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px 12px;
-      flex-wrap: wrap;
-      box-shadow: 0 8px 0 #946b42;
-      border: 4px solid #f3b87a;
-    }
-    .vowel-item .letter-big {
-      font-size: 2.8rem;
-      background: #f3b58a;
-      min-width: 62px;
-      text-align: center;
-      border-radius: 50px;
-      color: #3d1f0a;
-      border: 3px solid #d1874a;
-    }
-    .vowel-item .word {
-      font-size: 1.5rem;
-      background: #fedbb0;
-      padding: 0 12px;
-      border-radius: 40px;
-    }
-    .vowel-item .meaning {
-      font-size: 1.2rem;
-      background: #c7e0f0;
-      padding: 0 12px;
-      border-radius: 40px;
-    }
-    .vowel-item .emoji-big {
-      font-size: 4.2rem;
-      margin-left: auto;
-      padding-right: 4px;
-      filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.1));
-    }
-    .missing-letters {
-      background: #b2d8e8;
-      border-radius: 120px;
-      padding: 16px 24px;
-      margin: 20px 0 12px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 8px 22px;
-      border: 8px dashed #2a6d8c;
-    }
-    .missing-letters span {
-      font-size: 2.8rem;
-      background: white;
-      padding: 0 20px;
-      border-radius: 60px;
-      color: #003153;
-      font-weight: bold;
-      box-shadow: 0 6px 0 #597b8f;
-    }
-    .beach-emoji {
-      font-size: 3.6rem;
-    }
-    .challenge-box {
-      background: #ffd966;
-      border-radius: 100px;
-      padding: 22px 20px;
-      margin: 24px 0 16px;
-      border: 10px solid #cb7b2c;
-      text-align: center;
-      font-size: 2.0rem;
-      font-weight: bold;
-      color: #2d1b0a;
-      box-shadow: inset 0 -6px 0 #a05f20;
-    }
-    .challenge-box .action {
-      background: #2f6b4a;
-      color: white;
-      padding: 8px 28px;
-      border-radius: 70px;
-      display: inline-block;
-      margin: 4px 4px;
-      font-size: 1.8rem;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Twi Alphabet Adventure</title>
+<!--
+  Speak Ghana Kids Portal - activity file
+  Repo path : Twi Alphabets/kidsalphabets.html
+  Slug      : twi-alphabet
+  Reports its score to the portal automatically. Nothing to edit.
+-->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:14px 12px 40px;color:#2d1b0a}
+  .card{max-width:1000px;margin:0 auto;background:#FFF8E6;border-radius:34px;
+    box-shadow:0 12px 26px rgba(0,0,0,.13);padding:20px 16px 26px;border:6px solid #C8901E}
+  h1{font-size:2rem;text-align:center;color:#A81B1B;text-shadow:3px 3px 0 #feda7a;line-height:1.2}
+  .subhead{display:block;text-align:center;font-size:1.05rem;font-weight:bold;color:#4d2f12;
+    background:#ffe39c;padding:6px 20px;border-radius:60px;margin:12px auto 4px;max-width:340px;
+    border:3px solid #f8b86a}
 
-    /* ===== GAME SECTION ===== */
-    .game-section {
-      background: linear-gradient(135deg, #f9e7b3 0%, #f5d78c 100%);
-      border-radius: 80px;
-      padding: 25px 20px 30px;
-      margin: 28px 0 12px;
-      border: 10px solid #d48d3a;
-      box-shadow: 0 12px 0 #8f5a1f, inset 0 -4px 0 #b87a3a;
-      position: relative;
-    }
-    .game-section h2 {
-      font-size: 2.8rem;
-      color: #2d1a07;
-      text-align: center;
-      background: #fcf3d4;
-      display: inline-block;
-      padding: 8px 40px;
-      border-radius: 80px;
-      margin-bottom: 18px;
-      border: 6px solid #b48b3a;
-      box-shadow: 0 6px 0 #7a5a1f;
-      width: auto;
-    }
-    .game-status {
-      text-align: center;
-      font-size: 2.0rem;
-      background: #2d5a3d;
-      color: #f9f2d9;
-      padding: 8px 20px;
-      border-radius: 60px;
-      display: inline-block;
-      margin-bottom: 20px;
-      border: 4px solid #f3d48a;
-    }
-    .game-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 20px 30px;
-    }
-    .game-pictures {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 18px;
-      flex: 2 1 400px;
-    }
-    .game-pic {
-      background: #fffcf0;
-      border-radius: 70px;
-      padding: 16px 20px;
-      min-width: 130px;
-      text-align: center;
-      border: 6px solid #f3b87a;
-      box-shadow: 0 8px 0 #a5713e;
-      cursor: pointer;
-      transition: 0.15s ease;
-      font-size: 1.6rem;
-      font-weight: bold;
-      flex: 1 0 auto;
-      max-width: 180px;
-    }
-    .game-pic:hover {
-      transform: scale(1.04);
-      border-color: #d48d3a;
-    }
-    .game-pic.selected {
-      border: 8px solid #ff6b35;
-      box-shadow: 0 0 0 6px #ffd966, 0 8px 0 #a5713e;
-      transform: scale(1.05);
-    }
-    .game-pic.correct {
-      border: 8px solid #2e8b57;
-      background: #d4edda;
-      box-shadow: 0 0 0 6px #a3d8a3, 0 8px 0 #2e6b3a;
-    }
-    .game-pic.wrong {
-      border: 8px solid #c0392b;
-      background: #f8d7da;
-      animation: shake 0.4s ease;
-    }
-    .game-pic .big-emoji {
-      font-size: 5.5rem;
-      display: block;
-      margin-bottom: 4px;
-    }
-    .game-pic .pic-hint {
-      font-size: 1.2rem;
-      background: #e9dbbd;
-      padding: 2px 14px;
-      border-radius: 40px;
-      display: inline-block;
-      color: #3d2b0f;
-    }
-    .game-letters {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 14px;
-      flex: 1 1 200px;
-    }
-    .game-letter-btn {
-      background: #fef7e6;
-      border: 6px solid #b48b3a;
-      border-radius: 70px;
-      padding: 14px 18px;
-      min-width: 80px;
-      font-size: 3.4rem;
-      font-weight: bold;
-      box-shadow: 0 8px 0 #7a5a1f;
-      cursor: pointer;
-      transition: 0.12s ease;
-      color: #1f3a2f;
-      text-align: center;
-      font-family: inherit;
-      flex: 0 1 auto;
-    }
-    .game-letter-btn:hover {
-      transform: scale(1.06);
-      background: #fffcf0;
-    }
-    .game-letter-btn:active {
-      transform: translateY(4px);
-      box-shadow: 0 4px 0 #7a5a1f;
-    }
-    .game-letter-btn.used {
-      opacity: 0.4;
-      pointer-events: none;
-      transform: scale(0.9);
-      box-shadow: 0 4px 0 #7a5a1f;
-    }
-    .game-letter-btn.correct-pick {
-      background: #2e8b57;
-      color: white;
-      border-color: #1d6b3a;
-      box-shadow: 0 8px 0 #1d4f2a;
-    }
-    .game-letter-btn.wrong-pick {
-      background: #c0392b;
-      color: white;
-      border-color: #8a1f1a;
-      box-shadow: 0 8px 0 #5a1410;
-    }
-    .game-reset-btn {
-      background: #f5c542;
-      border: none;
-      border-radius: 60px;
-      padding: 14px 40px;
-      font-size: 2.0rem;
-      font-weight: bold;
-      color: #2d1b0a;
-      border: 6px solid #af6f2a;
-      box-shadow: 0 8px 0 #7a4d1a;
-      cursor: pointer;
-      transition: 0.1s ease;
-      font-family: inherit;
-      margin-top: 14px;
-    }
-    .game-reset-btn:hover {
-      transform: scale(1.04);
-      background: #fcdb7a;
-    }
-    .game-reset-btn:active {
-      transform: translateY(6px);
-      box-shadow: 0 2px 0 #7a4d1a;
-    }
-    .game-win {
-      font-size: 2.8rem;
-      background: #f1c40f;
-      padding: 10px 30px;
-      border-radius: 80px;
-      border: 6px solid #b48b3a;
-      display: inline-block;
-      margin-top: 10px;
-      font-weight: bold;
-      color: #1f3a1f;
-      animation: pop 0.6s ease;
-    }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-12px); }
-      75% { transform: translateX(12px); }
-    }
-    @keyframes pop {
-      0% { transform: scale(0.5); opacity: 0; }
-      80% { transform: scale(1.1); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .footer-highfive {
-      background: #f5c542;
-      font-size: 2.4rem;
-      padding: 14px 20px;
-      border-radius: 100px;
-      text-align: center;
-      border: 8px solid #af6f2a;
-      margin-top: 30px;
-      color: #2b1d0a;
-      box-shadow: 0 10px 0 #7a4d1a;
-    }
-    @media (max-width: 700px) {
-      h1 { font-size: 2.4rem; }
-      .grid-table { grid-template-columns: 1fr; }
-      .vowel-grid { grid-template-columns: 1fr; }
-      .star-duo { flex-direction: column; align-items: center; }
-      .game-pic { max-width: 140px; }
-      .game-letter-btn { font-size: 2.8rem; min-width: 60px; }
-    }
-  </style>
+  .banner{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;background:#d9e9b0;
+    padding:14px 12px;border-radius:26px;margin:16px 0;border:5px solid #14563A}
+  .lc{font-size:1.35rem;font-weight:bold;background:#fff;padding:3px 12px;border-radius:40px;
+    color:#1f3a2f;min-width:42px;text-align:center;box-shadow:0 3px 0 #b0a58b}
+  .lc.red{background:#ffb3b3;color:#a10000;border:2px solid #A81B1B;box-shadow:0 0 0 3px #ffd966}
+
+  .stars2{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;background:#fcedd3;
+    border-radius:26px;padding:14px;margin:16px 0;border:5px solid #ed9a4a}
+  .star{display:flex;align-items:center;gap:12px;font-size:1.05rem;background:#fff1c7;
+    padding:10px 18px;border-radius:50px;border:3px solid #f7b86a;flex:1 1 260px}
+  .star .bub{width:56px;height:56px;border-radius:50%;background:#FFD966;border:3px solid #b45f2b;
+    display:grid;place-items:center;font-size:2rem;font-weight:bold;color:#a10000;flex:0 0 auto}
+  .star .bub.o{background:#FFB347;color:#993300}
+
+  .sect{font-size:1.35rem;font-weight:bold;background:#14563A;color:#fff;padding:7px 26px;
+    border-radius:50px;display:block;margin:24px auto 12px;border:3px solid #a6e0b0;text-align:center;
+    max-width:340px}
+  .sect.o{background:#d9772b;border-color:#fbc78f}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;
+    background:#feeac2;padding:14px;border-radius:26px;border:5px solid #c28d4b}
+  .row{background:#fff;border-radius:40px;padding:10px 14px;display:flex;align-items:center;gap:9px;
+    border:3px solid #efc48c;font-weight:bold;box-shadow:0 4px 0 #b6956a}
+  .row .L{font-size:1.7rem;background:#c0d9b4;min-width:48px;text-align:center;border-radius:40px;
+    color:#1e4a2b;border:2px solid #7eae6a;flex:0 0 auto}
+  .row .w{background:#ffe1b3;padding:2px 12px;border-radius:30px;font-size:1.05rem;color:#492f16}
+  .row .m{background:#d6e9ff;padding:2px 11px;border-radius:30px;font-size:.9rem;color:#004080}
+  .row .e{font-size:2.2rem;margin-left:auto}
+  .grid.v{background:#f7d4b0;border-color:#b46f3a}
+  .grid.v .row{background:#fef8e6;border-color:#f3b87a}
+  .grid.v .L{background:#f3b58a;color:#3d1f0a;border-color:#d1874a}
+
+  .missing{background:#b2d8e8;border-radius:28px;padding:14px;margin:18px 0;display:flex;
+    flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;border:4px dashed #2a6d8c;
+    font-size:1.05rem;font-weight:bold;color:#003153}
+  .missing i{font-style:normal;font-size:1.5rem;background:#fff;padding:2px 14px;border-radius:40px;
+    box-shadow:0 3px 0 #597b8f}
+
+  .challenge{background:#ffd966;border-radius:28px;padding:16px;margin:18px 0;border:5px solid #cb7b2c;
+    text-align:center;font-size:1.05rem;font-weight:bold;line-height:1.9}
+  .challenge b{background:#14563A;color:#fff;padding:4px 16px;border-radius:40px;font-size:1rem}
+
+  /* ---------- game ---------- */
+  .game{background:#f9e7b3;border-radius:34px;padding:18px 14px 22px;margin:24px 0 12px;
+    border:6px solid #d48d3a}
+  .game h2{font-size:1.55rem;text-align:center;color:#2d1a07;background:#fcf3d4;padding:7px 24px;
+    border-radius:50px;margin:0 auto 12px;border:4px solid #b48b3a;max-width:300px}
+  .status{display:block;text-align:center;font-size:1.05rem;background:#14563A;color:#f9f2d9;
+    padding:9px 16px;border-radius:40px;margin:0 auto 16px;border:3px solid #f3d48a;max-width:520px;
+    min-height:2.6em;font-weight:bold}
+  .pics{display:flex;flex-wrap:wrap;justify-content:center;gap:11px;margin-bottom:16px}
+  .pic{background:#fffcf0;border-radius:26px;padding:12px 10px;width:132px;text-align:center;
+    border:4px solid #f3b87a;box-shadow:0 5px 0 #a5713e;cursor:pointer;transition:.15s;font-weight:bold}
+  .pic:hover{transform:scale(1.04)}
+  .pic .em{font-size:3rem;display:block}
+  .pic .tw{font-size:.95rem;background:#f0e4c8;border-radius:20px;padding:1px 8px;display:inline-block;
+    margin-top:3px}
+  .pic .hn{font-size:.8rem;background:#e9dbbd;padding:1px 10px;border-radius:20px;display:inline-block;
+    margin-top:3px;color:#3d2b0f}
+  .pic.sel{border-color:#ff6b35;box-shadow:0 0 0 4px #ffd966,0 5px 0 #a5713e;transform:scale(1.04)}
+  .pic.ok{border-color:#14563A;background:#d4edda;box-shadow:0 0 0 4px #a3d8a3,0 5px 0 #14563A}
+  .pic.no{border-color:#A81B1B;background:#f8d7da;animation:shake .4s}
+  .letters{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
+  .lb{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:8px 4px;width:66px;
+    font-size:1.9rem;font-weight:bold;box-shadow:0 5px 0 #7a5a1f;cursor:pointer;color:#1f3a2f;
+    font-family:inherit;transition:.12s}
+  .lb:hover{transform:scale(1.05)}
+  .lb:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .lb.used{opacity:.35;pointer-events:none}
+  .lb.ok{background:#14563A;color:#fff;border-color:#0f3d29}
+  .lb.no{background:#A81B1B;color:#fff;border-color:#6E1111}
+  .reset{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:11px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:14px;display:block;margin-left:auto;margin-right:auto}
+  .reset:active{transform:translateY(3px);box-shadow:0 2px 0 #7a4d1a}
+  .win{font-size:1.35rem;background:#f1c40f;padding:10px 22px;border-radius:50px;border:4px solid #b48b3a;
+    display:inline-block;margin-top:12px;font-weight:bold;color:#1f3a1f;animation:pop .5s}
+  .cheer{background:#f5c542;font-size:1.25rem;padding:14px;border-radius:34px;text-align:center;
+    border:5px solid #af6f2a;margin-top:22px;font-weight:bold}
+
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}
+    75%{transform:translateX(9px)}}
+  @keyframes pop{0%{transform:scale(.6);opacity:0}80%{transform:scale(1.08)}100%{transform:scale(1)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media (min-width:760px){
+    body{padding:20px}
+    h1{font-size:2.6rem}
+    .card{padding:26px 24px 32px}
+    .lc{font-size:1.6rem;min-width:50px}
+    .pic{width:150px}
+    .pic .em{font-size:3.6rem}
+    .lb{font-size:2.3rem;width:76px}
+  }
+</style>
 </head>
 <body>
-<div class="lesson-card">
+<div class="card">
 
-  <!-- HEADER -->
-  <h1>
-    🌟 TWI ALPHABET <span>ADVENTURE</span> 🌟
-    <span style="font-size:2.0rem; background: #fbc78f; border-color:#b45f1a;">for KIDS</span>
-  </h1>
-  <div style="text-align: center;">
-    <div class="subhead">🐒 22 LETTERS • 2 SECRET STARS 🐒</div>
+  <h1>🌟 Twi Alphabet Adventure 🌟</h1>
+  <span class="subhead">🐒 22 letters · 2 secret stars 🐒</span>
+
+  <div class="banner">
+    <span class="lc">A</span><span class="lc">B</span><span class="lc">D</span><span class="lc">E</span>
+    <span class="lc red">Ɛ</span><span class="lc">F</span><span class="lc">G</span><span class="lc">H</span>
+    <span class="lc">I</span><span class="lc">K</span><span class="lc">L</span><span class="lc">M</span>
+    <span class="lc">N</span><span class="lc">O</span><span class="lc red">Ɔ</span><span class="lc">P</span>
+    <span class="lc">R</span><span class="lc">S</span><span class="lc">T</span><span class="lc">U</span>
+    <span class="lc">W</span><span class="lc">Y</span>
   </div>
 
-  <!-- JUNGLE BANNER -->
-  <div class="jungle-banner">
-    <span class="letter-cloud">A</span>
-    <span class="letter-cloud">B</span>
-    <span class="letter-cloud">D</span>
-    <span class="letter-cloud">E</span>
-    <span class="letter-cloud red">Ɛ</span>
-    <span class="letter-cloud">F</span>
-    <span class="letter-cloud">G</span>
-    <span class="letter-cloud">H</span>
-    <span class="letter-cloud">I</span>
-    <span class="letter-cloud">K</span>
-    <span class="letter-cloud">L</span>
-    <span class="letter-cloud">M</span>
-    <span class="letter-cloud">N</span>
-    <span class="letter-cloud">O</span>
-    <span class="letter-cloud red">Ɔ</span>
-    <span class="letter-cloud">P</span>
-    <span class="letter-cloud">R</span>
-    <span class="letter-cloud">S</span>
-    <span class="letter-cloud">T</span>
-    <span class="letter-cloud">U</span>
-    <span class="letter-cloud">W</span>
-    <span class="letter-cloud">Y</span>
+  <div class="stars2">
+    <div class="star"><span class="bub">Ɛ</span><span>“Eh” like BED 🛏️</span></div>
+    <div class="star"><span class="bub o">Ɔ</span><span>“Aw” like Ɔwɔ — snake 🐍</span></div>
   </div>
 
-  <!-- SECRET SUPERSTARS -->
-  <div class="star-duo">
-    <div class="star-item">
-      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FFD966' stroke='%23b45f2b' stroke-width='5'/%3E%3Ctext x='28' y='72' font-size='66' fill='%23a10000' font-weight='bold' font-family='Comic Sans MS'%3EƐ%3C/text%3E%3C/svg%3E" alt="Ɛ star"> 
-      <span style="font-size:1.9rem;">“Eh” like BED 🛏️</span>
-    </div>
-    <div class="star-item">
-      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FFB347' stroke='%23b45f2b' stroke-width='5'/%3E%3Ctext x='28' y='72' font-size='66' fill='%23993300' font-weight='bold' font-family='Comic Sans MS'%3EƆ%3C/text%3E%3C/svg%3E" alt="Ɔ star"> 
-      <span style="font-size:1.9rem;">“Aw” like ƆwƆ – SNAKE 🐍</span>
-    </div>
+  <span class="sect">🦁 Consonant zoo (15)</span>
+  <div class="grid">
+    <div class="row"><span class="L">B</span><span class="w">Bankye</span><span class="m">cassava</span><span class="e">🍠</span></div>
+    <div class="row"><span class="L">D</span><span class="w">Dadeɛ</span><span class="m">metal</span><span class="e">🔨</span></div>
+    <div class="row"><span class="L">F</span><span class="w">Fitaa</span><span class="m">white</span><span class="e">☁️</span></div>
+    <div class="row"><span class="L">G</span><span class="w">Gogo</span><span class="m">loose</span><span class="e">🫳</span></div>
+    <div class="row"><span class="L">H</span><span class="w">Hunu</span><span class="m">see</span><span class="e">👀</span></div>
+    <div class="row"><span class="L">K</span><span class="w">Kuruwa</span><span class="m">cup</span><span class="e">🥤</span></div>
+    <div class="row"><span class="L">L</span><span class="w">Lɔre</span><span class="m">lorry</span><span class="e">🚛</span></div>
+    <div class="row"><span class="L">M</span><span class="w">Mukaase</span><span class="m">kitchen</span><span class="e">🍳</span></div>
+    <div class="row"><span class="L">N</span><span class="w">Nante</span><span class="m">walk</span><span class="e">🚶</span></div>
+    <div class="row"><span class="L">P</span><span class="w">Pra</span><span class="m">sweep</span><span class="e">🧹</span></div>
+    <div class="row"><span class="L">R</span><span class="w">Raw</span><span class="m">scratch</span><span class="e">✍️</span></div>
+    <div class="row"><span class="L">S</span><span class="w">Samina</span><span class="m">soap</span><span class="e">🧼</span></div>
+    <div class="row"><span class="L">T</span><span class="w">Tafere</span><span class="m">lick</span><span class="e">👅</span></div>
+    <div class="row"><span class="L">W</span><span class="w">Wie</span><span class="m">finish</span><span class="e">🏁</span></div>
+    <div class="row"><span class="L">Y</span><span class="w">Yoma</span><span class="m">camel</span><span class="e">🐫</span></div>
   </div>
 
-  <!-- CONSONANTS -->
-  <div style="text-align: center;">
-    <span class="section-title">🦁 CONSONANT ZOO (15)</span>
-  </div>
-  <div class="grid-table">
-    <div class="grid-item"><span class="letter-big">B</span><span class="word">Bankye</span><span class="meaning">cassava</span><span class="emoji-big">🍠</span></div>
-    <div class="grid-item"><span class="letter-big">D</span><span class="word">Dadeɛ</span><span class="meaning">metal</span><span class="emoji-big">🔨</span></div>
-    <div class="grid-item"><span class="letter-big">F</span><span class="word">Fitaa</span><span class="meaning">white</span><span class="emoji-big">☁️</span></div>
-    <div class="grid-item"><span class="letter-big">G</span><span class="word">Gogo</span><span class="meaning">loose</span><span class="emoji-big">🫳</span></div>
-    <div class="grid-item"><span class="letter-big">H</span><span class="word">Hunu</span><span class="meaning">see</span><span class="emoji-big">👀</span></div>
-    <div class="grid-item"><span class="letter-big">K</span><span class="word">Kuruwa</span><span class="meaning">cup</span><span class="emoji-big">🥤</span></div>
-    <div class="grid-item"><span class="letter-big">L</span><span class="word">Lɔre</span><span class="meaning">lorry</span><span class="emoji-big">🚛</span></div>
-    <div class="grid-item"><span class="letter-big">M</span><span class="word">Mukaase</span><span class="meaning">kitchen</span><span class="emoji-big">🍳</span></div>
-    <div class="grid-item"><span class="letter-big">N</span><span class="word">Nante</span><span class="meaning">walk</span><span class="emoji-big">🚶</span></div>
-    <div class="grid-item"><span class="letter-big">P</span><span class="word">Pra</span><span class="meaning">sweep</span><span class="emoji-big">🧹</span></div>
-    <div class="grid-item"><span class="letter-big">R</span><span class="word">Raw</span><span class="meaning">scratch</span><span class="emoji-big">✍️</span></div>
-    <div class="grid-item"><span class="letter-big">S</span><span class="word">Samina</span><span class="meaning">soap</span><span class="emoji-big">🧼</span></div>
-    <div class="grid-item"><span class="letter-big">T</span><span class="word">Tafere</span><span class="meaning">lick</span><span class="emoji-big">👅</span></div>
-    <div class="grid-item"><span class="letter-big">W</span><span class="word">Wie</span><span class="meaning">finish</span><span class="emoji-big">🏁</span></div>
-    <div class="grid-item"><span class="letter-big">Y</span><span class="word">Yoma</span><span class="meaning">camel</span><span class="emoji-big">🐫</span></div>
+  <span class="sect o">🎤 Vowel singers (7)</span>
+  <div class="grid v">
+    <div class="row"><span class="L">A</span><span class="w">Akoma</span><span class="m">heart</span><span class="e">❤️</span></div>
+    <div class="row"><span class="L">E</span><span class="w">Ekuro</span><span class="m">wound</span><span class="e">🩹</span></div>
+    <div class="row"><span class="L">Ɛ</span><span class="w">Ɛkɔm</span><span class="m">hunger</span><span class="e">🍽️</span></div>
+    <div class="row"><span class="L">I</span><span class="w">Di</span><span class="m">eat</span><span class="e">🍚</span></div>
+    <div class="row"><span class="L">O</span><span class="w">Osuro</span><span class="m">fear</span><span class="e">😨</span></div>
+    <div class="row"><span class="L">Ɔ</span><span class="w">Ɔwɔ</span><span class="m">snake</span><span class="e">🐍</span></div>
+    <div class="row"><span class="L">U</span><span class="w">Wukuada</span><span class="m">Wednesday</span><span class="e">📅</span></div>
   </div>
 
-  <!-- VOWELS -->
-  <div style="text-align: center;">
-    <span class="section-title orange">🎤 VOWEL SINGERS (7)</span>
-  </div>
-  <div class="vowel-grid">
-    <div class="vowel-item"><span class="letter-big">A</span><span class="word">Akoma</span><span class="meaning">heart</span><span class="emoji-big">❤️</span></div>
-    <div class="vowel-item"><span class="letter-big">E</span><span class="word">Ekuro</span><span class="meaning">wound</span><span class="emoji-big">🩹</span></div>
-    <div class="vowel-item"><span class="letter-big">Ɛ</span><span class="word">Ɛkɔm</span><span class="meaning">hunger</span><span class="emoji-big">🍽️</span></div>
-    <div class="vowel-item"><span class="letter-big">I</span><span class="word">Di</span><span class="meaning">eat</span><span class="emoji-big">🍚</span></div>
-    <div class="vowel-item"><span class="letter-big">O</span><span class="word">Osuro</span><span class="meaning">fear</span><span class="emoji-big">😨</span></div>
-    <div class="vowel-item"><span class="letter-big">Ɔ</span><span class="word">ƆwƆ</span><span class="meaning">snake</span><span class="emoji-big">🐍</span></div>
-    <div class="vowel-item"><span class="letter-big">U</span><span class="word">Wukuada</span><span class="meaning">Wednesday</span><span class="emoji-big">📅</span></div>
+  <div class="missing">
+    🚫 On vacation!
+    <i>J</i><i>Q</i><i>V</i><i>X</i><i>Z</i>
+    <span style="font-size:1.6rem">🕶️🏖️</span>
+    <span style="background:#ffddbb;padding:2px 16px;border-radius:40px">Gone fishing! 🎣</span>
   </div>
 
-  <!-- MISSING LETTERS -->
-  <div class="missing-letters">
-    <span style="font-size:2.2rem;">🚫 MISSING (on vacation!)</span>
-    <span>J</span> <span>Q</span> <span>V</span> <span>X</span> <span>Z</span>
-    <span class="beach-emoji">🕶️🏖️</span>
-    <span style="font-size:1.8rem; background: #ffddbb; padding:0 24px; border-radius:70px;">“Gone fishing!” 🎣</span>
+  <div class="challenge">
+    🧠 Catchy challenge 🧠<br>
+    If I say <b>Ɔ (Aw)</b> → point to the snake 🐍<br>
+    If I say <b>Ɛ (Eh)</b> → point to the bed 🛏️<br>
+    If I say <b>M</b> → pretend to cook in the kitchen 🍳
   </div>
 
-  <!-- CATCHY CHALLENGE -->
-  <div class="challenge-box">
-    🧠 <span style="background: #fff7d6; padding:0 24px; border-radius:60px;">CATCHY CHALLENGE</span> 🧠<br>
-    <span style="font-size:1.7rem;">
-      If I say <span class="action">Ɔ (Aw)</span> → point to SNAKE 🐍 <br>
-      If I say <span class="action">Ɛ (Eh)</span> → point to BED 🛏️ <br>
-      If I say <span class="action">M</span> → pretend to cook in KITCHEN (Mukaase!) 🍳
-    </span>
+  <div class="game">
+    <h2>🎯 Match &amp; win!</h2>
+    <span class="status" id="status">⭐ Tap a picture, then tap its letter.</span>
+    <div class="pics" id="pics"></div>
+    <div class="letters" id="letters"></div>
+    <button class="reset" id="reset">🔄 New round</button>
+    <div style="text-align:center" id="winBox"></div>
   </div>
 
-  <!-- ===== GAME: MATCH LETTER TO PICTURE ===== -->
-  <div class="game-section" id="gameSection">
-    <div style="text-align: center;">
-      <h2>🎯 MATCH & WIN! 🎯</h2>
-    </div>
-    <div style="text-align: center;">
-      <span class="game-status" id="gameStatus">⭐ Click a picture, then pick the letter!</span>
-    </div>
-
-    <div class="game-grid">
-      <!-- Pictures -->
-      <div class="game-pictures" id="gamePictures">
-        <!-- dynamically filled by JS -->
-      </div>
-
-      <!-- Letter buttons -->
-      <div class="game-letters" id="gameLetters">
-        <!-- dynamically filled by JS -->
-      </div>
-    </div>
-
-    <div style="text-align: center; margin-top: 14px;">
-      <button class="game-reset-btn" id="resetGameBtn">🔄 New Round</button>
-      <div id="winMessage" style="margin-top: 10px;"></div>
-    </div>
-  </div>
-
-  <!-- FINAL CHEER -->
-  <div class="footer-highfive">
-    🏆 YOU DID IT! TWI ALPHABET CHAMPION! 🏆 <br>
-    <span style="font-size:3.6rem;">🎉 HIGH FIVE! 🖐️</span>
-  </div>
-
-  <div style="text-align:center; margin-top:18px; font-size:1.3rem; background: #e0c9a3; border-radius:70px; padding:12px; border:5px dotted #7a5d3a;">
-    🌈 BIG images: 🍠 🔨 ☁️ 🚛 🐍 🍳 🍚 ❤️ and more!
-  </div>
+  <div class="cheer">🏆 Twi alphabet champion! 🖐️</div>
 </div>
 
 <script>
-  (function() {
-    // ----- GAME DATA -----
-    // 6 pairs: picture emoji, Twi word, correct letter, hint (optional)
-    const pairs = [
-      { emoji: '🐍', word: 'ƆwƆ', letter: 'Ɔ', hint: 'snake' },
-      { emoji: '❤️', word: 'Akoma', letter: 'A', hint: 'heart' },
-      { emoji: '🍚', word: 'Di', letter: 'I', hint: 'eat' },
-      { emoji: '🍳', word: 'Mukaase', letter: 'M', hint: 'kitchen' },
-      { emoji: '🐫', word: 'Yoma', letter: 'Y', hint: 'camel' },
-      { emoji: '🚛', word: 'Lɔre', letter: 'L', hint: 'lorry' }
-    ];
+(function(){
+  var pairs=[
+    {em:'🐍',w:'Ɔwɔ',L:'Ɔ',h:'snake'},
+    {em:'❤️',w:'Akoma',L:'A',h:'heart'},
+    {em:'🍚',w:'Di',L:'I',h:'eat'},
+    {em:'🍳',w:'Mukaase',L:'M',h:'kitchen'},
+    {em:'🐫',w:'Yoma',L:'Y',h:'camel'},
+    {em:'🚛',w:'Lɔre',L:'L',h:'lorry'},
+    {em:'🍠',w:'Bankye',L:'B',h:'cassava'},
+    {em:'🧼',w:'Samina',L:'S',h:'soap'}
+  ];
+  var all=['A','B','D','E','Ɛ','F','G','H','I','K','L','M','N','O','Ɔ','P','R','S','T','U','W','Y'];
+  var ROUND=4;
 
-    // All possible letters (including distractors)
-    const allLetters = ['A', 'B', 'D', 'E', 'Ɛ', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'Ɔ', 'P', 'R', 'S', 'T', 'U', 'W', 'Y'];
+  var round=[],sel=null,matched=0,wrong=0,over=false;
+  var picsEl=document.getElementById('pics'),lettersEl=document.getElementById('letters'),
+      statusEl=document.getElementById('status'),winEl=document.getElementById('winBox');
 
-    let currentRound = [];
-    let selectedPicIndex = null;
-    let matchedPairs = 0;
-    let gameOver = false;
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+    var t=a[i];a[i]=a[j];a[j]=t}return a}
 
-    const gamePicturesEl = document.getElementById('gamePictures');
-    const gameLettersEl = document.getElementById('gameLetters');
-    const gameStatusEl = document.getElementById('gameStatus');
-    const winMessageEl = document.getElementById('winMessage');
+  function render(){
+    sel=null;matched=0;wrong=0;over=false;winEl.innerHTML='';
+    statusEl.textContent='⭐ Tap a picture, then tap its letter.';
+    statusEl.style.background='#14563A';statusEl.style.color='#f9f2d9';
 
-    // Shuffle array
-    function shuffle(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    // Pick 4 random pairs for the round, ensure variety
-    function pickRoundPairs() {
-      const shuffled = shuffle([...pairs]);
-      return shuffled.slice(0, 4);
-    }
-
-    // Get 4 distractor letters (not in the correct answers of current round)
-    function getDistractors(roundPairs) {
-      const correctLetters = roundPairs.map(p => p.letter);
-      const available = allLetters.filter(l => !correctLetters.includes(l));
-      const shuffled = shuffle(available);
-      return shuffled.slice(0, 4);
-    }
-
-    // Render the game
-    function renderGame() {
-      // Reset state
-      selectedPicIndex = null;
-      matchedPairs = 0;
-      gameOver = false;
-      winMessageEl.innerHTML = '';
-      gameStatusEl.textContent = '⭐ Click a picture, then pick the letter!';
-      gameStatusEl.style.background = '#2d5a3d';
-
-      // Pick pairs for this round
-      currentRound = pickRoundPairs();
-      // Shuffle the round so pictures appear in random order
-      currentRound = shuffle(currentRound);
-
-      // Build picture elements
-      gamePicturesEl.innerHTML = '';
-      currentRound.forEach((pair, index) => {
-        const div = document.createElement('div');
-        div.className = 'game-pic';
-        div.dataset.index = index;
-        div.dataset.letter = pair.letter;
-        div.innerHTML = `
-          <span class="big-emoji">${pair.emoji}</span>
-          <div style="font-size:1.2rem; background:#f0e4c8; border-radius:30px; padding:0 10px;">${pair.word}</div>
-          <span class="pic-hint">${pair.hint}</span>
-        `;
-        div.addEventListener('click', onPictureClick);
-        gamePicturesEl.appendChild(div);
-      });
-
-      // Build letter buttons: 4 correct + 4 distractors = 8 buttons
-      const correctLetters = currentRound.map(p => p.letter);
-      const distractors = getDistractors(currentRound);
-      let letterPool = [...correctLetters, ...distractors];
-      letterPool = shuffle(letterPool);
-
-      gameLettersEl.innerHTML = '';
-      letterPool.forEach(letter => {
-        const btn = document.createElement('button');
-        btn.className = 'game-letter-btn';
-        btn.textContent = letter;
-        btn.dataset.letter = letter;
-        btn.addEventListener('click', onLetterClick);
-        gameLettersEl.appendChild(btn);
-      });
-    }
-
-    // ----- PICTURE CLICK -----
-    function onPictureClick(e) {
-      if (gameOver) return;
-      const picEl = e.currentTarget;
-      const index = parseInt(picEl.dataset.index);
-      // If already matched, ignore
-      if (picEl.classList.contains('correct')) return;
-
-      // Deselect previous
-      document.querySelectorAll('.game-pic').forEach(el => el.classList.remove('selected'));
-      picEl.classList.add('selected');
-      selectedPicIndex = index;
-      gameStatusEl.textContent = `🔍 You picked: ${currentRound[index].emoji}  — now click the matching letter!`;
-    }
-
-    // ----- LETTER CLICK -----
-    function onLetterClick(e) {
-      if (gameOver) return;
-      const letterBtn = e.currentTarget;
-      // If letter already used, ignore
-      if (letterBtn.classList.contains('used')) return;
-
-      if (selectedPicIndex === null) {
-        gameStatusEl.textContent = '👆 First, click a picture!';
-        return;
-      }
-
-      const picEl = document.querySelector(`.game-pic[data-index="${selectedPicIndex}"]`);
-      if (!picEl || picEl.classList.contains('correct')) {
-        // If picture already matched, reset selection
-        document.querySelectorAll('.game-pic').forEach(el => el.classList.remove('selected'));
-        selectedPicIndex = null;
-        gameStatusEl.textContent = '⭐ That picture is done! Pick another one.';
-        return;
-      }
-
-      const correctLetter = picEl.dataset.letter;
-      const chosenLetter = letterBtn.dataset.letter;
-
-      if (chosenLetter === correctLetter) {
-        // CORRECT!
-        picEl.classList.remove('selected');
-        picEl.classList.add('correct');
-        letterBtn.classList.add('used', 'correct-pick');
-        matchedPairs++;
-        selectedPicIndex = null;
-        gameStatusEl.textContent = '✅ Great job! Keep going! 🎉';
-
-        // Check win
-        if (matchedPairs === currentRound.length) {
-          gameOver = true;
-          gameStatusEl.textContent = '🏆 YOU WIN! You matched all! 🏆';
-          gameStatusEl.style.background = '#f1c40f';
-          gameStatusEl.style.color = '#1f3a1f';
-          winMessageEl.innerHTML = `<div class="game-win">🌟 AMAZING! YOU DID IT! 🌟</div>`;
-        }
-      } else {
-        // WRONG
-        letterBtn.classList.add('wrong-pick');
-        picEl.classList.add('wrong');
-        gameStatusEl.textContent = `❌ Oops! That's not the right letter. Try again!`;
-
-        // Reset wrong styles after short delay
-        setTimeout(() => {
-          letterBtn.classList.remove('wrong-pick');
-          picEl.classList.remove('wrong');
-        }, 500);
-      }
-    }
-
-    // ----- RESET GAME -----
-    document.getElementById('resetGameBtn').addEventListener('click', function() {
-      renderGame();
+    round=shuffle(pairs.slice()).slice(0,ROUND);
+    picsEl.innerHTML='';
+    round.forEach(function(p,i){
+      var d=document.createElement('button');
+      d.className='pic';d.type='button';d.dataset.i=i;d.dataset.L=p.L;
+      d.innerHTML='<span class="em">'+p.em+'</span><span class="tw">'+p.w+'</span><br>'
+                 +'<span class="hn">'+p.h+'</span>';
+      d.onclick=function(){pickPic(d)};
+      picsEl.appendChild(d);
     });
 
-    // ----- INIT -----
-    renderGame();
+    var correct=round.map(function(p){return p.L});
+    var pool=shuffle(all.filter(function(l){return correct.indexOf(l)<0})).slice(0,4);
+    shuffle(correct.concat(pool)).forEach(function(L){
+      var b=document.createElement('button');
+      b.className='lb';b.type='button';b.textContent=L;b.dataset.L=L;
+      b.onclick=function(){pickLetter(b)};
+      lettersEl.appendChild(b);
+    });
+  }
 
-  })();
+  function pickPic(el){
+    if(over||el.classList.contains('ok'))return;
+    Array.prototype.forEach.call(picsEl.children,function(c){c.classList.remove('sel')});
+    el.classList.add('sel');sel=el;
+    statusEl.textContent='🔍 Now tap the letter it starts with.';
+  }
+
+  function pickLetter(btn){
+    if(over||btn.classList.contains('used'))return;
+    if(!sel){statusEl.textContent='👆 Tap a picture first.';return}
+
+    if(btn.dataset.L===sel.dataset.L){
+      sel.classList.remove('sel');sel.classList.add('ok');
+      btn.classList.add('used','ok');
+      matched++;sel=null;
+      statusEl.textContent='✅ Yes! Keep going.';
+      if(matched===round.length)finish();
+    }else{
+      wrong++;
+      btn.classList.add('no');sel.classList.add('no');
+      var p=sel;
+      statusEl.textContent='❌ Not that one. Try again.';
+      setTimeout(function(){btn.classList.remove('no');p.classList.remove('no')},500);
+    }
+  }
+
+  function finish(){
+    over=true;
+    statusEl.textContent='🏆 You matched them all!';
+    statusEl.style.background='#f1c40f';statusEl.style.color='#1f3a1f';
+    winEl.innerHTML='<div class="win">🌟 Amazing! 🌟</div>';
+    // Score out of 5: all four matched earns full marks, each wrong guess costs one,
+    // and it never drops below 2 - a child who finished still finished.
+    report(Math.max(2,5-wrong),5);
+  }
+
+  // Tell the portal how it went. Fires once; harmless if opened outside the portal.
+  var sent=false;
+  function report(score,max){
+    if(sent||window.parent===window)return;
+    sent=true;
+    parent.postMessage({type:'sg:complete',score:score,maxScore:max},'*');
+  }
+
+  document.getElementById('reset').onclick=function(){lettersEl.innerHTML='';render()};
+  render();
+})();
 </script>
 </body>
 </html>

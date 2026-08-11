@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Vowel or Consonant?</title>
+<!-- Kids_Portal · Twi Alphabets/vowel-or-consonant.html · slug: alphabet-sort -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:640px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .letter{background:#fff;border:6px solid #14563A;border-radius:34px;font-size:5rem;
+    font-weight:bold;color:#14563A;padding:6px 0 14px;margin:14px auto;max-width:220px;
+    box-shadow:0 6px 0 #0d3a26;position:relative}
+  .letter .spk{position:absolute;right:12px;bottom:10px;font-size:1.4rem;background:none;
+    border:none;cursor:pointer;padding:4px}
+  .choices{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+  .ch{border:5px solid #b48b3a;border-radius:26px;padding:16px 20px;font-size:1.25rem;
+    font-weight:bold;font-family:inherit;cursor:pointer;flex:1 1 150px;max-width:220px;
+    box-shadow:0 6px 0 #7a5a1f;transition:.12s}
+  .ch:active{transform:translateY(4px);box-shadow:0 2px 0 #7a5a1f}
+  .ch.v{background:#f3b58a;color:#3d1f0a}
+  .ch.c{background:#c0d9b4;color:#1e4a2b}
+  .ch .em{font-size:2rem;display:block}
+  .ch.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .ch.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .4s}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:440px;min-height:2.8em}
+  .bar{display:flex;gap:4px;justify-content:center;margin-top:14px}
+  .bar i{width:22px;height:12px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .bar i.hit{background:#C8901E}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}
+    75%{transform:translateX(8px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}.letter{font-size:6.5rem;max-width:260px}}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🎤 Vowel or Consonant?</h1>
+  <span class="sub">Vowels sing. Consonants clap.</span>
+
+  <div class="letter" id="letter">A<button class="spk" id="spk" aria-label="Hear this letter">🔊</button></div>
+
+  <div class="choices">
+    <button class="ch v" id="btnV" type="button"><span class="em">🎤</span>Vowel</button>
+    <button class="ch c" id="btnC" type="button"><span class="em">🥁</span>Consonant</button>
+  </div>
+
+  <p class="status" id="status">Which one is it?</p>
+  <div class="bar" id="bar"></div>
+  <div id="end"></div>
+</div>
+
+<script>
+(function(){
+  var VOWELS=['A','E','Ɛ','I','O','Ɔ','U'];
+  var CONS=['B','D','F','G','H','K','L','M','N','P','R','S','T','W','Y'];
+  var FILE={'A':'letter-a','B':'letter-b','D':'letter-d','E':'letter-e','Ɛ':'letter-ɛ','F':'letter-f',
+    'G':'letter-g','H':'letter-h','I':'letter-i','K':'letter-k','L':'letter-l','M':'letter-m',
+    'N':'letter-n','O':'letter-o','Ɔ':'letter-ɔ','P':'letter-p','R':'letter-r','S':'letter-s',
+    'T':'letter-t','U':'letter-u','W':'letter-w','Y':'letter-y'};
+  var ROUNDS=8;
+
+  // Half vowels, half consonants, so guessing one answer every time scores 50%.
+  function buildQueue(){
+    var v=shuffle(VOWELS.slice()).slice(0,ROUNDS/2);
+    var c=shuffle(CONS.slice()).slice(0,ROUNDS/2);
+    return shuffle(v.concat(c));
+  }
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+    var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+  var queue=buildQueue(),i=0,score=0,lock=false;
+  var letterEl=document.getElementById('letter'),statusEl=document.getElementById('status'),
+      barEl=document.getElementById('bar'),endEl=document.getElementById('end'),
+      btnV=document.getElementById('btnV'),btnC=document.getElementById('btnC'),
+      spk=document.getElementById('spk');
+
+  var audio=null;
+  function say(L){ if(!FILE[L])return; if(audio)audio.pause();
+    audio=new Audio('/audio/twi-alphabet/'+encodeURIComponent(FILE[L])+'.m4a');
+    audio.play().catch(function(){}); }
+
+  function drawBar(){
+    barEl.innerHTML='';
+    for(var k=0;k<ROUNDS;k++){
+      var e=document.createElement('i');
+      if(k<i)e.className='hit';
+      barEl.appendChild(e);
+    }
+  }
+
+  function show(){
+    if(i>=queue.length)return finish();
+    lock=false;
+    btnV.className='ch v';btnC.className='ch c';
+    letterEl.firstChild.nodeValue=queue[i];
+    statusEl.textContent='Which one is it?';
+    drawBar();
+    say(queue[i]);
+  }
+
+  function answer(isVowel,btn){
+    if(lock)return;lock=true;
+    var L=queue[i];
+    var correct=VOWELS.indexOf(L)>-1;
+    if(isVowel===correct){
+      score++;btn.classList.add('ok');
+      statusEl.textContent='✅ Yes! '+L+' is a '+(correct?'vowel — it sings 🎤':'consonant 🥁');
+    }else{
+      btn.classList.add('no');
+      (correct?btnV:btnC).classList.add('ok');
+      statusEl.textContent='❌ '+L+' is a '+(correct?'vowel 🎤':'consonant 🥁');
+    }
+    i++;
+    setTimeout(show,1400);
+  }
+
+  btnV.onclick=function(){answer(true,btnV)};
+  btnC.onclick=function(){answer(false,btnC)};
+  spk.onclick=function(e){e.stopPropagation();say(queue[i])};
+  letterEl.onclick=function(){say(queue[i])};
+
+  function finish(){
+    drawBar();
+    document.querySelector('.choices').style.display='none';
+    letterEl.style.display='none';
+    statusEl.textContent='You got '+score+' out of '+ROUNDS+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,ROUNDS);
+  }
+
+  var sent=false;
+  function report(s,m){ if(sent||window.parent===window)return; sent=true;
+    parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*'); }
+
+  show();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Alphabet Order</title>
+<!-- Kids_Portal · Twi Alphabets/alphabet-order.html · slug: alphabet-order -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .track{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#d9e9b0;
+    border:5px solid #14563A;border-radius:24px;padding:12px;margin:14px 0;min-height:64px}
+  .track .slot{width:46px;height:46px;border-radius:14px;background:#fff;border:3px dashed #7f9f4b;
+    display:grid;place-items:center;font-size:1.5rem;font-weight:bold;color:#1f3a2f}
+  .track .slot.filled{border-style:solid;background:#C8901E;color:#fff;border-color:#14563A}
+  .pool{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-top:6px}
+  .tile{background:#fef7e6;border:4px solid #b48b3a;border-radius:20px;width:62px;padding:9px 4px;
+    font-size:1.7rem;font-weight:bold;color:#1f3a2f;font-family:inherit;cursor:pointer;
+    box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .tile:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .tile.gone{opacity:.25;pointer-events:none}
+  .tile.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:460px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}.tile{width:72px;font-size:2rem}
+    .track .slot{width:54px;height:54px;font-size:1.8rem}}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🔤 Alphabet Order</h1>
+  <span class="sub">Tap the letters in the right order</span>
+
+  <div class="track" id="track"></div>
+  <div class="pool" id="pool"></div>
+  <p class="status" id="status">Which letter comes first?</p>
+  <div id="end"></div>
+</div>
+
+<script>
+(function(){
+  var ORDER=['A','B','D','E','Ɛ','F','G','H','I','K','L','M','N','O','Ɔ','P','R','S','T','U','W','Y'];
+  var FILE={'A':'letter-a','B':'letter-b','D':'letter-d','E':'letter-e','Ɛ':'letter-ɛ','F':'letter-f',
+    'G':'letter-g','H':'letter-h','I':'letter-i','K':'letter-k','L':'letter-l','M':'letter-m',
+    'N':'letter-n','O':'letter-o','Ɔ':'letter-ɔ','P':'letter-p','R':'letter-r','S':'letter-s',
+    'T':'letter-t','U':'letter-u','W':'letter-w','Y':'letter-y'};
+  var RUN=6;   // letters per round - a short run a child can hold in their head
+
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+    var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+  // Take a consecutive slice of the alphabet, so the answer is a real sequence
+  // rather than an arbitrary sort a child cannot reason about.
+  var start=Math.floor(Math.random()*(ORDER.length-RUN));
+  var target=ORDER.slice(start,start+RUN);
+  var placed=0,wrong=0;
+
+  var trackEl=document.getElementById('track'),poolEl=document.getElementById('pool'),
+      statusEl=document.getElementById('status'),endEl=document.getElementById('end');
+
+  var audio=null;
+  function say(L){ if(!FILE[L])return; if(audio)audio.pause();
+    audio=new Audio('/audio/twi-alphabet/'+encodeURIComponent(FILE[L])+'.m4a');
+    audio.play().catch(function(){}); }
+
+  function drawTrack(){
+    trackEl.innerHTML='';
+    target.forEach(function(L,idx){
+      var s=document.createElement('div');
+      s.className='slot'+(idx<placed?' filled':'');
+      s.textContent=idx<placed?L:'';
+      trackEl.appendChild(s);
+    });
+  }
+
+  function drawPool(){
+    poolEl.innerHTML='';
+    shuffle(target.slice()).forEach(function(L){
+      var b=document.createElement('button');
+      b.className='tile';b.type='button';b.textContent=L;b.dataset.L=L;
+      b.onclick=function(){tap(b,L)};
+      poolEl.appendChild(b);
+    });
+  }
+
+  function tap(btn,L){
+    if(placed>=target.length)return;
+    if(L===target[placed]){
+      btn.classList.add('gone');
+      placed++;
+      say(L);
+      drawTrack();
+      statusEl.textContent = placed<target.length
+        ? '✅ Yes! Now find the next one.'
+        : '🎉 Perfect order!';
+      if(placed===target.length)finish();
+    }else{
+      wrong++;
+      btn.classList.add('no');
+      say(target[placed]);
+      statusEl.textContent='❌ Not yet. Listen — you need '+target[placed]+'.';
+      setTimeout(function(){btn.classList.remove('no')},400);
+    }
+  }
+
+  function finish(){
+    poolEl.innerHTML='';
+    // Full marks for a clean run; each slip costs one, never below 2.
+    var score=Math.max(2,RUN-wrong);
+    statusEl.textContent='Finished with '+wrong+(wrong===1?' mistake.':' mistakes.');
+    endEl.innerHTML='<button class="fin" id="again">🔄 New letters</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,RUN);
+  }
+
+  var sent=false;
+  function report(s,m){ if(sent||window.parent===window)return; sent=true;
+    parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*'); }
+
+  drawTrack();drawPool();
+})();
+</script>
+</body>
+</html>

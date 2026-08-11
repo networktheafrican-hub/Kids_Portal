@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Listen and Find</title>
+<!-- Kids_Portal · Twi Alphabets/listen-and-find.html · slug: alphabet-listen -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:640px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0 4px;border:3px solid #f8b86a}
+  .big{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:30px;
+    font-size:1.6rem;font-weight:bold;padding:22px;margin:18px auto;max-width:420px;
+    cursor:pointer;font-family:inherit;display:block;width:100%;box-shadow:0 6px 0 #0d3a26}
+  .big:active{transform:translateY(4px);box-shadow:0 2px 0 #0d3a26}
+  .big .em{font-size:3rem;display:block}
+  .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:8px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;width:74px;padding:10px 4px;
+    font-size:2rem;font-weight:bold;color:#1f3a2f;font-family:inherit;cursor:pointer;
+    box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .4s}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:440px;min-height:2.6em}
+  .score{font-size:1.1rem;font-weight:bold;color:#14563A;margin-top:10px}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}
+    75%{transform:translateX(8px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}.opt{width:88px;font-size:2.4rem}}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>👂 Listen and Find</h1>
+  <span class="sub">Hear the letter, then tap it</span>
+
+  <button class="big" id="playBtn"><span class="em">🔊</span>Tap to hear the letter</button>
+  <div class="grid" id="opts"></div>
+  <p class="status" id="status">Tap the speaker to begin.</p>
+  <p class="score" id="score"></p>
+  <div id="end"></div>
+</div>
+
+<script>
+(function(){
+  var LETTERS=['A','B','D','E','Ɛ','F','G','H','I','K','L','M','N','O','Ɔ','P','R','S','T','U','W','Y'];
+  var FILE={'A':'letter-a','B':'letter-b','D':'letter-d','E':'letter-e','Ɛ':'letter-ɛ','F':'letter-f',
+    'G':'letter-g','H':'letter-h','I':'letter-i','K':'letter-k','L':'letter-l','M':'letter-m',
+    'N':'letter-n','O':'letter-o','Ɔ':'letter-ɔ','P':'letter-p','R':'letter-r','S':'letter-s',
+    'T':'letter-t','U':'letter-u','W':'letter-w','Y':'letter-y'};
+  var ROUNDS=6, CHOICES=4;
+
+  var answer=null,round=0,score=0,lock=false,heard=false;
+  var optsEl=document.getElementById('opts'),statusEl=document.getElementById('status'),
+      scoreEl=document.getElementById('score'),endEl=document.getElementById('end'),
+      playBtn=document.getElementById('playBtn');
+
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+    var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+  var audio=null;
+  function say(L){
+    if(!FILE[L])return;
+    if(audio)audio.pause();
+    audio=new Audio('/audio/twi-alphabet/'+encodeURIComponent(FILE[L])+'.m4a');
+    audio.play().catch(function(){});
+  }
+
+  function next(){
+    round++;
+    if(round>ROUNDS)return finish();
+    lock=false;heard=false;
+    answer=LETTERS[Math.floor(Math.random()*LETTERS.length)];
+    var others=shuffle(LETTERS.filter(function(l){return l!==answer})).slice(0,CHOICES-1);
+    var pool=shuffle(others.concat([answer]));
+
+    optsEl.innerHTML='';
+    pool.forEach(function(L){
+      var b=document.createElement('button');
+      b.className='opt';b.type='button';b.textContent=L;
+      b.onclick=function(){choose(b,L)};
+      optsEl.appendChild(b);
+    });
+    scoreEl.textContent='Question '+round+' of '+ROUNDS;
+    statusEl.textContent='Tap the speaker, then pick the letter you heard.';
+  }
+
+  function choose(btn,L){
+    if(lock)return;
+    if(!heard){statusEl.textContent='👂 Listen first — tap the big speaker.';return}
+    lock=true;
+    if(L===answer){
+      score++;btn.classList.add('ok');
+      statusEl.textContent='✅ Yes! That is '+answer+'.';
+    }else{
+      btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===answer)c.classList.add('ok')});
+      statusEl.textContent='❌ That one was '+answer+'.';
+    }
+    say(answer);
+    setTimeout(next,1500);
+  }
+
+  playBtn.onclick=function(){ if(!answer)return; heard=true; say(answer);
+    statusEl.textContent='Now tap the letter you heard.'; };
+
+  function finish(){
+    optsEl.innerHTML='';playBtn.style.display='none';
+    statusEl.textContent='All done!';
+    scoreEl.textContent='You got '+score+' out of '+ROUNDS+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,ROUNDS);
+  }
+
+  var sent=false;
+  function report(s,m){ if(sent||window.parent===window)return; sent=true;
+    parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*'); }
+
+  next();
+})();
+</script>
+</body>
+</html>

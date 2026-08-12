@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Your Soul Name</title>
+<!-- Kids_Portal · Day Born Names/kradin-lesson.html · slug: kradin-lesson -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .rows{display:grid;gap:10px;margin-top:14px}
+  .r{background:#fff;border:3px solid #efc48c;border-radius:24px;padding:11px 13px;display:flex;
+    align-items:center;gap:9px;box-shadow:0 4px 0 #b6956a;flex-wrap:wrap;text-align:left}
+  .r .day{font-size:1.15rem;font-weight:bold;background:#c0d9b4;color:#1e4a2b;border:2px solid #7eae6a;
+    border-radius:30px;padding:3px 13px;cursor:pointer;font-family:inherit;flex:0 0 auto}
+  .r .en{font-size:.85rem;color:#5A6B60;font-weight:bold}
+  .r .nm{border:none;border-radius:30px;padding:4px 14px;font-size:1.05rem;font-weight:bold;
+    cursor:pointer;font-family:inherit}
+  .r .nm.b{background:#d6e9ff;color:#004080}
+  .r .nm.g{background:#ffdbe8;color:#8a1f4a}
+  .r .nm.playing,.r .day.playing{box-shadow:0 0 0 3px #14563A}
+  .r .e{margin-left:auto;font-size:1.5rem}
+  .hint{font-size:.95rem;font-weight:bold;color:#4d2f12;background:#fff1c7;padding:7px 16px;
+    border-radius:40px;max-width:420px;margin:12px auto 0;border:3px solid #f7b86a}
+  .note{background:#fff;border:3px dashed #cb7b2c;border-radius:24px;padding:13px;margin-top:14px;
+    font-size:.95rem;font-weight:bold;color:#492f16;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>✨ Your Soul Name</h1>
+  <span class="sub">Kradin — the day you were born</span>
+  <p class="hint">🔊 Tap a day or a name to hear it</p>
+  <div class="rows" id="rows"></div>
+  <p class="note">In Akan tradition every child gets a name from the day they were born.
+     Boys and girls born on the same day share a matching pair of names.</p>
+  <p class="status" id="status">Tap them all, then try the games.</p>
+  <div id="end"></div>
+</div>
+<script>
+var D=[
+ {tw:'Ɛdwoada', en:'Monday',    m:'Kwadwo',  f:'Adwoa',  af:'monday',    e:'🌙'},
+ {tw:'Ɛbenada', en:'Tuesday',   m:'Kwabena', f:'Abena',  af:'tuesday',   e:'🔥'},
+ {tw:'Wukuada', en:'Wednesday', m:'Kwaku',   f:'Akua',   af:'wednesday', e:'🕷️'},
+ {tw:'Yawoada', en:'Thursday',  m:'Yaw',     f:'Yaa',    af:'thursday',  e:'🌍'},
+ {tw:'Efiada',  en:'Friday',    m:'Kofi',    f:'Afia',   af:'friday',    e:'🌱'},
+ {tw:'Memeneda',en:'Saturday',  m:'Kwame',   f:'Ama',    af:'saturday',  e:'☀️'},
+ {tw:'Kwasiada',en:'Sunday',    m:'Kwasi',   f:'Akosua', af:'sunday',    e:'✨'}
+];
+function sayK(f){var a=new Audio('/audio?f=kradin/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var heard={},cur=null,curEl=null;
+  var rowsEl=document.getElementById('rows'),statusEl=document.getElementById('status'),
+      endEl=document.getElementById('end');
+
+  function play(file,el,key){
+    if(cur)cur.pause(); if(curEl)curEl.classList.remove('playing');
+    cur=sayK(file);curEl=el;el.classList.add('playing');
+    cur.addEventListener('ended',function(){el.classList.remove('playing')});
+    cur.addEventListener('error',function(){el.classList.remove('playing')});
+    heard[key]=1;
+    var c=Object.keys(heard).length;
+    statusEl.textContent=c<7?('You have heard '+c+' of 7 days.'):'You heard them all! 🎉';
+    if(c>=7&&!endEl.innerHTML){
+      endEl.innerHTML='<button class="fin" id="done">✅ I know my kradin</button>';
+      document.getElementById('done').onclick=function(){report(5,5)};
+    }
+  }
+
+  D.forEach(function(d){
+    var r=document.createElement('div');r.className='r';
+    var day=document.createElement('button');day.className='day';day.type='button';day.textContent=d.tw;
+    var en=document.createElement('span');en.className='en';en.textContent=d.en;
+    var b=document.createElement('button');b.className='nm b';b.type='button';b.textContent='👦 '+d.m;
+    var g=document.createElement('button');g.className='nm g';g.type='button';g.textContent='👧 '+d.f;
+    var e=document.createElement('span');e.className='e';e.textContent=d.e;
+    day.onclick=function(){play(d.af,day,d.en)};
+    b.onclick=function(){play(d.m.toLowerCase(),b,d.en)};
+    g.onclick=function(){play(d.f.toLowerCase(),g,d.en)};
+    r.appendChild(day);r.appendChild(en);r.appendChild(b);r.appendChild(g);r.appendChild(e);
+    rowsEl.appendChild(r);
+  });
+})();
+</script>
+</body>
+</html>

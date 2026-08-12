@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ɛnnɛ, Ɛnnora, Ɔkyena</title>
+<!-- Kids_Portal · Time and Greetings/yesterday-today.html · slug: time-days -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .line{display:flex;gap:8px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+  .cell{background:#fff;border:4px solid #2a6d8c;border-radius:22px;padding:14px 10px;min-width:104px;
+    text-align:center}
+  .cell .e{font-size:1.7rem;display:block}
+  .cell .n{font-size:1.05rem;font-weight:bold;color:#003153;margin-top:3px}
+  .cell.ask{background:#fff7d6;border-style:dashed;border-color:#cb7b2c;color:#cb7b2c}
+  .cell.ask .n{color:#cb7b2c;font-size:1.6rem}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📆 Ɛnnɛ, Ɛnnora, Ɔkyena</h1>
+  <span class="sub">Yesterday, today, tomorrow</span>
+  <div class="dots" id="dots"></div>
+  <p class="status" id="tale" style="margin-bottom:2px"></p>
+  <div class="line" id="line"></div>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div id="end"></div>
+</div>
+<script>
+var CLOCK=[
+ {h:1, w:'nnɔnkoro',     f:'oneoclock'},
+ {h:2, w:'nnɔnmienu',    f:'twooclock'},
+ {h:3, w:'nnɔnmiensa',   f:'threeoclock'},
+ {h:4, w:'nnɔnnan',      f:'fouroclock'},
+ {h:5, w:'nnɔnnum',      f:'fiveoclock'},
+ {h:6, w:'nnɔnsia',      f:'sixoclock'},
+ {h:7, w:'nnɔnson',      f:'sevenoclock'},
+ {h:8, w:'nnɔnwɔtwe',    f:'eightoclock'},
+ {h:9, w:'nnɔnkron',     f:'nineoclock'},
+ {h:10,w:'nnɔndu',       f:'tenoclock'},
+ {h:11,w:'nnɔndubaako',  f:'elevenoclock'},
+ {h:12,w:'nnɔndummienu', f:'twelveoclock'}
+];
+var PART=[
+ {w:'anɔpa',     en:'morning',   f:'morning',   e:'🌅', greet:'maakye', gf:'goodmorning',   hours:[6,7,8,9,10,11]},
+ {w:'awia',      en:'afternoon', f:'afternoon', e:'☀️', greet:'maaha',  gf:'goodafternoon', hours:[12,1,2,3,4]},
+ {w:'anwummerɛ', en:'evening',   f:'evening',   e:'🌇', greet:'maadwo', gf:'goodevening',   hours:[5,6,7]},
+ {w:'anadwo',    en:'night',     f:'night',     e:'🌙', greet:'maadwo', gf:'goodevening',   hours:[8,9,10,11]}
+];
+var DAYW=[
+ {w:'ɛnnora', en:'yesterday', f:'yesterday', e:'⬅️'},
+ {w:'ɛnnɛ',   en:'today',     f:'today',     e:'⭐'},
+ {w:'ɔkyena', en:'tomorrow',  f:'tomorrow',  e:'➡️'}
+];
+function sayT(f){var a=new Audio('/audio?f=time/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+function clockSVG(h,size){
+  size=size||150;
+  var ang=(h%12)*30, r=size/2;
+  var hx=r+Math.sin(ang*Math.PI/180)*(r*0.42), hy=r-Math.cos(ang*Math.PI/180)*(r*0.42);
+  var ticks='';
+  for(var i=1;i<=12;i++){
+    var a=i*30, tx=r+Math.sin(a*Math.PI/180)*(r*0.78), ty=r-Math.cos(a*Math.PI/180)*(r*0.78);
+    ticks+='<text x="'+tx+'" y="'+(ty+5)+'" text-anchor="middle" font-size="'+(r*0.19)
+      +'" font-weight="bold" fill="#14563A">'+i+'</text>';
+  }
+  return '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'">'
+    +'<circle cx="'+r+'" cy="'+r+'" r="'+(r-5)+'" fill="#fff" stroke="#14563A" stroke-width="6"/>'
+    +ticks
+    +'<line x1="'+r+'" y1="'+r+'" x2="'+r+'" y2="'+(r*0.42)+'" stroke="#A81B1B" stroke-width="4" stroke-linecap="round"/>'
+    +'<line x1="'+r+'" y1="'+r+'" x2="'+hx+'" y2="'+hy+'" stroke="#14563A" stroke-width="7" stroke-linecap="round"/>'
+    +'<circle cx="'+r+'" cy="'+r+'" r="'+(r*0.06)+'" fill="#C8901E"/></svg>';
+}
+
+(function(){
+  var TOTAL=6;
+  var DAYS=['Ɛdwoada','Ɛbenada','Wukuada','Yawoada','Efiada','Memeneda','Kwasiada'];
+  var quiz=[];
+  for(var i=0;i<TOTAL;i++){
+    var today=1+Math.floor(Math.random()*(DAYS.length-2));
+    quiz.push({t:today, ask:[0,2][i%2]});   /* 0 = yesterday, 2 = tomorrow */
+  }
+  var at=0,score=0,lock=false,marks=[];
+  var lineEl=document.getElementById('line'),optsEl=document.getElementById('opts'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      taleEl=document.getElementById('tale'),endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function draw(q,reveal){
+    lineEl.innerHTML='';
+    [0,1,2].forEach(function(slot){
+      var d=DAYW[slot], dayName=DAYS[q.t-1+slot];
+      var c=document.createElement('div');
+      var hidden=(slot===q.ask)&&!reveal;
+      c.className='cell'+(hidden?' ask':'');
+      c.innerHTML='<span class="e">'+d.e+'</span><span>'+d.w+'</span>'
+        +'<span class="n">'+(hidden?'?':dayName)+'</span>';
+      lineEl.appendChild(c);
+    });
+  }
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    taleEl.textContent='Today ('+DAYW[1].w+') is '+DAYS[q.t]+'.';
+    draw(q,false);
+    statusEl.textContent='So what is '+DAYW[q.ask].w+'?';
+    dots();sayT(DAYW[q.ask].f);
+    var want=DAYS[q.t-1+q.ask];
+    var pool=DAYS.filter(function(d){return d!==want});
+    optsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([want])).forEach(function(o){
+      var b=document.createElement('button');b.className='opt';b.type='button';b.textContent=o;
+      b.onclick=function(){answer(b,o,want,q)};optsEl.appendChild(b)});
+  }
+  function answer(btn,chosen,want,q){
+    if(lock)return;lock=true;
+    var right=chosen===want;marks[at]=right;
+    draw(q,true);
+    if(right){score++;btn.classList.add('ok');
+      statusEl.textContent='✅ Yes! '+DAYW[q.ask].w+' is '+want+'.'}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===want)c.classList.add('ok')});
+      statusEl.textContent='❌ '+DAYW[q.ask].w+' is '+want+'.'}
+    sayT(DAYW[q.ask].f);dots();at++;setTimeout(show,2000);
+  }
+  function finish(){
+    dots();taleEl.textContent='';lineEl.innerHTML='';optsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Name the Fruit</title>
+<!-- Kids_Portal · Fruits/name-the-fruit.html · slug: fruit-name -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .q{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:18px 16px;
+    font-size:1.1rem;font-weight:bold;margin:14px 0;min-height:130px;display:flex;
+    align-items:center;justify-content:center;flex-direction:column;gap:8px}
+  .q .huge{font-size:2.1rem;line-height:1.2}
+  .q .em{font-size:4rem;line-height:1}
+  .q .spk{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:8px 20px;
+    font-size:1rem;font-weight:bold;color:#4d2f12;cursor:pointer;font-family:inherit}
+  .result{font-size:1.35rem;font-weight:bold;color:#14563A;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🏷️ Name the Fruit</h1>
+  <span class="sub">What is this in Twi?</span>
+  <div class="dots" id="dots"></div>
+  <div class="q" id="q"></div>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div id="end"></div>
+</div>
+<script>
+var F=[
+ {w:'ankaa',        en:'orange',     f:'orange',     e:'🍊', col:'orange'},
+ {w:'ankaa twadeɛ', en:'lime',       f:'lime',       e:'🍋', col:'green'},
+ {w:'kwadu',        en:'banana',     f:'banana',     e:'🍌', col:'yellow'},
+ {w:'borɔferɛ',     en:'pawpaw',     f:'pawpaw',     e:'🍈', col:'orange'},
+ {w:'aborɔbɛ',      en:'pineapple',  f:'pineapple',  e:'🍍', col:'yellow'},
+ {w:'kube',         en:'coconut',    f:'coconut',    e:'🥥', col:'brown'},
+ {w:'paya',         en:'pear',       f:'pear',       e:'🍐', col:'green'},
+ {w:'amango',       en:'mango',      f:'mango',      e:'🥭', col:'yellow'},
+ {w:'anamuna',      en:'watermelon', f:'watermelon', e:'🍉', col:'green'},
+ {w:'abɛ',          en:'palm fruit', f:'palmfruit',  e:'🌴', col:'red'},
+ {w:'atadwe',       en:'tigernut',   f:'tigernut',   e:'🌰', col:'brown'},
+ {w:'nkateɛ',       en:'groundnut',  f:'groundnut',  e:'🥜', col:'brown'},
+ {w:'ahwedeɛ',      en:'sugarcane',  f:'sugarcane',  e:'🎋', col:'green'}
+];
+var FWORD={w:'aduaba', en:'fruit', f:'fruit', e:'🧺'};
+var FCOL={red:'kɔkɔɔ',green:'ahabammono',yellow:'akokɔsradeɛ',brown:'dodoeɛ'};
+var FSURE=F.filter(function(x){return ['yellow','green','brown'].indexOf(x.col)>-1});
+var FNUM={1:'baako',2:'mmienu',3:'mmiensa',4:'ɛnan',5:'enum',6:'nsia',7:'nson',8:'nwɔtwe',9:'nkron',10:'du'};
+function sayF(f){var a=new Audio('/audio?f=fruits/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  var quiz=shuffle(F.slice()).slice(0,TOTAL);
+  var at=0,score=0,lock=false,marks=[];
+  var qEl=document.getElementById('q'),optsEl=document.getElementById('opts'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    qEl.innerHTML='<span class="em">'+q.e+'</span>';
+    statusEl.textContent='Pick the Twi word.';dots();
+    var pool=F.filter(function(x){return x.en!==q.en}).map(function(x){return x.w});
+    optsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([q.w])).forEach(function(o){
+      var b=document.createElement('button');b.className='opt';b.type='button';b.textContent=o;
+      b.onclick=function(){answer(b,o,q)};optsEl.appendChild(b)});
+  }
+  function answer(btn,chosen,q){
+    if(lock)return;lock=true;
+    var right=chosen===q.w;marks[at]=right;
+    if(right){score++;btn.classList.add('ok');statusEl.textContent='✅ Yes — '+q.w+' is '+q.en+'.'}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===q.w)c.classList.add('ok')});
+      statusEl.textContent='❌ That is '+q.w+' — '+q.en+'.'}
+    sayF(q.f);dots();at++;setTimeout(show,1600);
+  }
+  function finish(){
+    dots();qEl.innerHTML='<span class="em">🎉</span>';optsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

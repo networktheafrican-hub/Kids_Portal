@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Number Line</title>
+<!-- Kids_Portal · Twi Numbers/number-line.html · slug: numbers-order -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .track{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#b2d8e8;
+    border:5px solid #2a6d8c;border-radius:26px;padding:14px 12px;margin:14px 0;min-height:70px}
+  .slot{width:64px;height:56px;border-radius:16px;background:#fff;border:3px dashed #597b8f;
+    display:grid;place-items:center;font-size:1.05rem;font-weight:bold;color:#003153}
+  .slot.filled{background:#C8901E;color:#fff;border:3px solid #14563A;border-style:solid}
+  .pool{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+  .tile{background:#fef7e6;border:4px solid #b48b3a;border-radius:20px;padding:10px 14px;
+    min-width:92px;font-size:1.15rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .tile:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .tile.gone{opacity:.25;pointer-events:none}
+  .tile.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📏 Number Line</h1>
+  <span class="sub">Put them in order, baako first</span>
+  <div class="track" id="track"></div>
+  <div class="pool" id="pool"></div>
+  <p class="status" id="status">Which number comes first?</p>
+  <div id="end"></div>
+</div>
+<script>
+var N=[
+ {n:1,w:'baako',  f:'one',   e:'🥭'},
+ {n:2,w:'mmienu', f:'two',   e:'🍌'},
+ {n:3,w:'mmiensa',f:'three', e:'🥥'},
+ {n:4,w:'ɛnan',   f:'four',  e:'🍍'},
+ {n:5,w:'enum',   f:'five',  e:'🐟'},
+ {n:6,w:'nsia',   f:'six',   e:'🥚'},
+ {n:7,w:'nson',   f:'seven', e:'🌽'},
+ {n:8,w:'nwɔtwe', f:'eight', e:'🍠'},
+ {n:9,w:'nkron',  f:'nine',  e:'🥜'},
+ {n:10,w:'du',    f:'ten',   e:'⭐'}
+];
+function sayN(f){var a=new Audio('/audio?f=twi-numbers/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var RUN=6;
+  var start=Math.floor(Math.random()*(N.length-RUN));
+  var target=N.slice(start,start+RUN);
+  var placed=0,wrong=0;
+  var trackEl=document.getElementById('track'),poolEl=document.getElementById('pool'),
+      statusEl=document.getElementById('status'),endEl=document.getElementById('end');
+
+  function drawTrack(){
+    trackEl.innerHTML='';
+    target.forEach(function(x,i){
+      var s=document.createElement('div');
+      s.className='slot'+(i<placed?' filled':'');
+      s.textContent=i<placed?x.w:'?';
+      trackEl.appendChild(s);
+    });
+  }
+  function drawPool(){
+    poolEl.innerHTML='';
+    shuffle(target.slice()).forEach(function(x){
+      var b=document.createElement('button');
+      b.className='tile';b.type='button';b.textContent=x.w;b.dataset.n=x.n;
+      b.onclick=function(){tap(b,x)};
+      poolEl.appendChild(b);
+    });
+  }
+  function tap(btn,x){
+    if(placed>=target.length)return;
+    var want=target[placed];
+    if(x.n===want.n){
+      btn.classList.add('gone');placed++;sayN(x.f);drawTrack();
+      statusEl.textContent=placed<target.length?('✅ '+x.w+' is '+x.n+'. Next!'):'🎉 Perfect order!';
+      if(placed===target.length)finish();
+    }else{
+      wrong++;btn.classList.add('no');sayN(want.f);
+      statusEl.textContent='❌ Not yet — you need '+want.n+'.';
+      setTimeout(function(){btn.classList.remove('no')},400);
+    }
+  }
+  function finish(){
+    poolEl.innerHTML='';
+    var score=Math.max(2,RUN-wrong);
+    statusEl.textContent=wrong===0?'Perfect — no mistakes!':
+      ('Finished with '+wrong+(wrong===1?' mistake.':' mistakes.'));
+    endEl.innerHTML='<button class="fin" id="again">🔄 New numbers</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,RUN);
+  }
+  drawTrack();drawPool();
+})();
+</script>
+</body>
+</html>

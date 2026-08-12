@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Paint It</title>
+<!-- Kids_Portal · Colours/paint-it.html · slug: colour-paint -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .canvas{background:#fff;border:5px solid #14563A;border-radius:26px;padding:18px;margin:14px 0;
+    min-height:170px;display:flex;align-items:center;justify-content:center}
+  .canvas svg{width:190px;height:auto}
+  .ask{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:13px;
+    font-size:1.2rem;font-weight:bold}
+  .pads{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;margin-top:12px}
+  .pad{height:70px;border:4px solid #14563A;border-radius:20px;cursor:pointer;font-family:inherit;
+    box-shadow:0 5px 0 rgba(20,86,58,.35)}
+  .pad:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(20,86,58,.35)}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🖌️ Paint It</h1>
+  <span class="sub">Colour the picture as you are told</span>
+  <div class="dots" id="dots"></div>
+  <p class="ask" id="ask"></p>
+  <div class="canvas" id="canvas"></div>
+  <div class="pads" id="pads"></div>
+  <p class="status" id="status"></p>
+  <div id="end"></div>
+</div>
+<script>
+var C=[
+ {w:'kɔkɔɔ',        en:'red',    f:'red',    hex:'#C62828', core:1, e:'🍅'},
+ {w:'tuntum',       en:'black',  f:'black',  hex:'#1B1B1B', core:1, e:'🌑'},
+ {w:'fitaa',        en:'white',  f:'white',  hex:'#FFFFFF', core:1, e:'☁️'},
+ {w:'ahabammono',   en:'green',  f:'green',  hex:'#2E7D32', core:1, e:'🌿'},
+ {w:'akokɔsradeɛ',  en:'yellow', f:'yellow', hex:'#F9C10A', core:1, e:'🍌'},
+ {w:'bibire',       en:'blue',   f:'blue',   hex:'#1A4FA0', core:1, e:'🌊'},
+ {w:'dodoeɛ',       en:'brown',  f:'brown',  hex:'#795034', core:1, e:'🪵'},
+ {w:'memen',        en:'pink',   f:'pink',   hex:'#EC7CA5', core:1, e:'🌸'},
+ {w:'sika kɔkɔɔ',   en:'gold',   f:'gold',   hex:'#C8901E', core:0, e:'🏅'},
+ {w:'nsonso',       en:'grey',   f:'grey',   hex:'#8A9199', core:0, e:'🐘'},
+ {w:'beredum',      en:'purple', f:'purple', hex:'#6A359A', core:0, e:'🍇'}
+];
+var CORE=C.filter(function(x){return x.core});
+function sayC(f){var a=new Audio('/audio?f=colours/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+function ink(hex){return (hex==='#FFFFFF'||hex==='#F9C10A')?'#1B1B1B':'#fff'}
+
+(function(){
+  var TOTAL=6;
+  var SHAPES=[
+   {n:'ball',   svg:function(f){return '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="'+f+'" stroke="#14563A" stroke-width="5"/></svg>'}},
+   {n:'house',  svg:function(f){return '<svg viewBox="0 0 100 100"><polygon points="50,12 92,45 8,45" fill="'+f+'" stroke="#14563A" stroke-width="5"/><rect x="20" y="45" width="60" height="45" fill="'+f+'" stroke="#14563A" stroke-width="5"/></svg>'}},
+   {n:'fish',   svg:function(f){return '<svg viewBox="0 0 100 100"><ellipse cx="45" cy="50" rx="34" ry="22" fill="'+f+'" stroke="#14563A" stroke-width="5"/><polygon points="79,50 96,32 96,68" fill="'+f+'" stroke="#14563A" stroke-width="5"/><circle cx="30" cy="44" r="4" fill="#14563A"/></svg>'}},
+   {n:'star',   svg:function(f){return '<svg viewBox="0 0 100 100"><polygon points="50,8 61,38 94,38 67,58 77,90 50,70 23,90 33,58 6,38 39,38" fill="'+f+'" stroke="#14563A" stroke-width="5"/></svg>'}},
+   {n:'leaf',   svg:function(f){return '<svg viewBox="0 0 100 100"><path d="M50 88 C10 70 12 22 50 10 C88 22 90 70 50 88 Z" fill="'+f+'" stroke="#14563A" stroke-width="5"/></svg>'}},
+   {n:'drum',   svg:function(f){return '<svg viewBox="0 0 100 100"><rect x="26" y="24" width="48" height="58" rx="8" fill="'+f+'" stroke="#14563A" stroke-width="5"/><ellipse cx="50" cy="24" rx="24" ry="10" fill="#F6EFE2" stroke="#14563A" stroke-width="5"/></svg>'}}
+  ];
+  var quiz=shuffle(SHAPES.slice()).slice(0,TOTAL).map(function(s,i){
+    return {s:s,c:shuffle(CORE.slice())[0]}});
+  var at=0,score=0,lock=false,marks=[];
+  var askEl=document.getElementById('ask'),canvasEl=document.getElementById('canvas'),
+      padsEl=document.getElementById('pads'),statusEl=document.getElementById('status'),
+      dotsEl=document.getElementById('dots'),endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    askEl.textContent='Make the '+q.s.n+' '+q.c.w+'!';
+    canvasEl.innerHTML=q.s.svg('#F1EBDD');
+    statusEl.textContent='Tap the right paint pot.';dots();sayC(q.c.f);
+    var pool=CORE.filter(function(x){return x.en!==q.c.en});
+    padsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([q.c])).forEach(function(o){
+      var b=document.createElement('button');b.className='pad';b.type='button';
+      b.style.background=o.hex;b.setAttribute('aria-label',o.en);
+      b.onclick=function(){paint(b,o,q)};padsEl.appendChild(b)});
+  }
+  function paint(btn,o,q){
+    if(lock)return;lock=true;
+    var right=o.en===q.c.en;marks[at]=right;
+    canvasEl.innerHTML=q.s.svg(right?q.c.hex:o.hex);
+    if(right){score++;statusEl.textContent='✅ A '+q.c.w+' '+q.s.n+'!'}
+    else{
+      statusEl.textContent='❌ That is '+o.w+'. '+q.c.w+' is '+q.c.en+'.';
+      setTimeout(function(){canvasEl.innerHTML=q.s.svg(q.c.hex)},700);
+    }
+    sayC(q.c.f);dots();at++;setTimeout(show,1900);
+  }
+  function finish(){
+    dots();askEl.textContent='';canvasEl.innerHTML='<span style="font-size:3rem">🎉</span>';
+    padsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

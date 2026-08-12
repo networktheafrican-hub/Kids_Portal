@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Who Is It?</title>
+<!-- Kids_Portal · Sentences/who-is-it.html · slug: verb-listen -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .q{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:18px 16px;
+    font-size:1.1rem;font-weight:bold;margin:14px 0;min-height:150px;display:flex;
+    align-items:center;justify-content:center;flex-direction:column;gap:8px}
+  .q .huge{font-size:2.1rem;line-height:1.2}
+  .q .fig{background:#fff;border-radius:20px;padding:6px;display:inline-flex}
+  .q .spk{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:8px 20px;
+    font-size:1rem;font-weight:bold;color:#4d2f12;cursor:pointer;font-family:inherit}
+  .result{font-size:1.35rem;font-weight:bold;color:#14563A;margin-top:12px}
+
+  .big{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:30px;font-size:1.2rem;
+    font-weight:bold;padding:20px;margin:14px auto;max-width:420px;cursor:pointer;font-family:inherit;
+    display:block;width:100%;box-shadow:0 6px 0 #0d3a26}
+  .big .em{font-size:2.5rem;display:block}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>👂 Who Is It?</h1>
+  <span class="sub">Hear the sentence, pick the person</span>
+  <div class="dots" id="dots"></div>
+  <button class="big" id="play"><span class="em">🔊</span>Tap to hear a sentence</button>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status">Tap the speaker to begin.</p>
+  <div id="end"></div>
+</div>
+<script>
+/* Subject pronouns. Some contract when a verb follows - that contraction is
+   the whole point of this chapter, so it is shown explicitly everywhere. */
+var P=[
+ {full:'me',  sub:'me', en:'I',        f:'me',   e:'🧒', contracts:false},
+ {full:'wo',  sub:'wo', en:'you',      f:'wo',   e:'👉', contracts:false},
+ {full:'ɔno', sub:'ɔ',  en:'he / she', f:'ono',  e:'🧑', contracts:true},
+ {full:'yɛn', sub:'yɛ', en:'we',       f:'yen',  e:'👨‍👩‍👧', contracts:true},
+ {full:'mo',  sub:'mo', en:'you (all)',f:'mo',   e:'👥', contracts:false},
+ {full:'wɔn', sub:'wɔ', en:'they',     f:'won',  e:'👨‍👩‍👧‍👦', contracts:true},
+ {full:'ɛno', sub:'ɛ',  en:'it',       f:'eno',  e:'📦', contracts:true}
+];
+var V=[
+ {w:'didi',  en:'eat',   f:'didi',  act:'eat'},
+ {w:'nom',   en:'drink', f:'nom',   act:'drink'},
+ {w:'da',    en:'sleep', f:'da',    act:'sleep'},
+ {w:'nante', en:'walk',  f:'nante', act:'walk'},
+ {w:'su',    en:'cry',   f:'su',    act:'cry'},
+ {w:'sere',  en:'laugh', f:'sere',  act:'laugh'},
+ {w:'goro',  en:'play',  f:'goro',  act:'play'},
+ {w:'dware', en:'bath',  f:'dware', act:'bath'}
+];
+/* Joined recordings we actually have. Anything not listed plays the pronoun
+   and the verb one after the other instead - still correct, just two clips. */
+var JOINED={
+ 'me|didi':'medidi','wo|didi':'wodidi','ɔ|didi':'odidi','yɛ|didi':'yedidi',
+ 'mo|didi':'modidi','wɔ|didi':'wodidi2','ɛ|didi':'edidi',
+ 'ɔ|su':'osu','yɛ|nante':'yenante','ɔ|da':'oda','wo|sere':'wosere'
+};
+function sentence(p,v){return p.sub+v.w}
+function sayV(f){var a=new Audio('/audio?f=verbs/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* Play a whole sentence: one clip if we recorded it, otherwise pronoun then verb. */
+function saySentence(p,v){
+  var key=p.sub+'|'+v.w, one=JOINED[key];
+  if(one)return sayV(one);
+  var a=sayV(p.f);
+  a.addEventListener('ended',function(){sayV(v.f)});
+  return a;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+/* Stick figures - a verb needs a body doing something, which emoji cannot show. */
+function actor(act,size){
+  size=size||150;
+  var SK='#8D5524',LN='#3A2A1C',SH='#14563A';
+  var head='<circle cx="50" cy="20" r="13" fill="'+SK+'" stroke="'+LN+'" stroke-width="3"/>';
+  var S='<svg viewBox="0 0 100 100" width="'+size+'" height="'+size+'">';
+  var E='</svg>';
+  var L='stroke="'+SK+'" stroke-width="7" stroke-linecap="round" fill="none"';
+  var T='<path d="M50 33 L50 62" stroke="'+SH+'" stroke-width="13" stroke-linecap="round"/>';
+  if(act==='eat')return S+head+T
+    +'<path d="M50 42 L66 30" '+L+'/><path d="M50 44 L34 56" '+L+'/>'
+    +'<circle cx="70" cy="26" r="6" fill="#C8901E" stroke="'+LN+'" stroke-width="2"/>'
+    +'<path d="M44 62 L38 88 M56 62 L62 88" '+L+'/>'+E;
+  if(act==='drink')return S+head+T
+    +'<path d="M50 42 L64 28" '+L+'/><path d="M50 46 L36 58" '+L+'/>'
+    +'<rect x="60" y="18" width="12" height="14" rx="2" fill="#1A4FA0" stroke="'+LN+'" stroke-width="2"/>'
+    +'<path d="M44 62 L38 88 M56 62 L62 88" '+L+'/>'+E;
+  if(act==='sleep')return S
+    +'<circle cx="30" cy="60" r="13" fill="'+SK+'" stroke="'+LN+'" stroke-width="3"/>'
+    +'<path d="M43 62 L74 62" stroke="'+SH+'" stroke-width="13" stroke-linecap="round"/>'
+    +'<path d="M74 62 L86 74" '+L+'/>'
+    +'<rect x="14" y="70" width="76" height="8" rx="4" fill="#C8901E" stroke="'+LN+'" stroke-width="2"/>'
+    +'<text x="52" y="34" font-size="16" fill="'+LN+'" font-weight="bold">z</text>'
+    +'<text x="66" y="22" font-size="12" fill="'+LN+'" font-weight="bold">z</text>'+E;
+  if(act==='walk')return S+head+T
+    +'<path d="M50 42 L34 52 M50 44 L66 54" '+L+'/>'
+    +'<path d="M50 62 L36 88 M50 62 L64 84" '+L+'/>'+E;
+  if(act==='cry')return S+head+T
+    +'<path d="M50 42 L34 32 M50 42 L66 32" '+L+'/>'
+    +'<circle cx="45" cy="22" r="2.5" fill="#1A4FA0"/><circle cx="55" cy="22" r="2.5" fill="#1A4FA0"/>'
+    +'<path d="M45 26 L44 34 M55 26 L56 34" stroke="#1A4FA0" stroke-width="3" stroke-linecap="round"/>'
+    +'<path d="M44 62 L38 88 M56 62 L62 88" '+L+'/>'+E;
+  if(act==='laugh')return S+head+T
+    +'<path d="M50 40 L30 30 M50 40 L70 30" '+L+'/>'
+    +'<path d="M42 22 Q50 32 58 22" stroke="'+LN+'" stroke-width="3" fill="none" stroke-linecap="round"/>'
+    +'<path d="M44 62 L38 88 M56 62 L62 88" '+L+'/>'+E;
+  if(act==='play')return S+head+T
+    +'<path d="M50 40 L28 34 M50 42 L72 34" '+L+'/>'
+    +'<circle cx="80" cy="30" r="9" fill="#C8901E" stroke="'+LN+'" stroke-width="3"/>'
+    +'<path d="M46 62 L34 86 M56 62 L68 86" '+L+'/>'+E;
+  return S+head+T
+    +'<path d="M50 42 L36 34 M50 44 L64 36" '+L+'/>'
+    +'<path d="M44 62 L38 88 M56 62 L62 88" '+L+'/>'
+    +'<path d="M28 14 Q34 26 30 34 M70 14 Q64 26 68 34" stroke="#1A4FA0" stroke-width="4" '
+    +'fill="none" stroke-linecap="round"/>'
+    +'<ellipse cx="50" cy="92" rx="30" ry="7" fill="#1A4FA0" opacity=".45"/>'+E;
+}
+
+(function(){
+  var TOTAL=7;
+  /* Only sentences we have a single joined recording for, so the child hears
+     one natural word rather than two clips stitched together. */
+  var HAVE=[];
+  P.forEach(function(p){
+    V.forEach(function(v){ if(JOINED[p.sub+'|'+v.w])HAVE.push({p:p,v:v}) });
+  });
+  var quiz=shuffle(HAVE.slice()).slice(0,TOTAL);
+  var at=0,score=0,lock=false,heard=false,marks=[];
+  var optsEl=document.getElementById('opts'),statusEl=document.getElementById('status'),
+      dotsEl=document.getElementById('dots'),endEl=document.getElementById('end'),
+      playEl=document.getElementById('play');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;heard=false;var q=quiz[at];
+    dots();statusEl.textContent='Tap the speaker, then pick who is doing it.';
+    var pool=P.filter(function(x){return x.en!==q.p.en}).map(function(x){return x.full});
+    optsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([q.p.full])).forEach(function(o){
+      var b=document.createElement('button');b.className='opt';b.type='button';b.textContent=o;
+      b.onclick=function(){pick(b,o,q)};optsEl.appendChild(b)});
+  }
+  playEl.onclick=function(){heard=true;saySentence(quiz[at].p,quiz[at].v);
+    statusEl.textContent='Now pick who is doing it.'};
+  function pick(btn,o,q){
+    if(lock)return;
+    if(!heard){statusEl.textContent='👂 Listen first — tap the big speaker.';return}
+    lock=true;
+    var right=o===q.p.full;marks[at]=right;
+    if(right){score++;btn.classList.add('ok');
+      statusEl.textContent='✅ '+sentence(q.p,q.v)+' — '+q.p.en+' '+q.v.en+'.'}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===q.p.full)c.classList.add('ok')});
+      statusEl.textContent='❌ That was '+sentence(q.p,q.v)+' — '+q.p.en+'.'}
+    saySentence(q.p,q.v);dots();at++;setTimeout(show,1800);
+  }
+  function finish(){
+    dots();optsEl.innerHTML='';playEl.style.display='none';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Alphabet Quiz</title>
+<!-- Kids_Portal · Twi Alphabets/alphabet-quiz.html · slug: alphabet-quiz -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:640px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .dots{display:flex;gap:5px;justify-content:center;margin:14px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}
+  .dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .q{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:18px 16px;
+    font-size:1.2rem;font-weight:bold;margin:14px 0;min-height:96px;display:flex;
+    align-items:center;justify-content:center;flex-direction:column;gap:8px}
+  .q .huge{font-size:3.4rem;line-height:1}
+  .q .spk{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:8px 20px;
+    font-size:1.1rem;font-weight:bold;color:#4d2f12;cursor:pointer;font-family:inherit}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:76px;font-size:1.5rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s;flex:0 1 auto}
+  .opt.wide{font-size:1.1rem;flex:1 1 150px;max-width:230px}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .result{font-size:1.35rem;font-weight:bold;color:#14563A;margin-top:12px}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}.q{font-size:1.35rem}}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🏁 Alphabet Quiz</h1>
+  <span class="sub">Everything you have learned</span>
+
+  <div class="dots" id="dots"></div>
+  <div class="q" id="q"></div>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div id="end"></div>
+</div>
+
+<script>
+(function(){
+  var ORDER=['A','B','D','E','Ɛ','F','G','H','I','K','L','M','N','O','Ɔ','P','R','S','T','U','W','Y'];
+  var VOWELS=['A','E','Ɛ','I','O','Ɔ','U'];
+  var FILE={'A':'letter-a','B':'letter-b','D':'letter-d','E':'letter-e','Ɛ':'letter-ɛ','F':'letter-f',
+    'G':'letter-g','H':'letter-h','I':'letter-i','K':'letter-k','L':'letter-l','M':'letter-m',
+    'N':'letter-n','O':'letter-o','Ɔ':'letter-ɔ','P':'letter-p','R':'letter-r','S':'letter-s',
+    'T':'letter-t','U':'letter-u','W':'letter-w','Y':'letter-y'};
+  var WORDS=[
+    {L:'B',w:'Bankye',m:'cassava',e:'🍠'},{L:'D',w:'Dadeɛ',m:'metal',e:'🔨'},
+    {L:'K',w:'Kuruwa',m:'cup',e:'🥤'},{L:'M',w:'Mukaase',m:'kitchen',e:'🍳'},
+    {L:'S',w:'Samina',m:'soap',e:'🧼'},{L:'Y',w:'Yoma',m:'camel',e:'🐫'},
+    {L:'A',w:'Akoma',m:'heart',e:'❤️'},{L:'Ɔ',w:'Ɔwɔ',m:'snake',e:'🐍'},
+    {L:'L',w:'Lɔre',m:'lorry',e:'🚛'},{L:'I',w:'Di',m:'eat',e:'🍚'}
+  ];
+  var TOTAL=8, MISSING=['J','Q','V','X','Z'];
+
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+    var t=a[i];a[i]=a[j];a[j]=t}return a}
+  var pick=function(a){return a[Math.floor(Math.random()*a.length)]};
+
+  var audio=null;
+  function say(L){ if(!FILE[L])return; if(audio)audio.pause();
+    audio=new Audio('/audio?f=twi-alphabet/'+encodeURIComponent(FILE[L]+'.m4a'));
+    audio.play().catch(function(){}); }
+
+  /* Five question types, so the quiz tests recognition, sound, sequence,
+     categories and vocabulary rather than one skill eight times over. */
+  function makeSound(){
+    var L=pick(ORDER);
+    return {kind:'sound',letter:L,
+      html:'<span class="huge">👂</span><button class="spk" type="button" id="qspk">🔊 Play the letter</button>',
+      answer:L, opts:shuffle(shuffle(ORDER.filter(function(x){return x!==L})).slice(0,3).concat([L])),
+      say:L, prompt:'Which letter did you hear?'};
+  }
+  function makeNext(){
+    var i=Math.floor(Math.random()*(ORDER.length-1));
+    var L=ORDER[i], nxt=ORDER[i+1];
+    return {kind:'next',html:'<span>Which letter comes after</span><span class="huge">'+L+'</span>',
+      answer:nxt, opts:shuffle(shuffle(ORDER.filter(function(x){return x!==nxt})).slice(0,3).concat([nxt])),
+      say:L, prompt:'Think of the alphabet song.'};
+  }
+  function makeKind(){
+    var L=pick(ORDER); var isV=VOWELS.indexOf(L)>-1;
+    return {kind:'kind',wide:true,html:'<span class="huge">'+L+'</span><span>Is this a vowel or a consonant?</span>',
+      answer:isV?'🎤 Vowel':'🥁 Consonant', opts:['🎤 Vowel','🥁 Consonant'],
+      say:L, prompt:'Vowels sing, consonants clap.'};
+  }
+  function makeWord(){
+    var w=pick(WORDS);
+    return {kind:'word',html:'<span class="huge">'+w.e+'</span><span>'+w.w+' — '+w.m+'</span>',
+      answer:w.L, opts:shuffle(shuffle(ORDER.filter(function(x){return x!==w.L})).slice(0,3).concat([w.L])),
+      say:w.L, prompt:'Which letter does it start with?'};
+  }
+  function makeAway(){
+    var L=pick(MISSING);
+    return {kind:'away',wide:true,
+      html:'<span class="huge">'+L+'</span><span>Is this letter in the Twi alphabet?</span>',
+      answer:'🚫 No, it is away', opts:['✅ Yes, it is here','🚫 No, it is away'],
+      prompt:'Five letters went on holiday.'};
+  }
+
+  var makers=[makeSound,makeNext,makeKind,makeWord,makeAway];
+  var quiz=[]; for(var i=0;i<TOTAL;i++)quiz.push(makers[i%makers.length]());
+  quiz=shuffle(quiz);
+
+  var at=0,score=0,lock=false,marks=[];
+  var qEl=document.getElementById('q'),optsEl=document.getElementById('opts'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+
+  function drawDots(){
+    dotsEl.innerHTML='';
+    for(var k=0;k<TOTAL;k++){
+      var e=document.createElement('i');
+      if(marks[k]===true)e.className='hit';
+      else if(marks[k]===false)e.className='miss';
+      dotsEl.appendChild(e);
+    }
+  }
+
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;
+    var q=quiz[at];
+    qEl.innerHTML=q.html;
+    statusEl.textContent=q.prompt;
+    drawDots();
+
+    optsEl.innerHTML='';
+    q.opts.forEach(function(o){
+      var b=document.createElement('button');
+      b.className='opt'+(q.wide?' wide':'');b.type='button';b.textContent=o;
+      b.onclick=function(){answer(b,o,q)};
+      optsEl.appendChild(b);
+    });
+
+    var spk=document.getElementById('qspk');
+    if(spk){ spk.onclick=function(){say(q.letter)}; say(q.letter); }
+    else if(q.say){ say(q.say) }
+  }
+
+  function answer(btn,chosen,q){
+    if(lock)return;lock=true;
+    var right=chosen===q.answer;
+    marks[at]=right;
+    if(right){score++;btn.classList.add('ok');statusEl.textContent='✅ Correct!'}
+    else{
+      btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===q.answer)c.classList.add('ok')});
+      statusEl.textContent='❌ The answer is '+q.answer+'.';
+    }
+    if(q.say||q.letter)say(q.letter||q.say);
+    drawDots();
+    at++;
+    setTimeout(show,1600);
+  }
+
+  function finish(){
+    drawDots();
+    qEl.innerHTML='<span class="huge">'+(score===TOTAL?'🏆':score>=TOTAL*0.6?'🎉':'💪')+'</span>';
+    optsEl.innerHTML='';
+    statusEl.textContent = score===TOTAL
+      ? 'Full marks! Every single one.'
+      : score>=TOTAL*0.6 ? 'Well done — you know your letters.'
+      : 'Good try. Play the games again and come back.';
+    endEl.innerHTML='<p class="result">'+score+' out of '+TOTAL+'</p>'
+      +'<button class="fin" id="again">🔄 Try again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+
+  var sent=false;
+  function report(s,m){ if(sent||window.parent===window)return; sent=true;
+    parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*'); }
+
+  show();
+})();
+</script>
+</body>
+</html>

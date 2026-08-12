@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Listen and Touch</title>
+<!-- Kids_Portal · Body Parts/listen-touch.html · slug: body-listen -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .fig{position:relative;width:236px;margin:12px auto;touch-action:manipulation}
+  .fig svg{width:100%;height:auto;display:block}
+  .fig .hot{position:absolute;transform:translate(-50%,-50%);border-radius:50%;border:none;
+    background:transparent;cursor:pointer;padding:0}
+  .fig .hot:hover{background:rgba(200,144,30,.32)}
+  .fig .hot.ok{background:rgba(20,86,58,.55);box-shadow:0 0 0 4px #14563A}
+  .fig .hot.no{background:rgba(168,27,27,.5);box-shadow:0 0 0 4px #A81B1B;animation:shake .35s}
+  .fig .hot.show{background:rgba(20,86,58,.42);box-shadow:0 0 0 4px #14563A}
+  .swap{background:#fef7e6;border:3px solid #b48b3a;border-radius:30px;padding:7px 18px;
+    font-size:.95rem;font-weight:bold;font-family:inherit;cursor:pointer;color:#1f3a2f}
+
+  .big{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:30px;font-size:1.2rem;
+    font-weight:bold;padding:20px;margin:14px auto 4px;max-width:420px;cursor:pointer;
+    font-family:inherit;display:block;width:100%;box-shadow:0 6px 0 #0d3a26}
+  .big .em{font-size:2.4rem;display:block}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>👂 Listen and Touch</h1>
+  <span class="sub">Hear it, then find it</span>
+  <div class="dots" id="dots"></div>
+  <button class="big" id="play"><span class="em">🔊</span>Tap to hear a body part</button>
+  <div class="fig" id="fig"></div>
+  <p class="status" id="status">Tap the speaker to begin.</p>
+  <div id="end"></div>
+</div>
+<script>
+var B=[
+ {w:'etire',     en:'head',     f:'head',     core:1, spot:{x:150,y:52,r:34}},
+ {w:'nwi',       en:'hair',     f:'hair',     core:1, spot:{x:150,y:24,r:26}},
+ {w:'anim',      en:'face',     f:'face',     core:1, spot:{x:150,y:60,r:22}},
+ {w:'ani',       en:'eye',      f:'eye',      core:1, spot:{x:138,y:52,r:12}},
+ {w:'ɛhwene',    en:'nose',     f:'nose',     core:1, spot:{x:150,y:62,r:11}},
+ {w:'aso',       en:'ear',      f:'ear',      core:1, spot:{x:117,y:56,r:13}},
+ {w:'ano',       en:'mouth',    f:'mouth',    core:1, spot:{x:150,y:75,r:13}},
+ {w:'ɛse',       en:'tooth',    f:'tooth',    core:1, spot:null},
+ {w:'tɛkyerɛma', en:'tongue',   f:'tongue',   core:1, spot:null},
+ {w:'ɛkɔn',      en:'neck',     f:'neck',     core:1, spot:{x:150,y:100,r:16}},
+ {w:'abasa',     en:'arm',      f:'arm',      core:1, spot:{x:97,y:165,r:22}},
+ {w:'nsa',       en:'hand',     f:'hand',     core:1, spot:{x:82,y:216,r:19}},
+ {w:'nsateaa',   en:'finger',   f:'finger',   core:1, spot:{x:78,y:236,r:15}},
+ {w:'ɛnan',      en:'leg',      f:'leg',      core:1, spot:{x:129,y:296,r:22}},
+ {w:'abatire',   en:'shoulder', f:'shoulder', core:0, spot:{x:115,y:122,r:19}},
+ {w:'kotodwe',   en:'knee',     f:'knee',     core:0, spot:{x:129,y:283,r:17}},
+ {w:'nantabono', en:'foot',     f:'foot',     core:0, spot:{x:127,y:352,r:19}},
+ {w:'yafunu',    en:'belly',    f:'belly',    core:0, spot:{x:150,y:180,r:24}},
+ {w:'afono',     en:'cheek',    f:'cheek',    core:0, spot:{x:127,y:70,r:13}},
+ {w:'moma',      en:'forehead', f:'forehead', core:0, spot:{x:150,y:38,r:18}}
+];
+var BCORE=B.filter(function(x){return x.core});
+var BSPOT=B.filter(function(x){return x.spot});
+function sayB(f){var a=new Audio('/audio?f=body/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+/* A simple child, drawn in code. Girl and boy differ only in hair and clothes.
+   Skin and outline come from the Speak Ghana palette. */
+function child(girl){
+  var SK='#8D5524', HAIR='#241C18', SH=girl?'#C8901E':'#14563A', LN='#3A2A1C';
+  var hair = girl
+    ? '<circle cx="150" cy="34" r="40" fill="'+HAIR+'"/>'
+      +'<circle cx="112" cy="30" r="15" fill="'+HAIR+'"/><circle cx="188" cy="30" r="15" fill="'+HAIR+'"/>'
+    : '<path d="M110 44 A40 40 0 0 1 190 44 L190 30 L110 30 Z" fill="'+HAIR+'"/>'
+      +'<circle cx="150" cy="34" r="38" fill="'+HAIR+'"/>';
+  var body = girl
+    ? '<path d="M150 108 L196 128 L206 232 L94 232 L104 128 Z" fill="'+SH+'"/>'
+      +'<path d="M104 232 L196 232 L214 286 L86 286 Z" fill="'+SH+'"/>'
+    : '<path d="M150 108 L196 128 L200 214 L100 214 L104 128 Z" fill="'+SH+'"/>'
+      +'<rect x="106" y="214" width="88" height="62" fill="'+SH+'"/>';
+  return '<svg viewBox="0 0 300 380" xmlns="http://www.w3.org/2000/svg">'
+    + hair
+    + '<ellipse cx="150" cy="58" rx="34" ry="38" fill="'+SK+'"/>'
+    + '<ellipse cx="117" cy="58" rx="7" ry="11" fill="'+SK+'"/>'
+    + '<ellipse cx="183" cy="58" rx="7" ry="11" fill="'+SK+'"/>'
+    + '<ellipse cx="138" cy="52" rx="5" ry="6" fill="#fff"/><circle cx="138" cy="52" r="3" fill="'+LN+'"/>'
+    + '<ellipse cx="162" cy="52" rx="5" ry="6" fill="#fff"/><circle cx="162" cy="52" r="3" fill="'+LN+'"/>'
+    + '<path d="M147 60 Q150 68 154 66" fill="none" stroke="'+LN+'" stroke-width="2.5" stroke-linecap="round"/>'
+    + '<path d="M140 76 Q150 84 160 76" fill="none" stroke="'+LN+'" stroke-width="3" stroke-linecap="round"/>'
+    + '<rect x="140" y="92" width="20" height="18" fill="'+SK+'"/>'
+    + body
+    + '<path d="M112 128 L92 200 L84 226" fill="none" stroke="'+SK+'" stroke-width="17" stroke-linecap="round"/>'
+    + '<path d="M188 128 L208 200 L216 226" fill="none" stroke="'+SK+'" stroke-width="17" stroke-linecap="round"/>'
+    + '<circle cx="80" cy="234" r="12" fill="'+SK+'"/><circle cx="220" cy="234" r="12" fill="'+SK+'"/>'
+    + '<path d="M129 '+(girl?286:276)+' L129 348" fill="none" stroke="'+SK+'" stroke-width="20" stroke-linecap="round"/>'
+    + '<path d="M171 '+(girl?286:276)+' L171 348" fill="none" stroke="'+SK+'" stroke-width="20" stroke-linecap="round"/>'
+    + '<ellipse cx="127" cy="358" rx="17" ry="10" fill="'+LN+'"/>'
+    + '<ellipse cx="173" cy="358" rx="17" ry="10" fill="'+LN+'"/>'
+    + '</svg>';
+}
+
+(function(){
+
+  /* Hotspots are placed as a percentage of the 300x380 viewBox, so they stay
+     on the right body part at any screen size. */
+  function placeHots(figEl,parts,onTap){
+    parts.forEach(function(p){
+      var b=document.createElement('button');
+      b.className='hot';b.type='button';b.dataset.en=p.en;
+      b.setAttribute('aria-label',p.en);
+      b.style.left=(p.spot.x/300*100)+'%';
+      b.style.top=(p.spot.y/380*100)+'%';
+      b.style.width=(p.spot.r*2/300*100)+'%';
+      b.style.height=(p.spot.r*2/380*100)+'%';
+      b.onclick=function(){onTap(b,p)};
+      figEl.appendChild(b);
+    });
+  }
+
+  var TOTAL=8;
+  var quiz=shuffle(BSPOT.slice()).slice(0,TOTAL);
+  var at=0,score=0,lock=false,heard=false,marks=[];
+  var figEl=document.getElementById('fig'),statusEl=document.getElementById('status'),
+      dotsEl=document.getElementById('dots'),endEl=document.getElementById('end'),
+      playEl=document.getElementById('play');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;heard=false;
+    figEl.innerHTML=child(at%2===0);
+    placeHots(figEl,BSPOT,tap);
+    statusEl.textContent='Tap the speaker, then touch it on the picture.';dots();
+  }
+  playEl.onclick=function(){heard=true;sayB(quiz[at].f);
+    statusEl.textContent='Now touch it on the picture.'};
+  function tap(btn,p){
+    if(lock)return;
+    if(!heard){statusEl.textContent='👂 Listen first — tap the big speaker.';return}
+    lock=true;
+    var q=quiz[at],right=p.en===q.en;marks[at]=right;
+    if(right){score++;btn.classList.add('ok');statusEl.textContent='✅ '+q.w+' — the '+q.en+'.'}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(figEl.querySelectorAll('.hot'),function(h){
+        if(h.dataset.en===q.en)h.classList.add('show')});
+      statusEl.textContent='❌ That was '+q.w+' — the '+q.en+'.'}
+    sayB(q.f);dots();at++;setTimeout(show,1800);
+  }
+  function finish(){
+    dots();figEl.innerHTML='<div style="font-size:3rem">🎉</div>';playEl.style.display='none';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

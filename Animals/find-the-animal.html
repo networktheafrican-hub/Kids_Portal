@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Find the Animal</title>
+<!-- Kids_Portal · Animals/find-the-animal.html · slug: animal-find -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .pads{display:grid;grid-template-columns:repeat(auto-fit,minmax(106px,1fr));gap:11px}
+  .pad{background:#fff;border:4px solid #b48b3a;border-radius:22px;padding:14px 6px;cursor:pointer;
+    font-family:inherit;box-shadow:0 5px 0 #7a5a1f;font-size:2.9rem;line-height:1}
+  .pad:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .pad.ok{background:#d4edda;border-color:#14563A;box-shadow:0 0 0 4px #14563A}
+  .pad.no{background:#f8d7da;border-color:#A81B1B;animation:shake .35s}
+
+  .word{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:20px 16px;
+    font-size:1.9rem;font-weight:bold;margin:14px 0;min-height:92px;display:flex;align-items:center;
+    justify-content:center;gap:10px;flex-wrap:wrap}
+  .word .spk{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:7px 16px;
+    font-size:1rem;font-weight:bold;color:#4d2f12;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🔍 Find the Animal</h1>
+  <span class="sub">Tap the one you hear</span>
+  <div class="dots" id="dots"></div>
+  <div class="word" id="word"></div>
+  <div class="pads" id="pads"></div>
+  <p class="status" id="status"></p>
+  <div id="end"></div>
+</div>
+<script>
+var A=[
+ {w:'akokɔ',      en:'chicken',   f:'chicken',   e:'🐔', grp:'farm'},
+ {w:'odwan',      en:'sheep',     f:'sheep',     e:'🐑', grp:'farm'},
+ {w:'abirekyie',  en:'goat',      f:'goat',      e:'🐐', grp:'farm'},
+ {w:'nantwie',    en:'cow',       f:'cow',       e:'🐄', grp:'farm'},
+ {w:'prako',      en:'pig',       f:'pig',       e:'🐖', grp:'farm'},
+ {w:'pɔnkɔ',      en:'horse',     f:'horse',     e:'🐎', grp:'farm'},
+ {w:'kraman',     en:'dog',       f:'dog',       e:'🐕', grp:'farm'},
+ {w:'agyinamoa',  en:'cat',       f:'cat',       e:'🐈', grp:'farm'},
+ {w:'gyata',      en:'lion',      f:'lion',      e:'🦁', grp:'wild'},
+ {w:'ɔsono',      en:'elephant',  f:'elephant',  e:'🐘', grp:'wild'},
+ {w:'adoe',       en:'monkey',    f:'monkey',    e:'🐒', grp:'wild'},
+ {w:'akyekyedeɛ', en:'tortoise',  f:'tortoise',  e:'🐢', grp:'wild'},
+ {w:'ɔwɔ',        en:'snake',     f:'snake',     e:'🐍', grp:'wild'},
+ {w:'adanko',     en:'rabbit',    f:'rabbit',    e:'🐇', grp:'wild'},
+ {w:'kɔtɔkɔ',     en:'porcupine', f:'porcupine', e:'🦔', grp:'wild'},
+ {w:'ɔdɛnkyɛm',   en:'crocodile', f:'crocodile', e:'🐊', grp:'wild'},
+ {w:'anomaa',     en:'bird',      f:'bird',      e:'🐦', grp:'small'},
+ {w:'akorɔma',    en:'hawk',      f:'hawk',      e:'🦅', grp:'small'},
+ {w:'ananse',     en:'spider',    f:'spider',    e:'🕷️', grp:'small'},
+ {w:'ntontom',    en:'mosquito',  f:'mosquito',  e:'🦟', grp:'small'},
+ {w:'nwansena',   en:'housefly',  f:'housefly',  e:'🪰', grp:'small'},
+ {w:'kɔtɔ',       en:'crab',      f:'crab',      e:'🦀', grp:'small'},
+ {w:'nsuomnam',   en:'fish',      f:'fish',      e:'🐟', grp:'small'},
+ {w:'akura',      en:'mouse',     f:'mouse',     e:'🐁', grp:'small'}
+];
+var AWORD={w:'aboa', en:'animal', f:'animal', e:'🐾'};
+var AGRP={farm:'At home and on the farm',wild:'In the bush',small:'Small ones, water and sky'};
+var ANUM={1:'baako',2:'mmienu',3:'mmiensa',4:'ɛnan',5:'enum',6:'nsia',7:'nson',8:'nwɔtwe',9:'nkron',10:'du'};
+/* Legs is a fact a child can reason about and it reuses the numbers chapter. */
+var ALEGS={chicken:2,sheep:4,goat:4,cow:4,pig:4,horse:4,dog:4,cat:4,lion:4,elephant:4,
+  monkey:4,tortoise:4,rabbit:4,porcupine:4,crocodile:4,bird:2,hawk:2,mouse:4,spider:8,
+  mosquito:6,housefly:6,crab:8};
+function sayA(f){var a=new Audio('/audio?f=animals/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  var quiz=shuffle(A.slice()).slice(0,TOTAL);
+  var at=0,score=0,lock=false,marks=[];
+  var wordEl=document.getElementById('word'),padsEl=document.getElementById('pads'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    wordEl.innerHTML='<span>'+q.w+'</span><button class="spk" type="button" id="spk">🔊 Hear it</button>';
+    document.getElementById('spk').onclick=function(){sayA(q.f)};
+    sayA(q.f);
+    statusEl.textContent='Which one is '+q.w+'?';dots();
+    var pool=A.filter(function(x){return x.en!==q.en});
+    padsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([q])).forEach(function(o){
+      var b=document.createElement('button');b.className='pad';b.type='button';
+      b.textContent=o.e;b.dataset.en=o.en;b.setAttribute('aria-label',o.en);
+      b.onclick=function(){answer(b,o,q)};padsEl.appendChild(b)});
+  }
+  function answer(btn,o,q){
+    if(lock)return;lock=true;
+    var right=o.en===q.en;marks[at]=right;
+    if(right){score++;btn.classList.add('ok');statusEl.textContent='✅ Yes! '+q.w+' is '+q.en+'.'}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(padsEl.children,function(c){
+        if(c.dataset.en===q.en)c.classList.add('ok')});
+      statusEl.textContent='❌ '+q.w+' is '+q.en+'.'}
+    sayA(q.f);dots();at++;setTimeout(show,1600);
+  }
+  function finish(){
+    dots();wordEl.innerHTML='🎉';padsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

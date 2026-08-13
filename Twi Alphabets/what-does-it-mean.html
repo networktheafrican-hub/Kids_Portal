@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>What Does It Mean?</title>
+<!-- Kids_Portal · Twi Alphabets/what-does-it-mean.html · slug: word-meaning -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .q{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:18px 16px;
+    font-size:1.1rem;font-weight:bold;margin:14px 0;min-height:140px;display:flex;
+    align-items:center;justify-content:center;flex-direction:column;gap:8px}
+  .q .em{font-size:4rem;line-height:1}
+  .q .huge{font-size:2.1rem;line-height:1.2}
+  .q .spk{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:8px 20px;
+    font-size:1rem;font-weight:bold;color:#4d2f12;cursor:pointer;font-family:inherit}
+  .result{font-size:1.35rem;font-weight:bold;color:#14563A;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📚 What Does It Mean?</h1>
+  <span class="sub">Words from the alphabet</span>
+  <div class="dots" id="dots"></div>
+  <div class="q" id="q"></div>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div id="end"></div>
+</div>
+<script>
+/* The 22 words from the alphabet lesson - one per letter. Chosen to teach
+   letters, but each is a real word worth knowing on its own. */
+var W=[
+ {L:'A',w:'Akoma',   en:'heart',    e:'❤️',  f:'akoma'},
+ {L:'B',w:'Bankye',  en:'cassava',  e:'🍠',  f:'bankye'},
+ {L:'D',w:'Dadeɛ',   en:'metal',    e:'🔨',  f:'dadee'},
+ {L:'E',w:'Ekuro',   en:'wound',    e:'🩹',  f:'ekuro'},
+ {L:'Ɛ',w:'Ɛkɔm',    en:'hunger',   e:'🍽️',  f:'ekom'},
+ {L:'F',w:'Fitaa',   en:'white',    e:'☁️',  f:'fitaa'},
+ {L:'G',w:'Gogo',    en:'loose',    e:'🫳',  f:'gogo'},
+ {L:'H',w:'Hunu',    en:'see',      e:'👀',  f:'hunu'},
+ {L:'I',w:'Di',      en:'eat',      e:'🍚',  f:'di'},
+ {L:'K',w:'Kuruwa',  en:'cup',      e:'🥤',  f:'kuruwa'},
+ {L:'L',w:'Lɔre',    en:'lorry',    e:'🚛',  f:'lore'},
+ {L:'M',w:'Mukaase', en:'kitchen',  e:'🍳',  f:'mukaase'},
+ {L:'N',w:'Nante',   en:'walk',     e:'🚶',  f:'nante'},
+ {L:'O',w:'Osuro',   en:'fear',     e:'😨',  f:'osuro'},
+ {L:'Ɔ',w:'Ɔwɔ',     en:'snake',    e:'🐍',  f:'owo'},
+ {L:'P',w:'Pra',     en:'sweep',    e:'🧹',  f:'pra'},
+ {L:'R',w:'Raw',     en:'scratch',  e:'✍️',  f:'raw'},
+ {L:'S',w:'Samina',  en:'soap',     e:'🧼',  f:'samina'},
+ {L:'T',w:'Tafere',  en:'lick',     e:'👅',  f:'tafere'},
+ {L:'U',w:'Wukuada', en:'Wednesday',e:'📅',  f:'wukuada'},
+ {L:'W',w:'Wie',     en:'finish',   e:'🏁',  f:'wie'},
+ {L:'Y',w:'Yoma',    en:'camel',    e:'🐫',  f:'yoma'}
+];
+var LFILE={'A':'letter-a','B':'letter-b','D':'letter-d','E':'letter-e','Ɛ':'letter-ɛ','F':'letter-f',
+ 'G':'letter-g','H':'letter-h','I':'letter-i','K':'letter-k','L':'letter-l','M':'letter-m',
+ 'N':'letter-n','O':'letter-o','Ɔ':'letter-ɔ','P':'letter-p','R':'letter-r','S':'letter-s',
+ 'T':'letter-t','U':'letter-u','W':'letter-w','Y':'letter-y'};
+/* Word recordings do not exist yet - these calls stay silent until
+   audio/alphabet-words/<f>.m4a is uploaded, then start working with no change. */
+function sayWord(f){var a=new Audio('/audio?f=alphabet-words/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function sayLetter(L){var f=LFILE[L];if(!f)return;
+  var a=new Audio('/audio?f=twi-alphabet/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  var quiz=shuffle(W.slice()).slice(0,TOTAL);
+  var at=0,score=0,lock=false,marks=[];
+  var qEl=document.getElementById('q'),optsEl=document.getElementById('opts'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    qEl.innerHTML='<span class="em">'+q.e+'</span><span>'+q.en+'</span>';
+    statusEl.textContent='Which Twi word means this?';dots();
+    var pool=W.filter(function(x){return x.w!==q.w}).map(function(x){return x.w});
+    optsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([q.w])).forEach(function(o){
+      var b=document.createElement('button');b.className='opt';b.type='button';b.textContent=o;
+      b.onclick=function(){answer(b,o,q)};optsEl.appendChild(b)});
+  }
+  function answer(btn,chosen,q){
+    if(lock)return;lock=true;
+    var right=chosen===q.w;marks[at]=right;
+    if(right){score++;btn.classList.add('ok');
+      statusEl.textContent='✅ Yes — '+q.w+' means '+q.en+'.'}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===q.w)c.classList.add('ok')});
+      statusEl.textContent='❌ '+q.en+' is '+q.w+'.'}
+    sayWord(q.f);dots();at++;setTimeout(show,1700);
+  }
+  function finish(){
+    dots();qEl.innerHTML='<span class="em">🎉</span>';optsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

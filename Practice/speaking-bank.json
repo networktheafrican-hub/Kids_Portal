@@ -1,0 +1,1227 @@
+[
+{
+"c": 1,
+"w": "Akoma",
+"e": "heart",
+"d": "twi-alphabet",
+"f": "letter-a"
+},
+{
+"c": 1,
+"w": "Bankye",
+"e": "cassava",
+"d": "twi-alphabet",
+"f": "letter-b"
+},
+{
+"c": 1,
+"w": "Dadeɛ",
+"e": "metal",
+"d": "twi-alphabet",
+"f": "letter-d"
+},
+{
+"c": 1,
+"w": "Ekuro",
+"e": "wound",
+"d": "twi-alphabet",
+"f": "letter-e"
+},
+{
+"c": 1,
+"w": "Ɛkɔm",
+"e": "hunger",
+"d": "twi-alphabet",
+"f": "letter-ɛ"
+},
+{
+"c": 1,
+"w": "Fitaa",
+"e": "white",
+"d": "twi-alphabet",
+"f": "letter-f"
+},
+{
+"c": 1,
+"w": "Gogo",
+"e": "loose",
+"d": "twi-alphabet",
+"f": "letter-g"
+},
+{
+"c": 1,
+"w": "Hunu",
+"e": "see",
+"d": "twi-alphabet",
+"f": "letter-h"
+},
+{
+"c": 1,
+"w": "Di",
+"e": "eat",
+"d": "twi-alphabet",
+"f": "letter-i"
+},
+{
+"c": 1,
+"w": "Kuruwa",
+"e": "cup",
+"d": "twi-alphabet",
+"f": "letter-k"
+},
+{
+"c": 1,
+"w": "Lɔre",
+"e": "lorry",
+"d": "twi-alphabet",
+"f": "letter-l"
+},
+{
+"c": 1,
+"w": "Mukaase",
+"e": "kitchen",
+"d": "twi-alphabet",
+"f": "letter-m"
+},
+{
+"c": 1,
+"w": "Nante",
+"e": "walk",
+"d": "twi-alphabet",
+"f": "letter-n"
+},
+{
+"c": 1,
+"w": "Osuro",
+"e": "fear",
+"d": "twi-alphabet",
+"f": "letter-o"
+},
+{
+"c": 1,
+"w": "Ɔwɔ",
+"e": "snake",
+"d": "twi-alphabet",
+"f": "letter-ɔ"
+},
+{
+"c": 1,
+"w": "Pra",
+"e": "sweep",
+"d": "twi-alphabet",
+"f": "letter-p"
+},
+{
+"c": 1,
+"w": "Raw",
+"e": "scratch",
+"d": "twi-alphabet",
+"f": "letter-r"
+},
+{
+"c": 1,
+"w": "Samina",
+"e": "soap",
+"d": "twi-alphabet",
+"f": "letter-s"
+},
+{
+"c": 1,
+"w": "Tafere",
+"e": "lick",
+"d": "twi-alphabet",
+"f": "letter-t"
+},
+{
+"c": 1,
+"w": "Wukuada",
+"e": "Wednesday",
+"d": "twi-alphabet",
+"f": "letter-u"
+},
+{
+"c": 1,
+"w": "Wie",
+"e": "finish",
+"d": "twi-alphabet",
+"f": "letter-w"
+},
+{
+"c": 1,
+"w": "Yoma",
+"e": "camel",
+"d": "twi-alphabet",
+"f": "letter-y"
+},
+{
+"c": 2,
+"w": "baako",
+"e": "one",
+"d": "twi-numbers",
+"f": "one"
+},
+{
+"c": 2,
+"w": "mmienu",
+"e": "two",
+"d": "twi-numbers",
+"f": "two"
+},
+{
+"c": 2,
+"w": "mmiensa",
+"e": "three",
+"d": "twi-numbers",
+"f": "three"
+},
+{
+"c": 2,
+"w": "ɛnan",
+"e": "four",
+"d": "twi-numbers",
+"f": "four"
+},
+{
+"c": 2,
+"w": "enum",
+"e": "five",
+"d": "twi-numbers",
+"f": "five"
+},
+{
+"c": 2,
+"w": "nsia",
+"e": "six",
+"d": "twi-numbers",
+"f": "six"
+},
+{
+"c": 2,
+"w": "nson",
+"e": "seven",
+"d": "twi-numbers",
+"f": "seven"
+},
+{
+"c": 2,
+"w": "nwɔtwe",
+"e": "eight",
+"d": "twi-numbers",
+"f": "eight"
+},
+{
+"c": 2,
+"w": "nkron",
+"e": "nine",
+"d": "twi-numbers",
+"f": "nine"
+},
+{
+"c": 2,
+"w": "du",
+"e": "ten",
+"d": "twi-numbers",
+"f": "ten"
+},
+{
+"c": 3,
+"w": "Ɛdwoada",
+"e": "Monday",
+"d": "kradin",
+"f": "monday"
+},
+{
+"c": 3,
+"w": "Ɛbenada",
+"e": "Tuesday",
+"d": "kradin",
+"f": "tuesday"
+},
+{
+"c": 3,
+"w": "Wukuada",
+"e": "Wednesday",
+"d": "kradin",
+"f": "wednesday"
+},
+{
+"c": 3,
+"w": "Yawoada",
+"e": "Thursday",
+"d": "kradin",
+"f": "thursday"
+},
+{
+"c": 3,
+"w": "Efiada",
+"e": "Friday",
+"d": "kradin",
+"f": "friday"
+},
+{
+"c": 3,
+"w": "Memeneda",
+"e": "Saturday",
+"d": "kradin",
+"f": "saturday"
+},
+{
+"c": 3,
+"w": "Kwasiada",
+"e": "Sunday",
+"d": "kradin",
+"f": "sunday"
+},
+{
+"c": 3,
+"w": "Kwadwo",
+"e": "boy born Monday",
+"d": "kradin",
+"f": "kwadwo"
+},
+{
+"c": 3,
+"w": "Adwoa",
+"e": "girl born Monday",
+"d": "kradin",
+"f": "adwoa"
+},
+{
+"c": 3,
+"w": "Kwabena",
+"e": "boy born Tuesday",
+"d": "kradin",
+"f": "kwabena"
+},
+{
+"c": 3,
+"w": "Abena",
+"e": "girl born Tuesday",
+"d": "kradin",
+"f": "abena"
+},
+{
+"c": 3,
+"w": "Kwaku",
+"e": "boy born Wednesday",
+"d": "kradin",
+"f": "kwaku"
+},
+{
+"c": 3,
+"w": "Akua",
+"e": "girl born Wednesday",
+"d": "kradin",
+"f": "akua"
+},
+{
+"c": 3,
+"w": "Yaw",
+"e": "boy born Thursday",
+"d": "kradin",
+"f": "yaw"
+},
+{
+"c": 3,
+"w": "Yaa",
+"e": "girl born Thursday",
+"d": "kradin",
+"f": "yaa"
+},
+{
+"c": 3,
+"w": "Kofi",
+"e": "boy born Friday",
+"d": "kradin",
+"f": "kofi"
+},
+{
+"c": 3,
+"w": "Afia",
+"e": "girl born Friday",
+"d": "kradin",
+"f": "afia"
+},
+{
+"c": 3,
+"w": "Kwame",
+"e": "boy born Saturday",
+"d": "kradin",
+"f": "kwame"
+},
+{
+"c": 3,
+"w": "Ama",
+"e": "girl born Saturday",
+"d": "kradin",
+"f": "ama"
+},
+{
+"c": 3,
+"w": "Kwasi",
+"e": "boy born Sunday",
+"d": "kradin",
+"f": "kwasi"
+},
+{
+"c": 3,
+"w": "Akosua",
+"e": "girl born Sunday",
+"d": "kradin",
+"f": "akosua"
+},
+{
+"c": 4,
+"w": "anɔpa",
+"e": "morning",
+"d": "time",
+"f": "morning"
+},
+{
+"c": 4,
+"w": "awia",
+"e": "afternoon",
+"d": "time",
+"f": "afternoon"
+},
+{
+"c": 4,
+"w": "anwummerɛ",
+"e": "evening",
+"d": "time",
+"f": "evening"
+},
+{
+"c": 4,
+"w": "anadwo",
+"e": "night",
+"d": "time",
+"f": "night"
+},
+{
+"c": 4,
+"w": "maakye",
+"e": "good morning",
+"d": "time",
+"f": "goodmorning"
+},
+{
+"c": 4,
+"w": "maaha",
+"e": "good afternoon",
+"d": "time",
+"f": "goodafternoon"
+},
+{
+"c": 4,
+"w": "maadwo",
+"e": "good evening",
+"d": "time",
+"f": "goodevening"
+},
+{
+"c": 4,
+"w": "ɛnnɛ",
+"e": "today",
+"d": "time",
+"f": "today"
+},
+{
+"c": 4,
+"w": "ɛnnora",
+"e": "yesterday",
+"d": "time",
+"f": "yesterday"
+},
+{
+"c": 4,
+"w": "ɔkyena",
+"e": "tomorrow",
+"d": "time",
+"f": "tomorrow"
+},
+{
+"c": 4,
+"w": "abɔ nnɔnkoro",
+"e": "1 oclock",
+"d": "time",
+"f": "oneoclock"
+},
+{
+"c": 4,
+"w": "abɔ nnɔnmienu",
+"e": "2 oclock",
+"d": "time",
+"f": "twooclock"
+},
+{
+"c": 4,
+"w": "abɔ nnɔnmiensa",
+"e": "3 oclock",
+"d": "time",
+"f": "threeoclock"
+},
+{
+"c": 4,
+"w": "abɔ nnɔnnan",
+"e": "4 oclock",
+"d": "time",
+"f": "fouroclock"
+},
+{
+"c": 4,
+"w": "abɔ nnɔnnum",
+"e": "5 oclock",
+"d": "time",
+"f": "fiveoclock"
+},
+{
+"c": 4,
+"w": "abɔ nnɔnsia",
+"e": "6 oclock",
+"d": "time",
+"f": "sixoclock"
+},
+{
+"c": 4,
+"w": "abɔ nnɔnson",
+"e": "7 oclock",
+"d": "time",
+"f": "sevenoclock"
+},
+{
+"c": 4,
+"w": "abɔ nnɔnwɔtwe",
+"e": "8 oclock",
+"d": "time",
+"f": "eightoclock"
+},
+{
+"c": 4,
+"w": "abɔ nnɔnkron",
+"e": "9 oclock",
+"d": "time",
+"f": "nineoclock"
+},
+{
+"c": 4,
+"w": "abɔ nnɔndu",
+"e": "10 oclock",
+"d": "time",
+"f": "tenoclock"
+},
+{
+"c": 4,
+"w": "abɔ nnɔndubaako",
+"e": "11 oclock",
+"d": "time",
+"f": "elevenoclock"
+},
+{
+"c": 4,
+"w": "abɔ nnɔndummienu",
+"e": "12 oclock",
+"d": "time",
+"f": "twelveoclock"
+},
+{
+"c": 5,
+"w": "kɔkɔɔ",
+"e": "red",
+"d": "colours",
+"f": "red"
+},
+{
+"c": 5,
+"w": "tuntum",
+"e": "black",
+"d": "colours",
+"f": "black"
+},
+{
+"c": 5,
+"w": "fitaa",
+"e": "white",
+"d": "colours",
+"f": "white"
+},
+{
+"c": 5,
+"w": "ahabammono",
+"e": "green",
+"d": "colours",
+"f": "green"
+},
+{
+"c": 5,
+"w": "akokɔsradeɛ",
+"e": "yellow",
+"d": "colours",
+"f": "yellow"
+},
+{
+"c": 5,
+"w": "bibire",
+"e": "blue",
+"d": "colours",
+"f": "blue"
+},
+{
+"c": 5,
+"w": "dodoeɛ",
+"e": "brown",
+"d": "colours",
+"f": "brown"
+},
+{
+"c": 5,
+"w": "memen",
+"e": "pink",
+"d": "colours",
+"f": "pink"
+},
+{
+"c": 5,
+"w": "sika kɔkɔɔ",
+"e": "gold",
+"d": "colours",
+"f": "gold"
+},
+{
+"c": 5,
+"w": "nsonso",
+"e": "ash",
+"d": "colours",
+"f": "grey"
+},
+{
+"c": 5,
+"w": "beredum",
+"e": "purple",
+"d": "colours",
+"f": "purple"
+},
+{
+"c": 6,
+"w": "etire",
+"e": "head",
+"d": "body",
+"f": "head"
+},
+{
+"c": 6,
+"w": "nwi",
+"e": "hair",
+"d": "body",
+"f": "hair"
+},
+{
+"c": 6,
+"w": "anim",
+"e": "face",
+"d": "body",
+"f": "face"
+},
+{
+"c": 6,
+"w": "ani",
+"e": "eye",
+"d": "body",
+"f": "eye"
+},
+{
+"c": 6,
+"w": "ɛhwene",
+"e": "nose",
+"d": "body",
+"f": "nose"
+},
+{
+"c": 6,
+"w": "aso",
+"e": "ear",
+"d": "body",
+"f": "ear"
+},
+{
+"c": 6,
+"w": "ano",
+"e": "mouth",
+"d": "body",
+"f": "mouth"
+},
+{
+"c": 6,
+"w": "ɛse",
+"e": "tooth",
+"d": "body",
+"f": "tooth"
+},
+{
+"c": 6,
+"w": "tɛkyerɛma",
+"e": "tongue",
+"d": "body",
+"f": "tongue"
+},
+{
+"c": 6,
+"w": "ɛkɔn",
+"e": "neck",
+"d": "body",
+"f": "neck"
+},
+{
+"c": 6,
+"w": "abatire",
+"e": "shoulder",
+"d": "body",
+"f": "shoulder"
+},
+{
+"c": 6,
+"w": "abasa",
+"e": "arm",
+"d": "body",
+"f": "arm"
+},
+{
+"c": 6,
+"w": "nsa",
+"e": "hand",
+"d": "body",
+"f": "hand"
+},
+{
+"c": 6,
+"w": "nsateaa",
+"e": "finger",
+"d": "body",
+"f": "finger"
+},
+{
+"c": 6,
+"w": "yafunu",
+"e": "belly",
+"d": "body",
+"f": "belly"
+},
+{
+"c": 6,
+"w": "kotodwe",
+"e": "knee",
+"d": "body",
+"f": "knee"
+},
+{
+"c": 6,
+"w": "ɛnan",
+"e": "leg",
+"d": "body",
+"f": "leg"
+},
+{
+"c": 6,
+"w": "nantabono",
+"e": "foot",
+"d": "body",
+"f": "foot"
+},
+{
+"c": 6,
+"w": "afono",
+"e": "cheek",
+"d": "body",
+"f": "cheek"
+},
+{
+"c": 6,
+"w": "moma",
+"e": "forehead",
+"d": "body",
+"f": "forehead"
+},
+{
+"c": 7,
+"w": "ankaa",
+"e": "orange",
+"d": "fruits",
+"f": "orange"
+},
+{
+"c": 7,
+"w": "ankaa twadeɛ",
+"e": "lime",
+"d": "fruits",
+"f": "lime"
+},
+{
+"c": 7,
+"w": "kwadu",
+"e": "banana",
+"d": "fruits",
+"f": "banana"
+},
+{
+"c": 7,
+"w": "borɔferɛ",
+"e": "pawpaw",
+"d": "fruits",
+"f": "pawpaw"
+},
+{
+"c": 7,
+"w": "aborɔbɛ",
+"e": "pineapple",
+"d": "fruits",
+"f": "pineapple"
+},
+{
+"c": 7,
+"w": "kube",
+"e": "coconut",
+"d": "fruits",
+"f": "coconut"
+},
+{
+"c": 7,
+"w": "paya",
+"e": "pear",
+"d": "fruits",
+"f": "pear"
+},
+{
+"c": 7,
+"w": "amango",
+"e": "mango",
+"d": "fruits",
+"f": "mango"
+},
+{
+"c": 7,
+"w": "anamuna",
+"e": "watermelon",
+"d": "fruits",
+"f": "watermelon"
+},
+{
+"c": 7,
+"w": "abɛ",
+"e": "palm fruit",
+"d": "fruits",
+"f": "palmfruit"
+},
+{
+"c": 7,
+"w": "atadwe",
+"e": "tigernut",
+"d": "fruits",
+"f": "tigernut"
+},
+{
+"c": 7,
+"w": "nkateɛ",
+"e": "groundnut",
+"d": "fruits",
+"f": "groundnut"
+},
+{
+"c": 7,
+"w": "ahwedeɛ",
+"e": "sugarcane",
+"d": "fruits",
+"f": "sugarcane"
+},
+{
+"c": 8,
+"w": "bankye",
+"e": "cassava",
+"d": "food",
+"f": "cassava"
+},
+{
+"c": 8,
+"w": "borɔdeɛ",
+"e": "plantain",
+"d": "food",
+"f": "plantain"
+},
+{
+"c": 8,
+"w": "bayerɛ",
+"e": "yam",
+"d": "food",
+"f": "yam"
+},
+{
+"c": 8,
+"w": "mankani",
+"e": "cocoyam",
+"d": "food",
+"f": "cocoyam"
+},
+{
+"c": 8,
+"w": "aborɔdwomaa",
+"e": "potato",
+"d": "food",
+"f": "potato"
+},
+{
+"c": 8,
+"w": "aburoo",
+"e": "maize",
+"d": "food",
+"f": "maize"
+},
+{
+"c": 8,
+"w": "gyeene",
+"e": "onion",
+"d": "food",
+"f": "onion"
+},
+{
+"c": 8,
+"w": "mako",
+"e": "pepper",
+"d": "food",
+"f": "pepper"
+},
+{
+"c": 8,
+"w": "ntoosi",
+"e": "tomato",
+"d": "food",
+"f": "tomato"
+},
+{
+"c": 8,
+"w": "nyaadewa",
+"e": "garden egg",
+"d": "food",
+"f": "gardenegg"
+},
+{
+"c": 8,
+"w": "nkuruma",
+"e": "okro",
+"d": "food",
+"f": "okro"
+},
+{
+"c": 8,
+"w": "kontommire",
+"e": "cocoyam leaves",
+"d": "food",
+"f": "kontommire"
+},
+{
+"c": 8,
+"w": "ɛmo",
+"e": "rice",
+"d": "food",
+"f": "rice"
+},
+{
+"c": 8,
+"w": "adua",
+"e": "bean",
+"d": "food",
+"f": "bean"
+},
+{
+"c": 8,
+"w": "kosua",
+"e": "egg",
+"d": "food",
+"f": "egg"
+},
+{
+"c": 8,
+"w": "paanoo",
+"e": "bread",
+"d": "food",
+"f": "paanoo"
+},
+{
+"c": 8,
+"w": "nsuomnam",
+"e": "fish",
+"d": "food",
+"f": "fish"
+},
+{
+"c": 8,
+"w": "nkyene",
+"e": "salt",
+"d": "food",
+"f": "salt"
+},
+{
+"c": 9,
+"w": "akokɔ",
+"e": "chicken",
+"d": "animals",
+"f": "chicken"
+},
+{
+"c": 9,
+"w": "odwan",
+"e": "sheep",
+"d": "animals",
+"f": "sheep"
+},
+{
+"c": 9,
+"w": "abirekyie",
+"e": "goat",
+"d": "animals",
+"f": "goat"
+},
+{
+"c": 9,
+"w": "nantwie",
+"e": "cow",
+"d": "animals",
+"f": "cow"
+},
+{
+"c": 9,
+"w": "prako",
+"e": "pig",
+"d": "animals",
+"f": "pig"
+},
+{
+"c": 9,
+"w": "pɔnkɔ",
+"e": "horse",
+"d": "animals",
+"f": "horse"
+},
+{
+"c": 9,
+"w": "kraman",
+"e": "dog",
+"d": "animals",
+"f": "dog"
+},
+{
+"c": 9,
+"w": "agyinamoa",
+"e": "cat",
+"d": "animals",
+"f": "cat"
+},
+{
+"c": 9,
+"w": "gyata",
+"e": "lion",
+"d": "animals",
+"f": "lion"
+},
+{
+"c": 9,
+"w": "ɔsono",
+"e": "elephant",
+"d": "animals",
+"f": "elephant"
+},
+{
+"c": 9,
+"w": "adoe",
+"e": "monkey",
+"d": "animals",
+"f": "monkey"
+},
+{
+"c": 9,
+"w": "akyekyedeɛ",
+"e": "tortoise",
+"d": "animals",
+"f": "tortoise"
+},
+{
+"c": 9,
+"w": "ɔwɔ",
+"e": "snake",
+"d": "animals",
+"f": "snake"
+},
+{
+"c": 9,
+"w": "adanko",
+"e": "rabbit",
+"d": "animals",
+"f": "rabbit"
+},
+{
+"c": 9,
+"w": "kɔtɔkɔ",
+"e": "porcupine",
+"d": "animals",
+"f": "porcupine"
+},
+{
+"c": 9,
+"w": "ɔdɛnkyɛm",
+"e": "crocodile",
+"d": "animals",
+"f": "crocodile"
+},
+{
+"c": 9,
+"w": "anomaa",
+"e": "bird",
+"d": "animals",
+"f": "bird"
+},
+{
+"c": 9,
+"w": "akorɔma",
+"e": "hawk",
+"d": "animals",
+"f": "hawk"
+},
+{
+"c": 9,
+"w": "ananse",
+"e": "spider",
+"d": "animals",
+"f": "spider"
+},
+{
+"c": 9,
+"w": "ntontom",
+"e": "mosquito",
+"d": "animals",
+"f": "mosquito"
+},
+{
+"c": 9,
+"w": "nwansena",
+"e": "housefly",
+"d": "animals",
+"f": "housefly"
+},
+{
+"c": 9,
+"w": "kɔtɔ",
+"e": "crab",
+"d": "animals",
+"f": "crab"
+},
+{
+"c": 9,
+"w": "akura",
+"e": "mouse",
+"d": "animals",
+"f": "mouse"
+},
+{
+"c": 10,
+"w": "didi",
+"e": "eat",
+"d": "verbs",
+"f": "didi"
+},
+{
+"c": 10,
+"w": "nom",
+"e": "drink",
+"d": "verbs",
+"f": "nom"
+},
+{
+"c": 10,
+"w": "da",
+"e": "sleep",
+"d": "verbs",
+"f": "da"
+},
+{
+"c": 10,
+"w": "nante",
+"e": "walk",
+"d": "verbs",
+"f": "nante"
+},
+{
+"c": 10,
+"w": "su",
+"e": "cry",
+"d": "verbs",
+"f": "su"
+},
+{
+"c": 10,
+"w": "sere",
+"e": "laugh",
+"d": "verbs",
+"f": "sere"
+},
+{
+"c": 10,
+"w": "goro",
+"e": "play",
+"d": "verbs",
+"f": "goro"
+},
+{
+"c": 10,
+"w": "dware",
+"e": "bath",
+"d": "verbs",
+"f": "dware"
+},
+{
+"c": 10,
+"w": "me",
+"e": "I",
+"d": "verbs",
+"f": "me"
+},
+{
+"c": 10,
+"w": "wo",
+"e": "you",
+"d": "verbs",
+"f": "wo"
+},
+{
+"c": 10,
+"w": "ɔno",
+"e": "he / she",
+"d": "verbs",
+"f": "ono"
+},
+{
+"c": 10,
+"w": "yɛn",
+"e": "we",
+"d": "verbs",
+"f": "yen"
+},
+{
+"c": 10,
+"w": "mo",
+"e": "you (all)",
+"d": "verbs",
+"f": "mo"
+},
+{
+"c": 10,
+"w": "wɔn",
+"e": "they",
+"d": "verbs",
+"f": "won"
+},
+{
+"c": 10,
+"w": "ɛno",
+"e": "it",
+"d": "verbs",
+"f": "eno"
+}
+]

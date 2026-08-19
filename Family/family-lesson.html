@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Family</title>
+<!-- Kids_Portal · Family/family-lesson.html · slug: fam-lesson -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .grp{font-size:1.05rem;color:#A81B1B;font-weight:bold;margin-top:18px}
+  .fam{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;margin-top:8px}
+  .pn{background:#fff;border:4px solid #efc48c;border-radius:22px;padding:11px 6px;cursor:pointer;
+    font-family:inherit;box-shadow:0 5px 0 #b6956a;text-align:center}
+  .pn .ic{font-size:2.3rem;display:block;line-height:1}
+  .pn .w{font-size:1.02rem;font-weight:bold;color:#492f16;margin-top:4px;word-break:break-word}
+  .pn .en{font-size:.78rem;color:#5A6B60;font-weight:bold}
+  .pn .tag{font-size:.68rem;font-weight:800;border-radius:20px;padding:1px 8px;display:inline-block;
+    margin-top:3px}
+  .pn .tag.r{background:#14563A;color:#fff}
+  .pn .tag.c{background:#ffe1b3;color:#492f16}
+  .pn.playing{box-shadow:0 0 0 4px #14563A}
+  .note{background:#14563A;color:#fff;border-radius:22px;padding:15px;margin-top:16px;
+    font-size:.98rem;line-height:1.6;font-weight:bold}
+  .note b{color:#f3d48a}
+  .plrow{display:flex;align-items:center;gap:10px;background:#fff;border:3px solid #efc48c;
+    border-radius:20px;padding:10px 12px;margin-top:8px;font-weight:bold}
+  .plrow .a{color:#492f16;font-size:1.05rem}
+  .plrow .arw{color:#A81B1B}
+  .plrow .b{color:#14563A;font-size:1.05rem}
+  .plrow .en{margin-left:auto;font-size:.78rem;color:#5A6B60}
+  .hint{font-size:.95rem;font-weight:bold;color:#4d2f12;background:#fff1c7;padding:7px 16px;
+    border-radius:40px;max-width:430px;margin:12px auto 0;border:3px solid #f7b86a}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>👨‍👩‍👧‍👦 My Family</h1>
+  <span class="sub">Abusua</span>
+  <p class="hint">🔊 Tap anyone to hear it</p>
+  <div id="groups"></div>
+
+  <div class="note">Two words, one father.<br>
+    <b>Papa</b> is what you say every day. <b>Agya</b> is the older, respectful word —
+    the one you use before an elder, or when you want to show honour.<br>
+    Same with <b>maame</b> and <b>ɛna</b>.</div>
+
+  <p class="grp">One, and many</p>
+  <div id="plurals"></div>
+
+  <p class="grp">Saying it about your own family</p>
+  <div id="says"></div>
+
+  <p class="status" id="status">Tap them all, then try the games.</p>
+  <div id="end"></div>
+</div>
+<script>
+var FAM=[
+ {w:'papa',      e:'father',            f:'father',      g:'close', reg:'casual',  pair:'agya',  ic:'👨'},
+ {w:'agya',      e:'father',            f:'father2',     g:'close', reg:'respect', pair:'papa',  ic:'👨'},
+ {w:'maame',     e:'mother',            f:'mother',      g:'close', reg:'casual',  pair:'ɛna',   ic:'👩'},
+ {w:'ɛna',       e:'mother',            f:'mother2',     g:'close', reg:'respect', pair:'maame', ic:'👩'},
+ {w:'nana',      e:'grandparent, elder',f:'grandparent', g:'close', ic:'🧓'},
+ {w:'nua',       e:'sibling',           f:'sibling',     g:'close', pl:'anuanom', ic:'🧑'},
+ {w:'nuabarima', e:'brother',           f:'brother',     g:'close', ic:'👦'},
+ {w:'nuabaa',    e:'sister',            f:'sister',      g:'close', ic:'👧'},
+ {w:'ɔba',       e:'child',             f:'child',       g:'close', pl:'mma', ic:'🧒'},
+ {w:'wɔfa',      e:'uncle',             f:'uncle',       g:'wider', ic:'👨‍🦱'},
+ {w:'sewaa',     e:'aunt',              f:'aunt',        g:'wider', ic:'👩‍🦱'},
+ {w:'adamfo',    e:'friend',            f:'friend',      g:'wider', pl:'nnamfoɔ', ic:'🤝'},
+ {w:'abusua',    e:'family, clan',      f:'family',      g:'wider', ic:'🏡'},
+ {w:'ɔbarima',   e:'man',               f:'man',         g:'people', ic:'🧔'},
+ {w:'ɔbaa',      e:'woman',             f:'woman',       g:'people', ic:'👩‍🦰'},
+ {w:'abɔfra',    e:'little child',      f:'littlechild', g:'people', ic:'👶'},
+ {w:'akwakoraa', e:'old man',           f:'oldman',      g:'people', ic:'👴'},
+ {w:'aberewa',   e:'old woman',         f:'oldwoman',    g:'people', ic:'👵'},
+ {w:'onipa',     e:'person',            f:'person',      g:'people', pl:'nnipa', ic:'🧍'}
+];
+/* One becomes many - a real Twi pattern, not just extra words. */
+var PLURALS=[
+ {one:'ɔba',   many:'mma',      e:'child → children',   f1:'child',  f2:'children'},
+ {one:'nua',   many:'anuanom',  e:'sibling → siblings', f1:'sibling',f2:'siblings'},
+ {one:'adamfo',many:'nnamfoɔ',  e:'friend → friends',   f1:'friend', f2:'friends'},
+ {one:'onipa', many:'nnipa',    e:'person → people',    f1:'person', f2:'people'}
+];
+/* Two words for the same parent - one you use with your friends, one you use
+   before an elder. Knowing which is which is the mark of someone raised right. */
+var REGISTER=[
+ {casual:'papa',  respect:'agya', e:'father', fc:'father', fr:'father2'},
+ {casual:'maame', respect:'ɛna',  e:'mother', fc:'mother', fr:'mother2'}
+];
+var SAY=[
+ {w:'me maame din de…', e:"my mother's name is…", f:'mymothername',  slot:'name'},
+ {w:'me papa din de…',  e:"my father's name is…", f:'myfathername',  slot:'name'},
+ {w:'me nua din de…',   e:"my sibling's name is…",f:'mysiblingname', slot:'name'},
+ {w:'mewɔ nuabaa',      e:'I have a sister',      f:'ihavesister'},
+ {w:'mewɔ nuabarima',   e:'I have a brother',     f:'ihavebrother'}
+];
+var FGRP={close:'The people closest to you',wider:'The wider family',
+          people:'Words for people'};
+var FNUM={1:'baako',2:'mmienu',3:'mmiensa',4:'ɛnan',5:'enum',6:'nsia'};
+var byFam={}; FAM.forEach(function(x){byFam[x.f]=x});
+
+function sayF(f){var a=new Audio('/audio?f=family/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function sayNum(f){var a=new Audio('/audio?f=twi-numbers/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function sayThen(f1,d2,f2){
+  var a=sayF(f1);
+  a.addEventListener('ended',function(){
+    var b=new Audio('/audio?f='+d2+'/'+encodeURIComponent(f2+'.m4a'));b.play().catch(function(){});
+  });
+  return a;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var heard={},cur=null,curEl=null,NEED=FAM.length;
+  var statusEl=document.getElementById('status'),endEl=document.getElementById('end');
+  function play(f,el,key){
+    if(cur)cur.pause(); if(curEl)curEl.classList.remove('playing');
+    cur=sayF(f);curEl=el;if(el)el.classList.add('playing');
+    cur.addEventListener('ended',function(){if(el)el.classList.remove('playing')});
+    cur.addEventListener('error',function(){if(el)el.classList.remove('playing')});
+    if(key){heard[key]=1;
+      var n=Object.keys(heard).length;
+      statusEl.textContent=n<NEED?('You have heard '+n+' of '+NEED+'.'):'You heard them all! 🎉';
+      if(n>=NEED&&!endEl.innerHTML){
+        endEl.innerHTML='<button class="fin" id="done">✅ I know my family words</button>';
+        document.getElementById('done').onclick=function(){report(5,5)};
+      }}
+  }
+  var groupsEl=document.getElementById('groups');
+  ['close','wider','people'].forEach(function(g){
+    var h=document.createElement('p');h.className='grp';h.textContent=FGRP[g];
+    groupsEl.appendChild(h);
+    var wrap=document.createElement('div');wrap.className='fam';
+    FAM.filter(function(x){return x.g===g}).forEach(function(x){
+      var b=document.createElement('button');b.className='pn';b.type='button';
+      b.innerHTML='<span class="ic">'+x.ic+'</span><span class="w">'+x.w+'</span>'
+        +'<span class="en">'+x.e+'</span>'
+        +(x.reg?'<span class="tag '+(x.reg==='respect'?'r':'c')+'">'
+          +(x.reg==='respect'?'respectful':'everyday')+'</span>':'');
+      b.onclick=function(){play(x.f,b,x.f)};
+      wrap.appendChild(b);
+    });
+    groupsEl.appendChild(wrap);
+  });
+
+  var plEl=document.getElementById('plurals');
+  PLURALS.forEach(function(p){
+    var d=document.createElement('div');d.className='plrow';
+    d.innerHTML='<span class="a">'+p.one+'</span><span class="arw">→</span>'
+      +'<span class="b">'+p.many+'</span><span class="en">'+p.e+'</span>';
+    d.onclick=function(){sayThen(p.f1,'family',p.f2)};
+    d.style.cursor='pointer';
+    plEl.appendChild(d);
+  });
+
+  var sayEl=document.getElementById('says');
+  SAY.forEach(function(x){
+    var d=document.createElement('div');d.className='plrow';d.style.cursor='pointer';
+    d.innerHTML='<span class="a">'+x.w+'</span><span class="en">'+x.e+'</span>';
+    d.onclick=function(){play(x.f,d,null)};
+    sayEl.appendChild(d);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ka wo ho asɛm</title>
+<!-- Kids_Portal · Talking/about-me.html · slug: talk-aboutme -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .step{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:20px 16px;
+    margin:14px 0;text-align:center}
+  .step .n{font-size:.8rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.8}
+  .step .tw{font-family:"Baloo 2",cursive;font-size:2.1rem;line-height:1.15;margin-top:4px;
+    word-break:break-word}
+  .step .en{font-size:.95rem;opacity:.9;font-weight:700;margin-top:2px}
+  .step .add{background:#fff1c7;color:#4d2f12;border-radius:30px;padding:6px 14px;font-size:.85rem;
+    font-weight:800;display:inline-block;margin-top:9px}
+  .rowb{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+  .rb{border:3px solid #3A2A1C;border-radius:20px;padding:14px 18px;font-weight:800;font-size:1rem;
+    background:#fff;cursor:pointer;min-width:130px;box-shadow:0 4px 0 #3A2A1C;font-family:inherit;
+    color:#14261D}
+  .rb:active{transform:translateY(3px);box-shadow:none}
+  .rb.rec{background:#A81B1B;color:#fff;border-color:#6E1111}
+  .rb.stop{background:#6E1111;color:#fff}
+  .rb.gold{background:#C8901E;color:#3A2A05}
+  .rb[disabled]{opacity:.4;pointer-events:none}
+  .lvl{height:14px;border-radius:99px;background:#EFE7D7;border:2px solid #3A2A1C;overflow:hidden;
+    margin-top:12px}
+  .lvl i{display:block;height:100%;width:0;background:#A81B1B}
+  .track{display:flex;gap:6px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .track b{width:34px;height:34px;border-radius:50%;border:3px solid #14563A;background:#fff;
+    display:grid;place-items:center;font-size:.85rem;font-weight:800;color:#14563A;cursor:pointer}
+  .track b.done{background:#14563A;color:#fff}
+  .track b.now{box-shadow:0 0 0 4px #C8901E}
+  .ideas{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px;margin-top:12px}
+  .idea{background:#fff;border:3px solid #b48b3a;border-radius:18px;padding:8px 4px;cursor:pointer;
+    font-family:inherit;text-align:center;box-shadow:0 4px 0 #7a5a1f}
+  .idea .ic{font-size:1.7rem;display:block;line-height:1}
+  .idea .w{font-size:.8rem;font-weight:800;color:#492f16;margin-top:2px}
+  .finale{background:#C8901E;color:#3A2A05;border:4px solid #14563A;border-radius:24px;padding:18px;
+    text-align:center;margin-top:16px}
+  .finale h2{font-size:1.4rem}
+  .tip{background:#EFE7D7;border:2px dashed #3A2A1C;border-radius:18px;padding:12px;font-size:.85rem;
+    font-weight:700;color:#5A6B60;margin-top:14px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🎙️ Ka wo ho asɛm</h1>
+  <span class="sub">Tell about yourself, in your own voice</span>
+  <div class="track" id="track"></div>
+  <div class="step" id="step"></div>
+  <div class="lvl"><i id="meter"></i></div>
+  <div class="rowb">
+    <button class="rb gold" id="hear">🔊 Hear it</button>
+    <button class="rb rec" id="go">🎤 Record me</button>
+  </div>
+  <div class="rowb">
+    <button class="rb" id="mine" disabled>▶️ Just me</button>
+    <button class="rb" id="ideas">💡 Ideas</button>
+  </div>
+  <div id="ideabox"></div>
+  <p class="status" id="status">Listen first, then say the whole sentence with your own ending.</p>
+  <div class="rowb">
+    <button class="rb" id="prev">← Before</button>
+    <button class="rb" id="next">Next →</button>
+  </div>
+  <div id="finale"></div>
+  <p class="tip">Your voice stays on this phone. Nothing is sent anywhere and nothing is marked —
+    this is yours to keep and to play to someone.</p>
+</div>
+<script>
+var T=[
+ {w:'Wo din de sɛn?', e:'What is your name?',  f:'whatname',  g:'meet', ask:1},
+ {w:'Me din de…',     e:'My name is…',         f:'myname',    g:'meet', stem:1, slot:'name'},
+ {w:'Wo ho te sɛn?',  e:'How are you?',        f:'howareyou', g:'meet', ask:1},
+ {w:'Me ho yɛ',       e:'I am fine',           f:'imfine',    g:'meet'},
+ {w:'Na wo nso ɛ?',   e:'And you?',            f:'andyou',    g:'meet'},
+ {w:'Ɛhe na wofiri?', e:'Where are you from?', f:'wherefrom', g:'meet', ask:1},
+ {w:'Mefiri…',        e:'I am from…',          f:'imfrom',    g:'meet', stem:1, slot:'town'},
+ {w:'Wote he?',       e:'Where do you live?',  f:'wherelive', g:'meet', ask:1},
+ {w:'Mete…',          e:'I live at…',          f:'ilive',     g:'meet', stem:1, slot:'town'},
+ {w:'Medaase',        e:'Thank you',           f:'thanks',    g:'polite'},
+ {w:'Mepa wo kyɛw',   e:'Please, excuse me',   f:'please',    g:'polite'},
+ {w:'Aane',           e:'Yes',                 f:'yes',       g:'polite'},
+ {w:'Daabi',          e:'No',                  f:'no',        g:'polite'},
+ {w:'Kafra',          e:'Sorry',               f:'sorry',     g:'polite'},
+ {w:'Akwaaba',        e:'Welcome',             f:'welcome',   g:'going'},
+ {w:'Nante yie',      e:'Goodbye, go well',    f:'goodbye',   g:'going'},
+ {w:'Yɛbɛhyia',       e:'See you again',       f:'seeyou',    g:'going'},
+ {w:'Mewɔ…',          e:'I have…',             f:'ihave',     g:'mine', stem:1, slot:'thing'},
+ {w:'Mepɛ…',          e:'I like…',             f:'ilike',     g:'mine', stem:1, slot:'thing'}
+];
+var TGRP={meet:'Meeting someone',polite:'Being polite',going:'Coming and going',
+          mine:'Saying what is yours'};
+var byF={}; T.forEach(function(x){byF[x.f]=x});
+
+/* Things a learner can put after mewɔ / mepɛ, drawn from earlier chapters so
+   the phrase joins to words they already own. */
+var THINGS=[
+ {w:'amango',   e:'a mango',    d:'fruits',  f:'mango',    ic:'🥭'},
+ {w:'kwadu',    e:'a banana',   d:'fruits',  f:'banana',   ic:'🍌'},
+ {w:'ankaa',    e:'an orange',  d:'fruits',  f:'orange',   ic:'🍊'},
+ {w:'kube',     e:'a coconut',  d:'fruits',  f:'coconut',  ic:'🥥'},
+ {w:'kraman',   e:'a dog',      d:'animals', f:'dog',      ic:'🐕'},
+ {w:'agyinamoa',e:'a cat',      d:'animals', f:'cat',      ic:'🐈'},
+ {w:'akokɔ',    e:'a chicken',  d:'animals', f:'chicken',  ic:'🐔'},
+ {w:'abirekyie',e:'a goat',     d:'animals', f:'goat',     ic:'🐐'},
+ {w:'ɛmo',      e:'rice',       d:'food',    f:'rice',     ic:'🍚'},
+ {w:'paanoo',   e:'bread',      d:'food',    f:'paanoo',   ic:'🍞'},
+ {w:'nsuomnam', e:'fish',       d:'food',    f:'fish',     ic:'🐟'},
+ {w:'bayerɛ',   e:'yam',        d:'food',    f:'yam',      ic:'🍠'}
+];
+var TOWNS=['Kumasi','Accra','Takoradi','Tamale','Cape Coast','Koforidua','Sunyani','Ho'];
+
+function sayT(f){var a=new Audio('/audio?f=talking/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function sayAny(d,f){var a=new Audio('/audio?f='+encodeURIComponent(d)+'/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* Play a stem then the thing after it, so "mepɛ" + "amango" sounds like a
+   sentence without needing a recording of every combination. */
+function sayPair(stemF,d,f){
+  var a=sayT(stemF);
+  a.addEventListener('ended',function(){sayAny(d,f)});
+  return a;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+
+  /* Six things to say about yourself. Each one is a stem the learner completes
+     out loud, so what they end up with is a real introduction rather than a
+     drill - something they can play to a grandchild. */
+  var STEPS=[
+   {f:'myname',  add:'…and your name',              ideas:null},
+   {f:'imfrom',  add:'…and your home town',         ideas:'town'},
+   {f:'ilive',   add:'…and where you live now',     ideas:'town'},
+   {f:'ihave',   add:'…and something you have',     ideas:'thing'},
+   {f:'ilike',   add:'…and something you like',     ideas:'thing'},
+   {f:'imfine',  add:'just as it is',               ideas:null}
+  ];
+  var at=0, rec=null, chunks=[], stream=null, takes={};
+  var $=function(i){return document.getElementById(i)};
+
+  function draw(){
+    var s=STEPS[at], p=byF[s.f];
+    $('step').innerHTML='<div class="n">Part '+(at+1)+' of '+STEPS.length+'</div>'
+      +'<div class="tw">'+p.w+'</div><div class="en">'+p.e+'</div>'
+      +'<div class="add">'+s.add+'</div>';
+    $('mine').disabled=!takes[at];
+    $('ideabox').innerHTML='';
+    $('ideas').style.display=s.ideas?'':'none';
+    $('go').textContent=takes[at]?'🎤 Record again':'🎤 Record me';
+    $('go').className='rb rec';
+    $('meter').style.width='0%';
+    $('status').textContent=takes[at]
+      ? 'Saved. Move on, or record it again.'
+      : 'Listen first, then say the whole sentence with your own ending.';
+    drawTrack();
+    drawFinale();
+  }
+  function drawTrack(){
+    $('track').innerHTML='';
+    STEPS.forEach(function(s,i){
+      var b=document.createElement('b');
+      b.textContent=i+1;
+      if(takes[i])b.className='done';
+      if(i===at)b.className+=' now';
+      b.onclick=function(){at=i;draw()};
+      $('track').appendChild(b);
+    });
+  }
+  function drawFinale(){
+    var n=Object.keys(takes).length;
+    if(n<STEPS.length){$('finale').innerHTML='';return}
+    $('finale').innerHTML='<div class="finale"><h2>🎉 Your introduction is ready</h2>'
+      +'<p style="font-weight:700;font-size:.9rem">Play the whole thing, in your own voice.</p>'
+      +'<button class="rb" id="playall" style="margin-top:8px">▶️ Play my introduction</button>'
+      +'<button class="rb" id="done2" style="margin-top:8px">✅ I am finished</button></div>';
+    $('playall').onclick=playAll;
+    $('done2').onclick=function(){report(6,6);$('status').textContent='Well done. Saved.'};
+  }
+
+  function hear(){ sayT(STEPS[at].f) }
+
+  async function toggle(){
+    if(rec&&rec.state==='recording'){rec.stop();return}
+    try{ if(!stream)stream=await navigator.mediaDevices.getUserMedia({audio:true}); }
+    catch(err){ $('status').textContent='I cannot reach the microphone. Allow it, then try again.'; return }
+    chunks=[];
+    rec=new MediaRecorder(stream);
+    rec.ondataavailable=function(e){ if(e.data.size)chunks.push(e.data) };
+    rec.onstop=function(){
+      takes[at]=URL.createObjectURL(new Blob(chunks,{type:rec.mimeType||'audio/webm'}));
+      $('mine').disabled=false;
+      $('go').textContent='🎤 Record again';$('go').className='rb rec';
+      $('status').textContent='Saved. Listen to yourself, or move on.';
+      $('meter').style.width='0%';
+      drawTrack();drawFinale();
+    };
+    rec.start();
+    $('go').textContent='⏹ Stop';$('go').className='rb stop';
+    $('status').textContent='Recording… say the whole sentence.';
+    try{
+      var ac=new (window.AudioContext||window.webkitAudioContext)();
+      var src=ac.createMediaStreamSource(stream), an=ac.createAnalyser();
+      an.fftSize=256;src.connect(an);
+      var buf=new Uint8Array(an.frequencyBinCount);
+      (function tick(){
+        if(!rec||rec.state!=='recording'){ac.close().catch(function(){});return}
+        an.getByteFrequencyData(buf);
+        var sum=0;for(var i=0;i<buf.length;i++)sum+=buf[i];
+        $('meter').style.width=Math.min(100,(sum/buf.length)*2.2)+'%';
+        requestAnimationFrame(tick);
+      })();
+    }catch(e){}
+    setTimeout(function(){ if(rec&&rec.state==='recording')rec.stop() },12000);
+  }
+
+  function playMine(){ if(takes[at])new Audio(takes[at]).play().catch(function(){}) }
+
+  /* Play all six back to back, so they hear a whole introduction rather than
+     six fragments. */
+  function playAll(){
+    var i=0;
+    $('status').textContent='Playing your introduction…';
+    (function next(){
+      if(i>=STEPS.length){$('status').textContent='That was you, speaking Twi. 🎉';return}
+      var a=new Audio(takes[i]);
+      a.addEventListener('ended',function(){i++;setTimeout(next,350)});
+      a.addEventListener('error',function(){i++;next()});
+      a.play().catch(function(){i++;next()});
+    })();
+  }
+
+  function showIdeas(){
+    var s=STEPS[at];
+    if(!s.ideas)return;
+    var box=$('ideabox');
+    if(box.innerHTML){box.innerHTML='';return}
+    var html='<div class="ideas">';
+    if(s.ideas==='town'){
+      TOWNS.forEach(function(t){
+        html+='<button class="idea" type="button"><span class="ic">🏠</span>'
+          +'<span class="w">'+t+'</span></button>';
+      });
+    }else{
+      THINGS.forEach(function(t){
+        html+='<button class="idea" type="button" data-d="'+t.d+'" data-f="'+t.f+'">'
+          +'<span class="ic">'+t.ic+'</span><span class="w">'+t.w+'</span></button>';
+      });
+    }
+    box.innerHTML=html+'</div>';
+    Array.prototype.forEach.call(box.querySelectorAll('.idea'),function(b){
+      b.onclick=function(){
+        if(b.dataset.f)sayPair(STEPS[at].f,b.dataset.d,b.dataset.f);
+        else sayT(STEPS[at].f);
+      };
+    });
+  }
+
+  $('hear').onclick=hear;
+  $('go').onclick=toggle;
+  $('mine').onclick=playMine;
+  $('ideas').onclick=showIdeas;
+  $('prev').onclick=function(){at=(at-1+STEPS.length)%STEPS.length;draw()};
+  $('next').onclick=function(){at=(at+1)%STEPS.length;draw()};
+  draw();
+
+})();
+</script>
+</body>
+</html>

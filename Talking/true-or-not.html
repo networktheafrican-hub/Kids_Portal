@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Aane anaa Daabi?</title>
+<!-- Kids_Portal · Talking/true-or-not.html · slug: talk-yesno -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .q{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:18px 16px;
+    font-size:1.1rem;font-weight:bold;margin:14px 0;min-height:132px;display:flex;
+    align-items:center;justify-content:center;flex-direction:column;gap:8px}
+  .q .huge{font-size:1.75rem;line-height:1.3;word-break:break-word}
+  .q .em{font-size:3.4rem;line-height:1}
+  .q .spk{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:8px 20px;
+    font-size:1rem;font-weight:bold;color:#4d2f12;cursor:pointer;font-family:inherit}
+  .result{font-size:1.35rem;font-weight:bold;color:#14563A;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🤔 Aane anaa Daabi?</h1>
+  <span class="sub">Is it true? Yes or no</span>
+  <div class="dots" id="dots"></div>
+  <div class="q" id="q"></div>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div id="end"></div>
+</div>
+<script>
+var T=[
+ {w:'Wo din de sɛn?', e:'What is your name?',  f:'whatname',  g:'meet', ask:1},
+ {w:'Me din de…',     e:'My name is…',         f:'myname',    g:'meet', stem:1, slot:'name'},
+ {w:'Wo ho te sɛn?',  e:'How are you?',        f:'howareyou', g:'meet', ask:1},
+ {w:'Me ho yɛ',       e:'I am fine',           f:'imfine',    g:'meet'},
+ {w:'Na wo nso ɛ?',   e:'And you?',            f:'andyou',    g:'meet'},
+ {w:'Ɛhe na wofiri?', e:'Where are you from?', f:'wherefrom', g:'meet', ask:1},
+ {w:'Mefiri…',        e:'I am from…',          f:'imfrom',    g:'meet', stem:1, slot:'town'},
+ {w:'Wote he?',       e:'Where do you live?',  f:'wherelive', g:'meet', ask:1},
+ {w:'Mete…',          e:'I live at…',          f:'ilive',     g:'meet', stem:1, slot:'town'},
+ {w:'Medaase',        e:'Thank you',           f:'thanks',    g:'polite'},
+ {w:'Mepa wo kyɛw',   e:'Please, excuse me',   f:'please',    g:'polite'},
+ {w:'Aane',           e:'Yes',                 f:'yes',       g:'polite'},
+ {w:'Daabi',          e:'No',                  f:'no',        g:'polite'},
+ {w:'Kafra',          e:'Sorry',               f:'sorry',     g:'polite'},
+ {w:'Akwaaba',        e:'Welcome',             f:'welcome',   g:'going'},
+ {w:'Nante yie',      e:'Goodbye, go well',    f:'goodbye',   g:'going'},
+ {w:'Yɛbɛhyia',       e:'See you again',       f:'seeyou',    g:'going'},
+ {w:'Mewɔ…',          e:'I have…',             f:'ihave',     g:'mine', stem:1, slot:'thing'},
+ {w:'Mepɛ…',          e:'I like…',             f:'ilike',     g:'mine', stem:1, slot:'thing'}
+];
+var TGRP={meet:'Meeting someone',polite:'Being polite',going:'Coming and going',
+          mine:'Saying what is yours'};
+var byF={}; T.forEach(function(x){byF[x.f]=x});
+
+/* Things a learner can put after mewɔ / mepɛ, drawn from earlier chapters so
+   the phrase joins to words they already own. */
+var THINGS=[
+ {w:'amango',   e:'a mango',    d:'fruits',  f:'mango',    ic:'🥭'},
+ {w:'kwadu',    e:'a banana',   d:'fruits',  f:'banana',   ic:'🍌'},
+ {w:'ankaa',    e:'an orange',  d:'fruits',  f:'orange',   ic:'🍊'},
+ {w:'kube',     e:'a coconut',  d:'fruits',  f:'coconut',  ic:'🥥'},
+ {w:'kraman',   e:'a dog',      d:'animals', f:'dog',      ic:'🐕'},
+ {w:'agyinamoa',e:'a cat',      d:'animals', f:'cat',      ic:'🐈'},
+ {w:'akokɔ',    e:'a chicken',  d:'animals', f:'chicken',  ic:'🐔'},
+ {w:'abirekyie',e:'a goat',     d:'animals', f:'goat',     ic:'🐐'},
+ {w:'ɛmo',      e:'rice',       d:'food',    f:'rice',     ic:'🍚'},
+ {w:'paanoo',   e:'bread',      d:'food',    f:'paanoo',   ic:'🍞'},
+ {w:'nsuomnam', e:'fish',       d:'food',    f:'fish',     ic:'🐟'},
+ {w:'bayerɛ',   e:'yam',        d:'food',    f:'yam',      ic:'🍠'}
+];
+var TOWNS=['Kumasi','Accra','Takoradi','Tamale','Cape Coast','Koforidua','Sunyani','Ho'];
+
+function sayT(f){var a=new Audio('/audio?f=talking/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function sayAny(d,f){var a=new Audio('/audio?f='+encodeURIComponent(d)+'/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* Play a stem then the thing after it, so "mepɛ" + "amango" sounds like a
+   sentence without needing a recording of every combination. */
+function sayPair(stemF,d,f){
+  var a=sayT(stemF);
+  a.addEventListener('ended',function(){sayAny(d,f)});
+  return a;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  /* Claims about the picture. Half are silly on purpose - children learn aane
+     and daabi much faster when the wrong one is funny. */
+  var quiz=[];
+  for(var i=0;i<TOTAL;i++){
+    var real=THINGS[Math.floor(Math.random()*THINGS.length)];
+    var claim=(i%2===0)?real:shuffle(THINGS.filter(function(x){return x.w!==real.w}))[0];
+    quiz.push({shown:real, claim:claim, isTrue:claim.w===real.w});
+  }
+  quiz=shuffle(quiz);
+  var at=0,score=0,lock=false,marks=[];
+  var qEl=document.getElementById('q'),optsEl=document.getElementById('opts'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    qEl.innerHTML='<span class="em">'+q.shown.ic+'</span>'
+      +'<span class="huge">Mewɔ '+q.claim.w+'</span>'
+      +'<span style="font-size:.9rem;opacity:.85">I have '+q.claim.e+'</span>';
+    statusEl.textContent='Is that right?';dots();
+    sayPair('ihave', q.claim.d, q.claim.f);
+    optsEl.innerHTML='';
+    [['Aane','yes',true],['Daabi','no',false]].forEach(function(o){
+      var b=document.createElement('button');b.className='opt';b.type='button';
+      b.style.minWidth='130px';b.textContent=o[0];
+      b.onclick=function(){answer(b,o[2],o[1],q)};optsEl.appendChild(b)});
+  }
+  function answer(btn,said,file,q){
+    if(lock)return;lock=true;
+    var ok=said===q.isTrue;marks[at]=ok;
+    if(ok){score++;btn.classList.add('ok');
+      statusEl.textContent=q.isTrue?'✅ Aane — that is right!':'✅ Daabi — it is '+q.shown.w+'!'}
+    else{btn.classList.add('no');
+      statusEl.textContent=q.isTrue?'❌ It was true. Aane.':'❌ That is '+q.shown.w+'. Daabi.'}
+    sayT(q.isTrue?'yes':'no');
+    dots();at++;setTimeout(show,1900);
+  }
+  function finish(){
+    dots();qEl.innerHTML='<span class="em">🎉</span>';optsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

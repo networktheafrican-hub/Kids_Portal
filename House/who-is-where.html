@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Who Is Where?</title>
+<!-- Kids_Portal · House/who-is-where.html · slug: house-build -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .built{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:20px 16px;
+    margin:14px 0;min-height:120px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:8px}
+  .built .made{font-size:1.8rem;font-weight:bold;line-height:1.25;word-break:break-word}
+  .built .mean{font-size:.95rem;opacity:.9;font-weight:700}
+  .lbl{font-size:.9rem;font-weight:800;color:#4d2f12;margin-top:14px}
+  .row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px}
+  .tok{background:#fef7e6;border:4px solid #b48b3a;border-radius:20px;padding:10px 15px;
+    font-size:1rem;font-weight:bold;color:#1f3a2f;font-family:inherit;cursor:pointer;
+    box-shadow:0 5px 0 #7a5a1f}
+  .tok:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .tok.on{background:#14563A;color:#fff;border-color:#0d3a26}
+  .say{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 28px;
+    font-size:1.05rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:14px}
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:16px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🏠 Who Is Where?</h1>
+  <span class="sub">Build a sentence with wɔ</span>
+  <div class="built" id="built"></div>
+  <p class="lbl">1. Who?</p>
+  <div class="row" id="who"></div>
+  <p class="lbl">2. Where?</p>
+  <div class="row" id="place"></div>
+  <button class="say" id="say">🔊 Say my sentence</button>
+  <p class="status" id="status">Pick one from each row.</p>
+  <div class="gramtip">The shape is always the same:
+    <b>who + wɔ + where</b>. <b>Me maame wɔ mukaase</b> — my mother is in the kitchen.</div>
+  <div id="end"></div>
+</div>
+<script>
+var H=[
+ {w:'piam',      e:'bedroom',      f:'bedroom',     g:'room', ic:'😴'},
+ {w:'mukaase',   e:'kitchen',      f:'kitchen',     g:'room', ic:'🍳'},
+ {w:'adwareeɛ',  e:'bathroom',     f:'bathroom',    g:'room', ic:'🚿'},
+ {w:'adidibea',  e:'dining place', f:'diningplace', g:'room', ic:'🍛'},
+ {w:'asa so',    e:'hall',         f:'hall',        g:'room', ic:'🛋️'},
+ {w:'abranaa so',e:'veranda',      f:'veranda',     g:'room', ic:'🏡'},
+ {w:'ɛpono',     e:'door',         f:'door',        g:'room', ic:'🚪'},
+ {w:'mpoma',     e:'window',       f:'window',      g:'room', ic:'🪟'},
+
+ {w:'mpa',       e:'bed',          f:'bed',         g:'thing', ic:'🛏️'},
+ {w:'sumiiɛ',    e:'pillow',       f:'pillow',      g:'thing', ic:'🛌'},
+ {w:'kɛtɛ',      e:'mat',          f:'mat',         g:'thing', ic:'🟫'},
+ {w:'kuntu',     e:'blanket',      f:'blanket',     g:'thing', ic:'🧣'},
+ {w:'akonnwa',   e:'chair',        f:'chair',       g:'thing', ic:'🪑'},
+ {w:'didipono',  e:'eating table', f:'table',       g:'thing', ic:'🍽️'},
+ {w:'kanea',     e:'lantern',      f:'lantern',     g:'thing', ic:'🏮'},
+ {w:'ahwehwɛ',   e:'mirror',       f:'mirror',      g:'thing', ic:'🪞'},
+ {w:'praeɛ',     e:'broom',        f:'broom',       g:'thing', ic:'🧹'},
+ {w:'bokiti',    e:'bucket',       f:'bucket',      g:'thing', ic:'🪣'},
+ {w:'kyiniiɛ',   e:'umbrella',     f:'umbrella',    g:'thing', ic:'☂️'},
+
+ {w:'atere',     e:'spoon',        f:'spoon',       g:'kitchen', ic:'🥄'},
+ {w:'adinam',    e:'fork',         f:'fork',        g:'kitchen', ic:'🍴'},
+ {w:'sekammoa',  e:'knife',        f:'knife',       g:'kitchen', ic:'🔪'},
+ {w:'prɛte',     e:'plate',        f:'plate',       g:'kitchen', ic:'🥘'},
+ {w:'tɔmmɛ',     e:'glass',        f:'glass',       g:'kitchen', ic:'🥛'},
+ {w:'waduro',    e:'mortar',       f:'mortar',      g:'kitchen', ic:'🫙'},
+ {w:'wɔma',      e:'pestle',       f:'pestle',      g:'kitchen', ic:'🏏'}
+];
+var HGRP={room:'Rooms and parts of the house',thing:'Things in the house',
+          kitchen:'In the kitchen'};
+var WHERE=[
+ {w:'wɔ',  e:'is at',   f:'isat'},
+ {w:'mu',  e:'inside',  f:'inside'},
+ {w:'so',  e:'on top',  f:'ontop'},
+ {w:'ase', e:'under',   f:'under'}
+];
+var ADJ=[
+ {w:'kɛseɛ',  e:'big',   f:'big',   ic:'🐘'},
+ {w:'ketewa', e:'small', f:'small', ic:'🐁'},
+ {w:'foforɔ', e:'new',   f:'new',   ic:'✨'},
+ {w:'dada',   e:'old',   f:'old',   ic:'🕰️'}
+];
+var byH={}; H.forEach(function(x){byH[x.f]=x});
+function sayH(f){var a=new Audio('/audio?f=house/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function sayHPair(f1,f2){
+  var a=sayH(f1);
+  a.addEventListener('ended',function(){sayH(f2)});
+  return a;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var WHO=[{w:'me maame',e:'my mother'},{w:'me papa',e:'my father'},
+           {w:'me nua',e:'my sibling'},{w:'nana',e:'grandparent'},
+           {w:'me',e:'I'},{w:'adamfo',e:'a friend'}];
+  var PLACES=H.filter(function(x){return x.g==='room'&&x.f!=='door'&&x.f!=='window'});
+  var pSel=null,wSel=null,built={};
+  var builtEl=document.getElementById('built'),statusEl=document.getElementById('status'),
+      endEl=document.getElementById('end');
+  function draw(){
+    if(!wSel||!pSel){builtEl.innerHTML='<span class="mean">Pick who, then where</span>';return}
+    builtEl.innerHTML='<span class="made">'+wSel.w+' wɔ '+pSel.w+'</span>'
+      +'<span class="mean">'+wSel.e+' is in the '+pSel.e+'</span>';
+    statusEl.textContent='Who first, then wɔ, then the place.';
+    built[wSel.w+pSel.w]=1;
+    if(Object.keys(built).length>=6&&!endEl.innerHTML){
+      endEl.innerHTML='<button class="fin" id="done">✅ I can say where people are</button>';
+      document.getElementById('done').onclick=function(){report(5,5)};
+    }
+  }
+  var whoEl=document.getElementById('who');
+  WHO.forEach(function(x){
+    var b=document.createElement('button');b.className='tok';b.type='button';b.textContent=x.w;
+    b.onclick=function(){
+      wSel=x;Array.prototype.forEach.call(whoEl.children,function(c){c.classList.remove('on')});
+      b.classList.add('on');draw();
+    };whoEl.appendChild(b);
+  });
+  var plEl=document.getElementById('place');
+  PLACES.forEach(function(x){
+    var b=document.createElement('button');b.className='tok';b.type='button';b.textContent=x.w;
+    b.onclick=function(){
+      pSel=x;Array.prototype.forEach.call(plEl.children,function(c){c.classList.remove('on')});
+      b.classList.add('on');sayH(x.f);draw();
+    };plEl.appendChild(b);
+  });
+  document.getElementById('say').onclick=function(){
+    if(!wSel||!pSel){statusEl.textContent='Pick one from each row first.';return}
+    sayHPair('isat',pSel.f);
+  };
+  draw();
+})();
+</script>
+</body>
+</html>

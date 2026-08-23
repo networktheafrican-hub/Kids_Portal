@@ -1223,5 +1223,691 @@
 "e": "it",
 "d": "verbs",
 "f": "eno"
+},
+{
+"c": 11,
+"w": "Wo din de sɛn?",
+"e": "What is your name?",
+"d": "talking",
+"f": "whatname"
+},
+{
+"c": 11,
+"w": "Me din de…",
+"e": "My name is…",
+"d": "talking",
+"f": "myname"
+},
+{
+"c": 11,
+"w": "Wo ho te sɛn?",
+"e": "How are you?",
+"d": "talking",
+"f": "howareyou"
+},
+{
+"c": 11,
+"w": "Me ho yɛ",
+"e": "I am fine",
+"d": "talking",
+"f": "imfine"
+},
+{
+"c": 11,
+"w": "Na wo nso ɛ?",
+"e": "And you?",
+"d": "talking",
+"f": "andyou"
+},
+{
+"c": 11,
+"w": "Ɛhe na wofiri?",
+"e": "Where are you from?",
+"d": "talking",
+"f": "wherefrom"
+},
+{
+"c": 11,
+"w": "Mefiri…",
+"e": "I am from…",
+"d": "talking",
+"f": "imfrom"
+},
+{
+"c": 11,
+"w": "Wote he?",
+"e": "Where do you live?",
+"d": "talking",
+"f": "wherelive"
+},
+{
+"c": 11,
+"w": "Mete…",
+"e": "I live at…",
+"d": "talking",
+"f": "ilive"
+},
+{
+"c": 11,
+"w": "Medaase",
+"e": "Thank you",
+"d": "talking",
+"f": "thanks"
+},
+{
+"c": 11,
+"w": "Mepa wo kyɛw",
+"e": "Please, excuse me",
+"d": "talking",
+"f": "please"
+},
+{
+"c": 11,
+"w": "Aane",
+"e": "Yes",
+"d": "talking",
+"f": "yes"
+},
+{
+"c": 11,
+"w": "Daabi",
+"e": "No",
+"d": "talking",
+"f": "no"
+},
+{
+"c": 11,
+"w": "Kafra",
+"e": "Sorry",
+"d": "talking",
+"f": "sorry"
+},
+{
+"c": 11,
+"w": "Akwaaba",
+"e": "Welcome",
+"d": "talking",
+"f": "welcome"
+},
+{
+"c": 11,
+"w": "Nante yie",
+"e": "Goodbye, go well",
+"d": "talking",
+"f": "goodbye"
+},
+{
+"c": 11,
+"w": "Yɛbɛhyia",
+"e": "See you again",
+"d": "talking",
+"f": "seeyou"
+},
+{
+"c": 11,
+"w": "Mewɔ…",
+"e": "I have…",
+"d": "talking",
+"f": "ihave"
+},
+{
+"c": 11,
+"w": "Mepɛ…",
+"e": "I like…",
+"d": "talking",
+"f": "ilike"
+},
+{
+"c": 1,
+"w": "Akoma",
+"e": "heart",
+"d": "alphabet-words",
+"f": "akoma"
+},
+{
+"c": 1,
+"w": "Bankye",
+"e": "cassava",
+"d": "alphabet-words",
+"f": "bankye"
+},
+{
+"c": 1,
+"w": "Dadeɛ",
+"e": "metal",
+"d": "alphabet-words",
+"f": "dadee"
+},
+{
+"c": 1,
+"w": "Ekuro",
+"e": "wound",
+"d": "alphabet-words",
+"f": "ekuro"
+},
+{
+"c": 1,
+"w": "Ɛkɔm",
+"e": "hunger",
+"d": "alphabet-words",
+"f": "ekom"
+},
+{
+"c": 1,
+"w": "Fitaa",
+"e": "white",
+"d": "alphabet-words",
+"f": "fitaa"
+},
+{
+"c": 1,
+"w": "Gogo",
+"e": "loose",
+"d": "alphabet-words",
+"f": "gogo"
+},
+{
+"c": 1,
+"w": "Hunu",
+"e": "see",
+"d": "alphabet-words",
+"f": "hunu"
+},
+{
+"c": 1,
+"w": "Di",
+"e": "eat",
+"d": "alphabet-words",
+"f": "di"
+},
+{
+"c": 1,
+"w": "Kuruwa",
+"e": "cup",
+"d": "alphabet-words",
+"f": "kuruwa"
+},
+{
+"c": 1,
+"w": "Lɔre",
+"e": "lorry",
+"d": "alphabet-words",
+"f": "lore"
+},
+{
+"c": 1,
+"w": "Mukaase",
+"e": "kitchen",
+"d": "alphabet-words",
+"f": "mukaase"
+},
+{
+"c": 1,
+"w": "Nante",
+"e": "walk",
+"d": "alphabet-words",
+"f": "nante"
+},
+{
+"c": 1,
+"w": "Osuro",
+"e": "fear",
+"d": "alphabet-words",
+"f": "osuro"
+},
+{
+"c": 1,
+"w": "Ɔwɔ",
+"e": "snake",
+"d": "alphabet-words",
+"f": "owo"
+},
+{
+"c": 1,
+"w": "Pra",
+"e": "sweep",
+"d": "alphabet-words",
+"f": "pra"
+},
+{
+"c": 1,
+"w": "Raw",
+"e": "scratch",
+"d": "alphabet-words",
+"f": "raw"
+},
+{
+"c": 1,
+"w": "Samina",
+"e": "soap",
+"d": "alphabet-words",
+"f": "samina"
+},
+{
+"c": 1,
+"w": "Tafere",
+"e": "lick",
+"d": "alphabet-words",
+"f": "tafere"
+},
+{
+"c": 1,
+"w": "Wukuada",
+"e": "Wednesday",
+"d": "alphabet-words",
+"f": "wukuada"
+},
+{
+"c": 1,
+"w": "Wie",
+"e": "finish",
+"d": "alphabet-words",
+"f": "wie"
+},
+{
+"c": 1,
+"w": "Yoma",
+"e": "camel",
+"d": "alphabet-words",
+"f": "yoma"
+},
+{
+"c": 12,
+"w": "papa",
+"e": "father",
+"d": "family",
+"f": "father"
+},
+{
+"c": 12,
+"w": "agya",
+"e": "father (respectful)",
+"d": "family",
+"f": "father2"
+},
+{
+"c": 12,
+"w": "maame",
+"e": "mother",
+"d": "family",
+"f": "mother"
+},
+{
+"c": 12,
+"w": "ɛna",
+"e": "mother (respectful)",
+"d": "family",
+"f": "mother2"
+},
+{
+"c": 12,
+"w": "nana",
+"e": "grandparent",
+"d": "family",
+"f": "grandparent"
+},
+{
+"c": 12,
+"w": "nua",
+"e": "sibling",
+"d": "family",
+"f": "sibling"
+},
+{
+"c": 12,
+"w": "nuabarima",
+"e": "brother",
+"d": "family",
+"f": "brother"
+},
+{
+"c": 12,
+"w": "nuabaa",
+"e": "sister",
+"d": "family",
+"f": "sister"
+},
+{
+"c": 12,
+"w": "ɔba",
+"e": "child",
+"d": "family",
+"f": "child"
+},
+{
+"c": 12,
+"w": "mma",
+"e": "children",
+"d": "family",
+"f": "children"
+},
+{
+"c": 12,
+"w": "wɔfa",
+"e": "uncle",
+"d": "family",
+"f": "uncle"
+},
+{
+"c": 12,
+"w": "sewaa",
+"e": "aunt",
+"d": "family",
+"f": "aunt"
+},
+{
+"c": 12,
+"w": "adamfo",
+"e": "friend",
+"d": "family",
+"f": "friend"
+},
+{
+"c": 12,
+"w": "nnamfoɔ",
+"e": "friends",
+"d": "family",
+"f": "friends"
+},
+{
+"c": 12,
+"w": "abusua",
+"e": "family",
+"d": "family",
+"f": "family"
+},
+{
+"c": 12,
+"w": "ɔbarima",
+"e": "man",
+"d": "family",
+"f": "man"
+},
+{
+"c": 12,
+"w": "ɔbaa",
+"e": "woman",
+"d": "family",
+"f": "woman"
+},
+{
+"c": 12,
+"w": "abɔfra",
+"e": "little child",
+"d": "family",
+"f": "littlechild"
+},
+{
+"c": 12,
+"w": "akwakoraa",
+"e": "old man",
+"d": "family",
+"f": "oldman"
+},
+{
+"c": 12,
+"w": "aberewa",
+"e": "old woman",
+"d": "family",
+"f": "oldwoman"
+},
+{
+"c": 12,
+"w": "onipa",
+"e": "person",
+"d": "family",
+"f": "person"
+},
+{
+"c": 12,
+"w": "nnipa",
+"e": "people",
+"d": "family",
+"f": "people"
+},
+{
+"c": 12,
+"w": "anuanom",
+"e": "siblings",
+"d": "family",
+"f": "siblings"
+},
+{
+"c": 13,
+"w": "piam",
+"e": "bedroom",
+"d": "house",
+"f": "bedroom"
+},
+{
+"c": 13,
+"w": "mukaase",
+"e": "kitchen",
+"d": "house",
+"f": "kitchen"
+},
+{
+"c": 13,
+"w": "adwareeɛ",
+"e": "bathroom",
+"d": "house",
+"f": "bathroom"
+},
+{
+"c": 13,
+"w": "adidibea",
+"e": "dining place",
+"d": "house",
+"f": "diningplace"
+},
+{
+"c": 13,
+"w": "asa so",
+"e": "hall",
+"d": "house",
+"f": "hall"
+},
+{
+"c": 13,
+"w": "abranaa so",
+"e": "veranda",
+"d": "house",
+"f": "veranda"
+},
+{
+"c": 13,
+"w": "ɛpono",
+"e": "door",
+"d": "house",
+"f": "door"
+},
+{
+"c": 13,
+"w": "mpoma",
+"e": "window",
+"d": "house",
+"f": "window"
+},
+{
+"c": 13,
+"w": "mpa",
+"e": "bed",
+"d": "house",
+"f": "bed"
+},
+{
+"c": 13,
+"w": "sumiiɛ",
+"e": "pillow",
+"d": "house",
+"f": "pillow"
+},
+{
+"c": 13,
+"w": "kɛtɛ",
+"e": "mat",
+"d": "house",
+"f": "mat"
+},
+{
+"c": 13,
+"w": "kuntu",
+"e": "blanket",
+"d": "house",
+"f": "blanket"
+},
+{
+"c": 13,
+"w": "akonnwa",
+"e": "chair",
+"d": "house",
+"f": "chair"
+},
+{
+"c": 13,
+"w": "didipono",
+"e": "eating table",
+"d": "house",
+"f": "table"
+},
+{
+"c": 13,
+"w": "kanea",
+"e": "lantern",
+"d": "house",
+"f": "lantern"
+},
+{
+"c": 13,
+"w": "ahwehwɛ",
+"e": "mirror",
+"d": "house",
+"f": "mirror"
+},
+{
+"c": 13,
+"w": "praeɛ",
+"e": "broom",
+"d": "house",
+"f": "broom"
+},
+{
+"c": 13,
+"w": "bokiti",
+"e": "bucket",
+"d": "house",
+"f": "bucket"
+},
+{
+"c": 13,
+"w": "kyiniiɛ",
+"e": "umbrella",
+"d": "house",
+"f": "umbrella"
+},
+{
+"c": 13,
+"w": "atere",
+"e": "spoon",
+"d": "house",
+"f": "spoon"
+},
+{
+"c": 13,
+"w": "adinam",
+"e": "fork",
+"d": "house",
+"f": "fork"
+},
+{
+"c": 13,
+"w": "sekammoa",
+"e": "knife",
+"d": "house",
+"f": "knife"
+},
+{
+"c": 13,
+"w": "prɛte",
+"e": "plate",
+"d": "house",
+"f": "plate"
+},
+{
+"c": 13,
+"w": "tɔmmɛ",
+"e": "glass",
+"d": "house",
+"f": "glass"
+},
+{
+"c": 13,
+"w": "waduro",
+"e": "mortar",
+"d": "house",
+"f": "mortar"
+},
+{
+"c": 13,
+"w": "wɔma",
+"e": "pestle",
+"d": "house",
+"f": "pestle"
+},
+{
+"c": 13,
+"w": "wɔ",
+"e": "is at",
+"d": "house",
+"f": "isat"
+},
+{
+"c": 13,
+"w": "mu",
+"e": "inside",
+"d": "house",
+"f": "inside"
+},
+{
+"c": 13,
+"w": "so",
+"e": "on top",
+"d": "house",
+"f": "ontop"
+},
+{
+"c": 13,
+"w": "ase",
+"e": "under",
+"d": "house",
+"f": "under"
+},
+{
+"c": 13,
+"w": "kɛseɛ",
+"e": "big",
+"d": "house",
+"f": "big"
+},
+{
+"c": 13,
+"w": "ketewa",
+"e": "small",
+"d": "house",
+"f": "small"
+},
+{
+"c": 13,
+"w": "foforɔ",
+"e": "new",
+"d": "house",
+"f": "new"
+},
+{
+"c": 13,
+"w": "dada",
+"e": "old",
+"d": "house",
+"f": "old"
 }
 ]

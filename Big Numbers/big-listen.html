@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Listen and Count</title>
+<!-- Kids_Portal · Big Numbers/big-listen.html · slug: big-listen -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .q{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:18px 16px;
+    font-size:1.1rem;font-weight:bold;margin:14px 0;min-height:140px;display:flex;
+    align-items:center;justify-content:center;flex-direction:column;gap:8px}
+  .q .huge{font-size:2.1rem;line-height:1.25;word-break:break-word}
+  .q .em{font-size:3.6rem;line-height:1}
+  .q .spk{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:8px 20px;
+    font-size:1rem;font-weight:bold;color:#4d2f12;cursor:pointer;font-family:inherit}
+  .result{font-size:1.35rem;font-weight:bold;color:#14563A;margin-top:12px}
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .big{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:30px;font-size:1.2rem;
+    font-weight:bold;padding:20px;margin:14px auto;max-width:420px;cursor:pointer;font-family:inherit;
+    display:block;width:100%;box-shadow:0 6px 0 #0d3a26}
+  .big .em{font-size:2.5rem;display:block}
+  .opt{min-width:96px;font-size:1.6rem}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>👂 Listen and Count</h1>
+  <span class="sub">Hear it, tap the number</span>
+  <div class="dots" id="dots"></div>
+  <button class="big" id="play"><span class="em">🔊</span>Tap to hear a number</button>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status">Tap the speaker to begin.</p>
+  <div id="end"></div>
+</div>
+<script>
+/* Eleven to nineteen is simply du (ten) plus the small number the learner
+   already knows - so this chapter is a pattern, not eighteen new words. */
+var TEENS=[
+ {n:11,w:'du baako',   f:'eleven',    part:'baako',  pf:'one'},
+ {n:12,w:'du mmienu',  f:'twelve',    part:'mmienu', pf:'two'},
+ {n:13,w:'du mmiensa', f:'thirteen',  part:'mmiensa',pf:'three'},
+ {n:14,w:'du nnan',    f:'fourteen',  part:'nnan',   pf:'four'},
+ {n:15,w:'du nnum',    f:'fifteen',   part:'nnum',   pf:'five'},
+ {n:16,w:'du nsia',    f:'sixteen',   part:'nsia',   pf:'six'},
+ {n:17,w:'du nson',    f:'seventeen', part:'nson',   pf:'seven'},
+ {n:18,w:'du nwɔtwe',  f:'eighteen',  part:'nwɔtwe', pf:'eight'},
+ {n:19,w:'du nkron',   f:'nineteen',  part:'nkron',  pf:'nine'}
+];
+var TENS=[
+ {n:20, w:'aduonu',    f:'twenty'},
+ {n:30, w:'aduasa',    f:'thirty'},
+ {n:40, w:'aduanan',   f:'forty'},
+ {n:50, w:'aduonum',   f:'fifty'},
+ {n:60, w:'aduosia',   f:'sixty'},
+ {n:70, w:'aduoson',   f:'seventy'},
+ {n:80, w:'aduowɔtwe', f:'eighty'},
+ {n:90, w:'aduokron',  f:'ninety'},
+ {n:100,w:'ɔha',       f:'hundred'}
+];
+/* One to ten, from chapter 2 - the teens are built from these. */
+var SMALL=[
+ {n:1,w:'baako',f:'one'},{n:2,w:'mmienu',f:'two'},{n:3,w:'mmiensa',f:'three'},
+ {n:4,w:'ɛnan',f:'four'},{n:5,w:'enum',f:'five'},{n:6,w:'nsia',f:'six'},
+ {n:7,w:'nson',f:'seven'},{n:8,w:'nwɔtwe',f:'eight'},{n:9,w:'nkron',f:'nine'},
+ {n:10,w:'du',f:'ten'}
+];
+var ALLBIG=TEENS.concat(TENS);
+var byN={}; ALLBIG.forEach(function(x){byN[x.n]=x}); SMALL.forEach(function(x){byN[x.n]=byN[x.n]||x});
+
+function sayBig(f){var a=new Audio('/audio?f=big-numbers/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function saySmall(f){var a=new Audio('/audio?f=twi-numbers/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* Play "du" then the small part, so a learner hears how the word is built. */
+function sayBuilt(pf){
+  var a=saySmall('ten');
+  a.addEventListener('ended',function(){saySmall(pf)});
+  return a;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  var quiz=shuffle(ALLBIG.slice()).slice(0,TOTAL);
+  var at=0,score=0,lock=false,heard=false,marks=[];
+  var optsEl=document.getElementById('opts'),statusEl=document.getElementById('status'),
+      dotsEl=document.getElementById('dots'),endEl=document.getElementById('end'),
+      playEl=document.getElementById('play');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;heard=false;var q=quiz[at];
+    dots();statusEl.textContent='Tap the speaker, then tap the number.';
+    var pool=ALLBIG.filter(function(x){return x.n!==q.n});
+    optsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([q])).forEach(function(o){
+      var b=document.createElement('button');b.className='opt';b.type='button';
+      b.textContent=o.n;b.dataset.n=o.n;
+      b.onclick=function(){pick(b,o,q)};optsEl.appendChild(b)});
+  }
+  playEl.onclick=function(){heard=true;sayBig(quiz[at].f);
+    statusEl.textContent='Now tap the number you heard.'};
+  function pick(btn,o,q){
+    if(lock)return;
+    if(!heard){statusEl.textContent='👂 Listen first — tap the big speaker.';return}
+    lock=true;
+    var ok=o.n===q.n;marks[at]=ok;
+    if(ok){score++;btn.classList.add('ok')}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.dataset.n==String(q.n))c.classList.add('ok')})}
+    statusEl.textContent=(ok?'✅ ':'❌ ')+q.w+' — '+q.n;
+    sayBig(q.f);dots();at++;setTimeout(show,1700);
+  }
+  function finish(){
+    dots();optsEl.innerHTML='';playEl.style.display='none';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

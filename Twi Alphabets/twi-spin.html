@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎡 Twi Spin & Learn – Kids Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #fdf6e3 0%, #fce6b4 100%);
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', cursive, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .game-box {
+      max-width: 860px;
+      width: 100%;
+      background: rgba(255, 248, 235, 0.92);
+      backdrop-filter: blur(4px);
+      border-radius: 80px 80px 50px 50px;
+      padding: 30px 25px 40px;
+      border: 10px solid #f5b342;
+      box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2), 0 10px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      color: #b33a1e;
+      text-shadow: 4px 4px 0 #feda7a, 6px 6px 0 rgba(0, 0, 0, 0.08);
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+    h1 span {
+      background: #ffdd99;
+      padding: 0 20px;
+      border-radius: 60px;
+      border: 4px dashed #a5541a;
+      font-size: 2.0rem;
+      display: inline-block;
+      margin-top: 6px;
+    }
+
+    .sub {
+      font-size: 1.3rem;
+      background: #ffe39c;
+      display: inline-block;
+      padding: 4px 30px;
+      border-radius: 60px;
+      margin: 4px 0 16px;
+      box-shadow: 0 6px 0 #b47b4a;
+      color: #4d2f12;
+      font-weight: bold;
+    }
+
+    /* ===== WHEEL ===== */
+    .wheel-wrapper {
+      position: relative;
+      display: inline-block;
+      margin: 6px 0 10px;
+    }
+
+    #wheelCanvas {
+      display: block;
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      aspect-ratio: 1/1;
+      margin: 0 auto;
+      border-radius: 50%;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25), 0 0 0 8px #f5d28c, 0 0 0 14px #b87d3a;
+      background: #f9eac6;
+      cursor: pointer;
+      transition: filter 0.2s;
+      touch-action: none;
+    }
+    #wheelCanvas:hover {
+      filter: brightness(1.02);
+    }
+
+    .pointer {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 3.6rem;
+      filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3));
+      line-height: 1;
+      z-index: 5;
+      text-shadow: 0 4px 0 #8a5a2a;
+      pointer-events: none;
+    }
+
+    /* ===== RESULT DISPLAY ===== */
+    .result-box {
+      background: #fcf3d4;
+      border-radius: 80px;
+      padding: 18px 20px;
+      margin: 18px 0 16px;
+      border: 6px solid #d48d3a;
+      box-shadow: inset 0 -6px 0 #b87a3a;
+      min-height: 90px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 10px 18px;
+    }
+
+    .result-letter {
+      font-size: 4.0rem;
+      background: #f3b58a;
+      padding: 0 20px;
+      border-radius: 60px;
+      min-width: 80px;
+      color: #2d1a07;
+      border: 4px solid #d1874a;
+      box-shadow: 0 6px 0 #946b42;
+      font-weight: bold;
+    }
+
+    .result-word {
+      font-size: 2.0rem;
+      background: #ffe1b3;
+      padding: 0 24px;
+      border-radius: 60px;
+      color: #492f16;
+      border: 4px solid #efc48c;
+      box-shadow: 0 6px 0 #b6956a;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.15s;
+      user-select: none;
+    }
+    .result-word:hover {
+      transform: scale(1.04);
+      background: #ffedcc;
+    }
+    .result-word:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #b6956a;
+    }
+
+    .result-emoji {
+      font-size: 3.6rem;
+      background: #d6e9ff;
+      padding: 0 18px;
+      border-radius: 60px;
+      border: 4px solid #8fb4d4;
+      box-shadow: 0 6px 0 #6f8fa8;
+      line-height: 1.4;
+    }
+
+    .result-meaning {
+      font-size: 1.5rem;
+      background: #c7e0f0;
+      padding: 0 24px;
+      border-radius: 60px;
+      color: #004080;
+      border: 4px solid #8fb4d4;
+      box-shadow: 0 6px 0 #6f8fa8;
+      min-width: 80px;
+    }
+
+    .result-twi {
+      font-size: 1.6rem;
+      background: #b8d9c6;
+      padding: 0 24px;
+      border-radius: 60px;
+      color: #1f4a2a;
+      border: 4px solid #4c8a6a;
+      box-shadow: 0 6px 0 #2d6a4a;
+      display: none;
+      font-weight: bold;
+    }
+    .result-twi.show {
+      display: inline-block;
+      animation: pop 0.3s ease;
+    }
+
+    .tap-hint {
+      font-size: 1.1rem;
+      color: #6a4f2a;
+      background: #faeac8;
+      padding: 4px 18px;
+      border-radius: 40px;
+      border: 3px dashed #b48b3a;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.6); opacity: 0; }
+      80% { transform: scale(1.08); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px 20px;
+      margin: 12px 0 4px;
+    }
+
+    .btn {
+      background: #f5c542;
+      border: none;
+      border-radius: 70px;
+      padding: 14px 34px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #2d1b0a;
+      border: 6px solid #af6f2a;
+      box-shadow: 0 8px 0 #7a4d1a;
+      cursor: pointer;
+      transition: 0.08s ease;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn:hover {
+      transform: scale(1.04);
+      background: #fcdb7a;
+    }
+    .btn:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #7a4d1a;
+    }
+    .btn-green {
+      background: #4caf84;
+      border-color: #2d7a5a;
+      box-shadow: 0 8px 0 #1d523a;
+      color: white;
+    }
+    .btn-green:hover {
+      background: #66c79a;
+    }
+    .btn-pink {
+      background: #f7a1b0;
+      border-color: #b85a6a;
+      box-shadow: 0 8px 0 #7a3a46;
+      color: #2d0f14;
+    }
+    .btn-pink:hover {
+      background: #fbb8c6;
+    }
+
+    .footer {
+      margin-top: 22px;
+      font-size: 1.2rem;
+      background: #e0c9a3;
+      border-radius: 60px;
+      padding: 10px 18px;
+      border: 4px dotted #7a5d3a;
+      color: #3d2b12;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2.0rem; }
+      .result-letter { font-size: 3.0rem; min-width: 60px; }
+      .result-word { font-size: 1.5rem; }
+      .result-emoji { font-size: 2.8rem; }
+      .result-meaning { font-size: 1.1rem; }
+      .result-twi { font-size: 1.3rem; }
+      .btn { font-size: 1.3rem; padding: 10px 20px; }
+      .pointer { font-size: 2.8rem; top: -8px; }
+      .tap-hint { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-box">
+  <h1>
+    🎡 TWI SPIN <span> &amp; LEARN</span>
+  </h1>
+  <div class="sub">🔤 tap the word to see it in TWI!</div>
+
+  <!-- Wheel -->
+  <div class="wheel-wrapper">
+    <div class="pointer">▼</div>
+    <canvas id="wheelCanvas" width="600" height="600"></canvas>
+  </div>
+
+  <!-- Result display -->
+  <div class="result-box" id="resultBox">
+    <span class="result-letter" id="resLetter">?</span>
+    <span class="result-word" id="resWord">—</span>
+    <span class="result-emoji" id="resEmoji">🎯</span>
+    <span class="result-meaning" id="resMeaning">spin to learn</span>
+    <span class="result-twi" id="resTwi">—</span>
+    <div class="tap-hint">👆 Tap the English word to see it in TWI!</div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="btn-group">
+    <button class="btn" id="spinBtn">🎲 SPIN!</button>
+    <button class="btn btn-green" id="spinSlowBtn">🌀 slow spin</button>
+    <button class="btn btn-pink" id="resetBtn">🔄 reset</button>
+  </div>
+
+  <div class="footer">
+    🌟 click the wheel or press SPIN · tap the English word for TWI translation
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- DATA (22 entries) -----
+    const data = [
+      { letter: 'A', word: 'Akoma',   emoji: '❤️',  meaning: 'heart' },
+      { letter: 'Ɛ', word: 'Ɛkɔm',    emoji: '🍽️',  meaning: 'hunger' },
+      { letter: 'B', word: 'Bankye',  emoji: '🍠',  meaning: 'cassava' },
+      { letter: 'F', word: 'Fitaa',   emoji: '☁️',  meaning: 'white' },
+      { letter: 'D', word: 'Dadeɛ',   emoji: '🔨',  meaning: 'metal' },
+      { letter: 'G', word: 'Gogo',    emoji: '🫳',  meaning: 'loose' },
+      { letter: 'I', word: 'Di',      emoji: '🍚',  meaning: 'eat' },
+      { letter: 'N', word: 'Nante',   emoji: '🚶',  meaning: 'walk' },
+      { letter: 'R', word: 'Raw',     emoji: '✍️',  meaning: 'scratch' },
+      { letter: 'W', word: 'Wie',     emoji: '🏁',  meaning: 'finish' },
+      { letter: 'K', word: 'Kuruwa',  emoji: '🥤',  meaning: 'cup' },
+      { letter: 'O', word: 'Osuro',   emoji: '😨',  meaning: 'fear' },
+      { letter: 'S', word: 'Samina',  emoji: '🧼',  meaning: 'soap' },
+      { letter: 'Y', word: 'Yoma',    emoji: '🐫',  meaning: 'camel' },
+      { letter: 'L', word: 'Lɔre',    emoji: '🚛',  meaning: 'lorry' },
+      { letter: 'Ɔ', word: 'Ɔwɔ',     emoji: '🐍',  meaning: 'snake' },
+      { letter: 'T', word: 'Tafere',  emoji: '👅',  meaning: 'lick' },
+      { letter: 'E', word: 'Ekuro',   emoji: '🩹',  meaning: 'wound' },
+      { letter: 'H', word: 'Hunu',    emoji: '👀',  meaning: 'see' },
+      { letter: 'M', word: 'Mukaase', emoji: '🍳',  meaning: 'kitchen' },
+      { letter: 'P', word: 'Pra',     emoji: '🧹',  meaning: 'sweep' },
+      { letter: 'U', word: 'Wukuada', emoji: '📅',  meaning: 'Wednesday' }
+    ];
+
+    /* Filenames for the real recordings. The wheel had only synthesised beeps;
+       these are the voice files the rest of the chapter already uses. */
+    const LFILE = {'A':'letter-a','B':'letter-b','D':'letter-d','E':'letter-e','Ɛ':'letter-ɛ',
+      'F':'letter-f','G':'letter-g','H':'letter-h','I':'letter-i','K':'letter-k','L':'letter-l',
+      'M':'letter-m','N':'letter-n','O':'letter-o','Ɔ':'letter-ɔ','P':'letter-p','R':'letter-r',
+      'S':'letter-s','T':'letter-t','U':'letter-u','W':'letter-w','Y':'letter-y'};
+    const WFILE = {'Akoma':'akoma','Bankye':'bankye','Dadeɛ':'dadee','Ekuro':'ekuro',
+      'Ɛkɔm':'ekom','Fitaa':'fitaa','Gogo':'gogo','Hunu':'hunu','Di':'di','Kuruwa':'kuruwa',
+      'Lɔre':'lore','Mukaase':'mukaase','Nante':'nante','Osuro':'osuro','Ɔwɔ':'owo','Pra':'pra',
+      'Raw':'raw','Samina':'samina','Tafere':'tafere','Wukuada':'wukuada','Wie':'wie','Yoma':'yoma'};
+
+    let voice = null;
+    function sayFile(folder, name){
+      if(!name) return;
+      if(voice) voice.pause();
+      voice = new Audio('/audio?f=' + folder + '/' + encodeURIComponent(name + '.m4a'));
+      voice.play().catch(function(){});
+      return voice;
+    }
+    /* Letter first, then the word that starts with it - the whole point of
+       the chapter, heard in one go. */
+    function sayLetterThenWord(item){
+      const a = sayFile('twi-alphabet', LFILE[item.letter]);
+      if(a) a.addEventListener('ended', function(){
+        sayFile('alphabet-words', WFILE[item.word]);
+      });
+    }
+
+    const N = data.length;
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // DOM
+    const resLetter = document.getElementById('resLetter');
+    const resWord   = document.getElementById('resWord');
+    const resEmoji  = document.getElementById('resEmoji');
+    const resMeaning = document.getElementById('resMeaning');
+    const resTwi    = document.getElementById('resTwi');
+
+    // ----- STATE -----
+    let currentAngle = 0;
+    let isSpinning = false;
+    let animId = null;
+    let currentItem = data[0];
+    let twiVisible = false;
+
+    // ----- SOUND (web audio) -----
+    let audioCtx = null;
+    let spinInterval = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTick() {
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = 600 + Math.random() * 400;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.06);
+      } catch(e) { /* silent fallback */ }
+    }
+
+    function playSpinStart() {
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = 300;
+        osc.type = 'sawtooth';
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+      } catch(e) {}
+    }
+
+    function playWinSound() {
+      try {
+        initAudio();
+        const notes = [523, 659, 784];
+        notes.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.frequency.value = freq;
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.08 + 0.1);
+          osc.start(audioCtx.currentTime + i * 0.08);
+          osc.stop(audioCtx.currentTime + i * 0.08 + 0.1);
+        });
+      } catch(e) {}
+    }
+
+    // ----- DRAW WHEEL -----
+    const colors = [
+      '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#D4BAFF',
+      '#FFB3D9', '#B3FFE5', '#FFD1B3', '#B3D4FF', '#E6B3FF', '#B3FFB3',
+      '#FFB3B3', '#B3E5FF', '#FFC8B3', '#D9B3FF', '#B3FFD9', '#FFB3E5',
+      '#B3D9FF', '#FFE5B3', '#C9B3FF', '#B3FFB3'
+    ];
+
+    function drawWheel(rotation) {
+      const w = canvas.width;
+      const h = canvas.height;
+      const radius = Math.min(w, h) * 0.42;
+      const cx = w / 2;
+      const cy = h / 2;
+      const sliceAngle = (2 * Math.PI) / N;
+
+      ctx.clearRect(0, 0, w, h);
+
+      for (let i = 0; i < N; i++) {
+        const start = i * sliceAngle + rotation;
+        const end = start + sliceAngle;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, start, end);
+        ctx.closePath();
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fill();
+        ctx.strokeStyle = '#5a3a1a';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // letter
+        const midAngle = start + sliceAngle / 2;
+        const textRadius = radius * 0.68;
+        const x = cx + Math.cos(midAngle) * textRadius;
+        const y = cy + Math.sin(midAngle) * textRadius;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(midAngle + (midAngle > Math.PI/2 ? Math.PI : 0));
+        ctx.font = `bold ${radius * 0.22}px 'Comic Sans MS', 'Segoe UI', cursive, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#2d1a07';
+        ctx.shadowColor = 'rgba(255,255,200,0.6)';
+        ctx.shadowBlur = 6;
+        ctx.fillText(data[i].letter, 0, 0);
+        ctx.restore();
+
+        // emoji
+        const emojiRadius = radius * 0.88;
+        const ex = cx + Math.cos(midAngle) * emojiRadius;
+        const ey = cy + Math.sin(midAngle) * emojiRadius;
+        ctx.font = `${radius * 0.16}px 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = 'rgba(0,0,0,0.1)';
+        ctx.fillText(data[i].emoji, ex, ey);
+        ctx.shadowBlur = 0;
+      }
+
+      // center
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.12, 0, 2 * Math.PI);
+      ctx.fillStyle = '#f5d28c';
+      ctx.fill();
+      ctx.strokeStyle = '#7a4d1a';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+      ctx.font = `bold ${radius * 0.12}px 'Comic Sans MS', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#3d1f0a';
+      ctx.fillText('★', cx, cy + 2);
+    }
+
+    // ----- GET SLICE -----
+    function getSliceIndex(rotation) {
+      const sliceAngle = (2 * Math.PI) / N;
+      let raw = rotation % (2 * Math.PI);
+      if (raw < 0) raw += 2 * Math.PI;
+      let pointerAngle = -Math.PI / 2;
+      let diff = (pointerAngle - raw + 2 * Math.PI) % (2 * Math.PI);
+      let idx = Math.floor(diff / sliceAngle);
+      if (idx >= N) idx = N - 1;
+      return idx;
+    }
+
+    // ----- UPDATE DISPLAY -----
+    function updateResult(rotation, playSound = false) {
+      const idx = getSliceIndex(rotation);
+      const item = data[idx];
+      currentItem = item;
+      twiVisible = false;
+
+      resLetter.textContent = item.letter;
+      resWord.textContent = item.meaning;  // ENGLISH meaning
+      resEmoji.textContent = item.emoji;
+      resMeaning.textContent = '🇬🇭 Twi: tap word';
+      resTwi.textContent = item.word;
+      resTwi.classList.remove('show');
+
+      if (playSound) {
+        playWinSound();
+        setTimeout(function(){ sayLetterThenWord(item) }, 260);
+        seen[item.letter] = 1;
+        updateProgress();
+      }
+      return idx;
+    }
+
+    // ----- TOGGLE TWI (tap on word) -----
+    function toggleTwi() {
+      if (isSpinning) return;
+      if (!currentItem) return;
+      twiVisible = !twiVisible;
+      if (twiVisible) {
+        sayFile('alphabet-words', WFILE[currentItem.word]);
+        resWord.textContent = currentItem.word;  // show TWI
+        resMeaning.textContent = currentItem.meaning; // show English meaning
+        resTwi.textContent = '🔊 ' + currentItem.word;
+        resTwi.classList.add('show');
+      } else {
+        resWord.textContent = currentItem.meaning;
+        resMeaning.textContent = '🇬🇭 Twi: tap word';
+        resTwi.classList.remove('show');
+      }
+    }
+
+    // ----- SPIN ANIMATION -----
+    function spinWheel(targetAngle, duration = 2000) {
+      if (isSpinning) {
+        if (animId) {
+          cancelAnimationFrame(animId);
+          animId = null;
+        }
+        if (spinInterval) {
+          clearInterval(spinInterval);
+          spinInterval = null;
+        }
+        isSpinning = false;
+      }
+
+      // start sound
+      playSpinStart();
+
+      // tick sound every 120ms during spin
+      let tickCount = 0;
+      spinInterval = setInterval(() => {
+        if (isSpinning) {
+          playTick();
+          tickCount++;
+          // change pitch slightly
+        }
+      }, 130);
+
+      const startAngle = currentAngle;
+      const startTime = performance.now();
+
+      isSpinning = true;
+
+      function animate(time) {
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const angle = startAngle + (targetAngle - startAngle) * eased;
+
+        currentAngle = angle;
+        drawWheel(currentAngle);
+
+        if (progress < 1) {
+          animId = requestAnimationFrame(animate);
+        } else {
+          currentAngle = targetAngle;
+          drawWheel(currentAngle);
+          isSpinning = false;
+          animId = null;
+          if (spinInterval) {
+            clearInterval(spinInterval);
+            spinInterval = null;
+          }
+          // update result with win sound
+          updateResult(currentAngle, true);
+        }
+      }
+
+      animId = requestAnimationFrame(animate);
+    }
+
+    // ----- RANDOM SPIN -----
+    function randomSpin(slow = false) {
+      if (isSpinning) return;
+      const extraRotations = 5 + Math.random() * 6;
+      const randomOffset = Math.random() * 2 * Math.PI;
+      const target = currentAngle + extraRotations * 2 * Math.PI + randomOffset;
+      const duration = slow ? 3800 : 1800 + Math.random() * 900;
+      spinWheel(target, duration);
+    }
+
+    // ----- RESET TO 'A' -----
+    function resetToA() {
+      if (isSpinning) return;
+      const idx = 0;
+      const sliceAngle = (2 * Math.PI) / N;
+      let target = -Math.PI / 2 - (idx * sliceAngle + sliceAngle / 2);
+      target = target % (2 * Math.PI);
+      if (target < 0) target += 2 * Math.PI;
+      const extra = 3 * 2 * Math.PI;
+      target += extra;
+      spinWheel(target, 1500);
+    }
+
+    // ----- EVENT LISTENERS -----
+    document.getElementById('spinBtn').addEventListener('click', () => randomSpin(false));
+    document.getElementById('spinSlowBtn').addEventListener('click', () => randomSpin(true));
+    document.getElementById('resetBtn').addEventListener('click', resetToA);
+
+    // Tap on word to toggle Twi
+    resWord.addEventListener('click', toggleTwi);
+
+    // Click canvas = spin
+    canvas.addEventListener('click', () => randomSpin(false));
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      randomSpin(false);
+    }, { passive: false });
+
+    /* ----- PROGRESS -----
+       A wheel with no end is a toy. Landing on eight different letters is a
+       round: enough to feel like a game, short enough for one sitting. */
+    const NEED = 8;
+    const seen = {};
+    let reported = false;
+
+    const progWrap = document.createElement('div');
+    progWrap.style.cssText = 'margin:14px auto 0;max-width:520px;text-align:center';
+    progWrap.innerHTML =
+      '<div style="height:16px;border-radius:99px;background:#f0e2c0;border:3px solid #a5541a;'
+      + 'overflow:hidden"><i id="spinBar" style="display:block;height:100%;width:0;'
+      + 'background:#f5b342;transition:width .3s"></i></div>'
+      + '<p id="spinMsg" style="font-weight:bold;color:#7a4d1a;margin-top:8px;font-size:1rem">'
+      + 'Spin to find 8 different letters!</p><div id="spinEnd"></div>';
+    document.querySelector('.game-box').appendChild(progWrap);
+
+    function updateProgress(){
+      const n = Object.keys(seen).length;
+      const pct = Math.min(100, Math.round(n / NEED * 100));
+      const bar = document.getElementById('spinBar');
+      if (bar) bar.style.width = pct + '%';
+      const msg = document.getElementById('spinMsg');
+      if (msg) msg.textContent = n >= NEED
+        ? '🎉 You found ' + n + ' letters!'
+        : 'Letters found: ' + n + ' of ' + NEED;
+      if (n >= NEED && !reported) finishRound(n);
+    }
+
+    function finishRound(n){
+      reported = true;
+      const end = document.getElementById('spinEnd');
+      if (end) end.innerHTML =
+        '<button id="spinDone" style="background:#f5c542;border:4px solid #af6f2a;'
+        + 'border-radius:40px;padding:12px 28px;font-size:1.1rem;font-weight:bold;'
+        + 'color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;font-family:inherit;'
+        + 'margin-top:12px">✅ I am finished</button>';
+      const b = document.getElementById('spinDone');
+      if (b) b.onclick = function(){
+        if (window.parent === window) return;
+        parent.postMessage({ type:'sg:complete', score: 6, maxScore: 6 }, '*');
+        b.textContent = 'Saved ⭐';
+        b.disabled = true;
+      };
+    }
+
+    // ----- INIT -----
+    function init() {
+      const idx = 0;
+      const sliceAngle = (2 * Math.PI) / N;
+      let target = -Math.PI / 2 - (idx * sliceAngle + sliceAngle / 2);
+      target = target % (2 * Math.PI);
+      if (target < 0) target += 2 * Math.PI;
+      currentAngle = target;
+      drawWheel(currentAngle);
+      updateResult(currentAngle, false);
+    }
+
+    init();
+
+    // resize handler
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => drawWheel(currentAngle), 100);
+    });
+
+  })();
+</script>
+</body>
+</html>

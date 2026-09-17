@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>What Do I Use?</title>
+<!-- Kids_Portal · Body Parts/what-do-i-use.html · slug: body-use -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .q{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:18px 16px;
+    font-size:1.1rem;font-weight:bold;margin:14px 0;min-height:150px;display:flex;
+    align-items:center;justify-content:center;flex-direction:column;gap:8px}
+  .q .huge{font-size:1.8rem;line-height:1.3;word-break:break-word}
+  .q .em{font-size:4rem;line-height:1}
+  .result{font-size:1.35rem;font-weight:bold;color:#14563A;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🤔 What Do I Use?</h1>
+  <span class="sub">Which part of the body?</span>
+  <div class="dots" id="dots"></div>
+  <div class="q" id="q"></div>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div id="end"></div>
+</div>
+<script>
+var B=[
+ {w:'nwi',       en:'hair',     f:'hair',     ic:'💇', zone:'head', y:0},
+ {w:'etire',     en:'head',     f:'head',     ic:'🧠', zone:'head', y:1},
+ {w:'moma',      en:'forehead', f:'forehead', ic:'😐', zone:'head', y:2},
+ {w:'anim',      en:'face',     f:'face',     ic:'🙂', zone:'head', y:3},
+ {w:'ani',       en:'eye',      f:'eye',      ic:'👁️', zone:'head', y:4},
+ {w:'ɛhwene',    en:'nose',     f:'nose',     ic:'👃', zone:'head', y:5},
+ {w:'aso',       en:'ear',      f:'ear',      ic:'👂', zone:'head', y:6},
+ {w:'afono',     en:'cheek',    f:'cheek',    ic:'😊', zone:'head', y:7},
+ {w:'ano',       en:'mouth',    f:'mouth',    ic:'👄', zone:'head', y:8},
+ {w:'ɛse',       en:'tooth',    f:'tooth',    ic:'🦷', zone:'head', y:9},
+ {w:'tɛkyerɛma', en:'tongue',   f:'tongue',   ic:'👅', zone:'head', y:10},
+ {w:'ɛkɔn',      en:'neck',     f:'neck',     ic:'🧣', zone:'head', y:11},
+ {w:'abatire',   en:'shoulder', f:'shoulder', ic:'🤷', zone:'arm',  y:12},
+ {w:'abasa',     en:'arm',      f:'arm',      ic:'💪', zone:'arm',  y:13},
+ {w:'nsa',       en:'hand',     f:'hand',     ic:'✋', zone:'arm',  y:14},
+ {w:'nsateaa',   en:'finger',   f:'finger',   ic:'👆', zone:'arm',  y:15},
+ {w:'yafunu',    en:'belly',    f:'belly',    ic:'🫃', zone:'body', y:16},
+ {w:'ɛnan',      en:'leg',      f:'leg',      ic:'🦵', zone:'leg',  y:17},
+ {w:'kotodwe',   en:'knee',     f:'knee',     ic:'🦿', zone:'leg',  y:18},
+ {w:'nantabono', en:'foot',     f:'foot',     ic:'🦶', zone:'leg',  y:19}
+];
+var ZONE={head:'Ɛti — the head',arm:'Abasa — the arm',leg:'Ɛnan — the leg',
+          body:'Nipadua — the body'};
+/* What each part is for. A child knows the body by what it does long before
+   they know its name. */
+var USES=[
+ {q:'You see with your…',        w:'ani',       ic:'👀'},
+ {q:'You hear with your…',       w:'aso',       ic:'👂'},
+ {q:'You smell with your…',      w:'ɛhwene',    ic:'🌸'},
+ {q:'You taste with your…',      w:'tɛkyerɛma', ic:'🍯'},
+ {q:'You eat with your…',        w:'ano',       ic:'🍚'},
+ {q:'You chew with your…',       w:'ɛse',       ic:'🌽'},
+ {q:'You walk on your…',         w:'nantabono', ic:'🚶'},
+ {q:'You hold a cup with your…', w:'nsa',       ic:'🥤'},
+ {q:'You point with your…',      w:'nsateaa',   ic:'👉'},
+ {q:'You carry a load on your…', w:'etire',     ic:'🧺'},
+ {q:'You kneel on your…',        w:'kotodwe',   ic:'🙏'},
+ {q:'You wear a scarf on your…', w:'ɛkɔn',      ic:'🧣'}
+];
+var byB={}; B.forEach(function(x){byB[x.w]=x});
+function sayB(f){var a=new Audio('/audio?f=body/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  var quiz=shuffle(USES.slice()).slice(0,TOTAL);
+  var at=0,score=0,lock=false,marks=[];
+  var qEl=document.getElementById('q'),optsEl=document.getElementById('opts'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at],part=byB[q.w];
+    qEl.innerHTML='<span class="em">'+q.ic+'</span><span class="huge">'+q.q+'</span>';
+    statusEl.textContent='Answer in Twi.';dots();
+    var pool=B.filter(function(x){return x.w!==q.w}).map(function(x){return x.w});
+    optsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([q.w])).forEach(function(o){
+      var b=document.createElement('button');b.className='opt';b.type='button';b.textContent=o;
+      b.onclick=function(){answer(b,o,q,part)};optsEl.appendChild(b)});
+  }
+  function answer(btn,chosen,q,part){
+    if(lock)return;lock=true;
+    var ok=chosen===q.w;marks[at]=ok;
+    if(ok){score++;btn.classList.add('ok');
+      statusEl.textContent='✅ '+q.w+' — '+part.en}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===q.w)c.classList.add('ok')});
+      statusEl.textContent='❌ It is '+q.w+' — your '+part.en+'.'}
+    sayB(part.f);dots();at++;setTimeout(show,1800);
+  }
+  function finish(){
+    dots();qEl.innerHTML='<span class="em">🎉</span>';optsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>The Whole Verb</title>
+<!-- Kids_Portal · Sentences/the-whole-verb.html · slug: verb-table -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .verbhead{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;
+    padding:16px;margin:14px 0;text-align:center}
+  .verbhead .em{font-size:2.8rem;line-height:1}
+  .verbhead .w{font-family:"Baloo 2",cursive;font-size:2.1rem;margin-top:2px}
+  .verbhead .en{font-size:.92rem;opacity:.88;font-weight:700}
+  .table{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+  .rowx{display:flex;align-items:center;gap:9px;background:#fff;border:3px solid #efc48c;
+    border-radius:18px;padding:9px 11px}
+  .rowx .who{min-width:74px;font-weight:bold;color:#14563A;font-size:1.02rem}
+  .rowx .en2{font-size:.76rem;color:#5A6B60;font-weight:bold;min-width:62px}
+  .rowx .slot{margin-left:auto;min-width:112px;height:42px;border-radius:12px;
+    background:#EFE7D7;border:3px dashed #cb7b2c;display:grid;place-items:center;
+    font-size:1.05rem;font-weight:bold;color:#cb7b2c}
+  .rowx .slot.ok{background:#d4edda;border:3px solid #14563A;color:#14563A}
+  .rowx.now{box-shadow:0 0 0 4px #C8901E}
+  .pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+  .tile{background:#fef7e6;border:4px solid #b48b3a;border-radius:20px;padding:10px 14px;
+    font-size:1.02rem;font-weight:bold;color:#1f3a2f;font-family:inherit;cursor:pointer;
+    box-shadow:0 5px 0 #7a5a1f}
+  .tile.gone{opacity:.22;pointer-events:none}
+  .tile.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🧱 The Whole Verb</h1>
+  <span class="sub">One action, seven people</span>
+  <div class="verbhead" id="verbhead"></div>
+  <div class="table" id="table"></div>
+  <div class="pool" id="pool"></div>
+  <p class="status" id="status">Start at the top: what is “I …”?</p>
+  <div class="gramtip">Four of them get shorter before the verb:
+    <b>ɔno→ɔ</b>, <b>yɛn→yɛ</b>, <b>wɔn→wɔ</b>, <b>ɛno→ɛ</b>. The other three do not change.</div>
+  <div id="end"></div>
+</div>
+<script>
+var P=[
+ {full:'me',  sub:'me', en:'I',        short:false, f:'me'},
+ {full:'wo',  sub:'wo', en:'you',      short:false, f:'wo'},
+ {full:'ɔno', sub:'ɔ',  en:'he / she', short:true,  f:'ono'},
+ {full:'yɛn', sub:'yɛ', en:'we',       short:true,  f:'yen'},
+ {full:'mo',  sub:'mo', en:'you all',  short:false, f:'mo'},
+ {full:'wɔn', sub:'wɔ', en:'they',     short:true,  f:'won'},
+ {full:'ɛno', sub:'ɛ',  en:'it',       short:true,  f:'eno'}
+];
+var V=[
+ {w:'didi',  en:'eat',   f:'didi',  ic:'🍚'},
+ {w:'nom',   en:'drink', f:'nom',   ic:'🥤'},
+ {w:'da',    en:'sleep', f:'da',    ic:'😴'},
+ {w:'nante', en:'walk',  f:'nante', ic:'🚶'},
+ {w:'su',    en:'cry',   f:'su',    ic:'😢'},
+ {w:'sere',  en:'laugh', f:'sere',  ic:'😄'},
+ {w:'goro',  en:'play',  f:'goro',  ic:'⚽'},
+ {w:'dware', en:'bath',  f:'dware', ic:'🚿'}
+];
+/* Only these joined forms were recorded, so only these are ever played. */
+var JOINED={'medidi':'medidi','wodidi':'wodidi','ɔdidi':'odidi','yɛdidi':'yedidi',
+            'modidi':'modidi','wɔdidi':'wodidi2','ɛdidi':'edidi',
+            'ɔsu':'osu','yɛnante':'yenante','ɔda':'oda','wosere':'wosere'};
+function join(p,v){ return p.sub+v.w }
+function sayV(f){var a=new Audio('/audio?f=verbs/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* Play the joined recording when there is one; otherwise the pronoun then the
+   verb, which still teaches the pair. */
+function saySentence(p,v){
+  var made=join(p,v);
+  if(JOINED[made])return sayV(JOINED[made]);
+  var a=sayV(p.f);
+  a.addEventListener('ended',function(){sayV(v.f)});
+  return a;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  /* Build every form of one verb, top to bottom. This is the whole grammar of
+     the chapter in a single exercise. */
+  var verb=V[Math.floor(Math.random()*V.length)];
+  var placed=0,wrong=0;
+  var headEl=document.getElementById('verbhead'),tableEl=document.getElementById('table'),
+      poolEl=document.getElementById('pool'),statusEl=document.getElementById('status'),
+      endEl=document.getElementById('end');
+
+  headEl.innerHTML='<span class="em">'+verb.ic+'</span>'
+    +'<div class="w">'+verb.w+'</div><div class="en">to '+verb.en+'</div>';
+
+  function draw(){
+    tableEl.innerHTML='';
+    P.forEach(function(p,i){
+      var r=document.createElement('div');
+      r.className='rowx'+(i===placed?' now':'');
+      r.innerHTML='<span class="who">'+p.full+'</span>'
+        +'<span class="en2">'+p.en+'</span>'
+        +'<span class="slot'+(i<placed?' ok':'')+'">'
+        +(i<placed?join(p,verb):'?')+'</span>';
+      tableEl.appendChild(r);
+    });
+  }
+  function drawPool(){
+    poolEl.innerHTML='';
+    /* Correct forms, plus the same forms built wrongly with the long pronoun -
+       the exact mistake this chapter exists to prevent. */
+    var right=P.map(function(p){return join(p,verb)});
+    var traps=P.filter(function(p){return p.short})
+      .map(function(p){return p.full+verb.w});
+    shuffle(right.concat(traps)).forEach(function(txt){
+      var b=document.createElement('button');b.className='tile';b.type='button';b.textContent=txt;
+      b.onclick=function(){tap(b,txt)};poolEl.appendChild(b);
+    });
+  }
+  function tap(btn,txt){
+    if(placed>=P.length)return;
+    var p=P[placed];
+    var want=join(p,verb);
+    if(txt===want){
+      btn.classList.add('gone');placed++;
+      saySentence(p,verb);
+      draw();
+      statusEl.textContent=placed<P.length
+        ? '✅ '+want+' — '+p.en+' '+verb.en+'. Now “'+P[placed].en+'”.'
+        : '🎉 Every form of '+verb.w+'!';
+      if(placed===P.length)finish();
+    }else{
+      wrong++;btn.classList.add('no');
+      var isTrap=P.some(function(q){return q.short&&txt===q.full+verb.w});
+      statusEl.textContent=isTrap
+        ? '❌ That uses the long pronoun. Before a verb it gets shorter.'
+        : '❌ Not that one — we need “'+p.en+'”.';
+      setTimeout(function(){btn.classList.remove('no')},430);
+    }
+  }
+  function finish(){
+    poolEl.innerHTML='';
+    statusEl.textContent=wrong===0?'Perfect — every form, no mistakes!'
+      :('Finished with '+wrong+(wrong===1?' mistake.':' mistakes.'));
+    endEl.innerHTML='<button class="fin" id="again">🔄 Try another verb</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(Math.max(3,7-wrong),7);
+  }
+  draw();drawPool();
+})();
+</script>
+</body>
+</html>

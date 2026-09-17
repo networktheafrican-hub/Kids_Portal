@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Say It Back</title>
+<!-- Kids_Portal · Sentences/say-it-back.html · slug: verb-echo -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .big{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:30px;font-size:1.2rem;
+    font-weight:bold;padding:22px;margin:14px auto;max-width:430px;cursor:pointer;
+    font-family:inherit;display:block;width:100%;box-shadow:0 6px 0 #0d3a26}
+  .big .em{font-size:2.6rem;display:block}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  .half h3{font-size:.85rem;color:#A81B1B;margin-bottom:5px}
+  .chip2{display:block;width:100%;background:#fef7e6;border:4px solid #b48b3a;border-radius:18px;
+    padding:11px 6px;font-size:1.02rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 4px 0 #7a5a1f;margin-bottom:7px}
+  .chip2.sel{background:#14563A;color:#fff;border-color:#0d3a26}
+  .chip2.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .chip2.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  .made{background:#fff;border:4px dashed #cb7b2c;border-radius:20px;padding:12px;margin-top:12px;
+    font-size:1.5rem;font-weight:bold;color:#492f16;min-height:56px;display:grid;place-items:center}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>👂 Say It Back</h1>
+  <span class="sub">Hear a sentence, then build the same one</span>
+  <div class="dots" id="dots"></div>
+  <button class="big" id="play"><span class="em">🔊</span>Tap to hear the sentence</button>
+  <div class="made" id="made">—</div>
+  <div class="two">
+    <div class="half"><h3>Who?</h3><div id="whoCol"></div></div>
+    <div class="half"><h3>Doing what?</h3><div id="actCol"></div></div>
+  </div>
+  <p class="status" id="status">Listen first, then choose both halves.</p>
+  <div class="gramtip">The two halves join into one word:
+    <b>yɛ + nante = yɛnante</b>.</div>
+  <div id="end"></div>
+</div>
+<script>
+var P=[
+ {full:'me',  sub:'me', en:'I',        short:false, f:'me'},
+ {full:'wo',  sub:'wo', en:'you',      short:false, f:'wo'},
+ {full:'ɔno', sub:'ɔ',  en:'he / she', short:true,  f:'ono'},
+ {full:'yɛn', sub:'yɛ', en:'we',       short:true,  f:'yen'},
+ {full:'mo',  sub:'mo', en:'you all',  short:false, f:'mo'},
+ {full:'wɔn', sub:'wɔ', en:'they',     short:true,  f:'won'},
+ {full:'ɛno', sub:'ɛ',  en:'it',       short:true,  f:'eno'}
+];
+var V=[
+ {w:'didi',  en:'eat',   f:'didi',  ic:'🍚'},
+ {w:'nom',   en:'drink', f:'nom',   ic:'🥤'},
+ {w:'da',    en:'sleep', f:'da',    ic:'😴'},
+ {w:'nante', en:'walk',  f:'nante', ic:'🚶'},
+ {w:'su',    en:'cry',   f:'su',    ic:'😢'},
+ {w:'sere',  en:'laugh', f:'sere',  ic:'😄'},
+ {w:'goro',  en:'play',  f:'goro',  ic:'⚽'},
+ {w:'dware', en:'bath',  f:'dware', ic:'🚿'}
+];
+/* Only these joined forms were recorded, so only these are ever played. */
+var JOINED={'medidi':'medidi','wodidi':'wodidi','ɔdidi':'odidi','yɛdidi':'yedidi',
+            'modidi':'modidi','wɔdidi':'wodidi2','ɛdidi':'edidi',
+            'ɔsu':'osu','yɛnante':'yenante','ɔda':'oda','wosere':'wosere'};
+function join(p,v){ return p.sub+v.w }
+function sayV(f){var a=new Audio('/audio?f=verbs/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* Play the joined recording when there is one; otherwise the pronoun then the
+   verb, which still teaches the pair. */
+function saySentence(p,v){
+  var made=join(p,v);
+  if(JOINED[made])return sayV(JOINED[made]);
+  var a=sayV(p.f);
+  a.addEventListener('ended',function(){sayV(v.f)});
+  return a;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  /* Only sentences that have a real joined recording, so the learner always
+     hears the true word rather than two clips stitched together. */
+  var pairs=[];
+  P.forEach(function(p){ V.forEach(function(v){
+    if(JOINED[join(p,v)])pairs.push({p:p,v:v});
+  })});
+  var quiz=shuffle(pairs.slice()).slice(0,Math.min(TOTAL,pairs.length));
+  TOTAL=quiz.length;
+  var at=0,score=0,lock=false,heard=false,marks=[],pSel=null,vSel=null;
+  var playEl=document.getElementById('play'),madeEl=document.getElementById('made'),
+      whoEl=document.getElementById('whoCol'),actEl=document.getElementById('actCol'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function drawMade(){
+    madeEl.textContent=(pSel&&vSel)?join(pSel,vSel):(pSel?pSel.sub+'…':'—');
+  }
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;heard=false;pSel=null;vSel=null;
+    var q=quiz[at];
+    drawMade();dots();
+    statusEl.textContent='Tap the speaker, then pick who and what.';
+    var whoOpts=shuffle(P.filter(function(x){return x.full!==q.p.full}))
+      .slice(0,2).concat([q.p]);
+    var actOpts=shuffle(V.filter(function(x){return x.w!==q.v.w}))
+      .slice(0,2).concat([q.v]);
+    whoEl.innerHTML='';actEl.innerHTML='';
+    shuffle(whoOpts).forEach(function(p){
+      var b=document.createElement('button');b.className='chip2';b.type='button';
+      b.textContent=p.full;b.dataset.k=p.full;
+      b.onclick=function(){
+        if(lock)return;pSel=p;
+        Array.prototype.forEach.call(whoEl.children,function(c){c.classList.remove('sel')});
+        b.classList.add('sel');drawMade();check(q);
+      };whoEl.appendChild(b);
+    });
+    shuffle(actOpts).forEach(function(v){
+      var b=document.createElement('button');b.className='chip2';b.type='button';
+      b.textContent=v.w;b.dataset.k=v.w;
+      b.onclick=function(){
+        if(lock)return;vSel=v;
+        Array.prototype.forEach.call(actEl.children,function(c){c.classList.remove('sel')});
+        b.classList.add('sel');drawMade();check(q);
+      };actEl.appendChild(b);
+    });
+  }
+  playEl.onclick=function(){
+    heard=true;var q=quiz[at];saySentence(q.p,q.v);
+    statusEl.textContent='Now build the same sentence.';
+  };
+  function check(q){
+    if(!pSel||!vSel)return;
+    if(!heard){statusEl.textContent='👂 Listen first — tap the big speaker.';return}
+    lock=true;
+    var ok=pSel.full===q.p.full&&vSel.w===q.v.w;
+    marks[at]=ok;
+    Array.prototype.forEach.call(whoEl.children,function(c){
+      if(c.dataset.k===q.p.full)c.classList.add('ok');
+      else if(c.classList.contains('sel'))c.classList.add('no');
+    });
+    Array.prototype.forEach.call(actEl.children,function(c){
+      if(c.dataset.k===q.v.w)c.classList.add('ok');
+      else if(c.classList.contains('sel'))c.classList.add('no');
+    });
+    madeEl.textContent=join(q.p,q.v);
+    if(ok){score++;statusEl.textContent='✅ '+join(q.p,q.v)+' — '+q.p.en+' '+q.v.en}
+    else statusEl.textContent='❌ It was '+join(q.p,q.v)+' — '+q.p.en+' '+q.v.en;
+    saySentence(q.p,q.v);
+    dots();at++;setTimeout(show,2300);
+  }
+  function finish(){
+    dots();playEl.style.display='none';whoEl.innerHTML='';actEl.innerHTML='';
+    madeEl.textContent='🎉';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

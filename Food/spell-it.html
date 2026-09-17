@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Spell It</title>
+<!-- Kids_Portal · Food/spell-it.html · slug: food-spell -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .word{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:18px 14px;
+    margin:14px 0;text-align:center}
+  .word .em{font-size:3.4rem;line-height:1}
+  .word .en{font-size:1rem;opacity:.9;font-weight:700;margin-top:2px}
+  .word .spk{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:7px 18px;
+    font-size:.95rem;font-weight:bold;color:#4d2f12;cursor:pointer;font-family:inherit;
+    margin-top:9px}
+  .blanks{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+  .bl{width:48px;height:58px;border-radius:14px;background:#fff;border:4px dashed #cb7b2c;
+    display:grid;place-items:center;font-size:1.7rem;font-weight:bold;color:#492f16}
+  .bl.full{border-style:solid;border-color:#14563A;background:#EFE7D7}
+  .bl.ok{background:#d4edda;border-color:#14563A}
+  .bl.no{background:#f8d7da;border-color:#A81B1B}
+  .tiles{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .tile{width:52px;height:56px;border-radius:16px;background:#fef7e6;border:4px solid #b48b3a;
+    font-size:1.5rem;font-weight:bold;color:#1f3a2f;font-family:inherit;cursor:pointer;
+    box-shadow:0 5px 0 #7a5a1f}
+  .tile:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .tile.used{opacity:.25;pointer-events:none}
+  .row4{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .act{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:10px 20px;
+    font-size:.98rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit}
+  .act.undo{background:#e8d9bd}
+  .hintbox{background:#EFE7D7;border:2px dashed #3A2A1C;border-radius:16px;padding:9px 12px;
+    font-size:.85rem;font-weight:700;color:#5A6B60;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>✍️ Spell It</h1>
+  <span class="sub">Hear the food, then build the word</span>
+  <div class="dots" id="dots"></div>
+  <div class="word" id="word"></div>
+  <div class="blanks" id="blanks"></div>
+  <div class="tiles" id="tiles"></div>
+  <div class="row4">
+    <button class="act undo" id="undo" type="button">↩️ Take one back</button>
+    <button class="act" id="check" type="button">✅ Check it</button>
+  </div>
+  <p class="status" id="status"></p>
+  <p class="hintbox">Twi has two letters English does not:
+    <b>ɛ</b> and <b>ɔ</b>. Listen for them.</p>
+  <div id="end"></div>
+</div>
+<script>
+var FD=[
+ {w:'bankye',      en:'cassava',        f:'cassava',    ic:'🥔', g:'root'},
+ {w:'borɔdeɛ',     en:'plantain',       f:'plantain',   ic:'🍌', g:'root'},
+ {w:'bayerɛ',      en:'yam',            f:'yam',        ic:'🍠', g:'root'},
+ {w:'mankani',     en:'cocoyam',        f:'cocoyam',    ic:'🟤', g:'root'},
+ {w:'aborɔdwomaa', en:'potato',         f:'potato',     ic:'🥔', g:'root'},
+ {w:'aburoo',      en:'maize',          f:'maize',      ic:'🌽', g:'grain'},
+ {w:'ɛmo',         en:'rice',           f:'rice',       ic:'🍚', g:'grain'},
+ {w:'gyeene',      en:'onion',          f:'onion',      ic:'🧅', g:'veg'},
+ {w:'mako',        en:'pepper',         f:'pepper',     ic:'🌶️', g:'veg'},
+ {w:'ntoosi',      en:'tomato',         f:'tomato',     ic:'🍅', g:'veg'},
+ {w:'nyaadewa',    en:'garden egg',     f:'gardenegg',  ic:'🍆', g:'veg'},
+ {w:'nkuruma',     en:'okro',           f:'okro',       ic:'🫑', g:'veg'},
+ {w:'kontommire',  en:'cocoyam leaves', f:'kontommire', ic:'🥬', g:'veg'},
+ {w:'adua',        en:'bean',           f:'bean',       ic:'🫘', g:'grain'},
+ {w:'kosua',       en:'egg',            f:'egg',        ic:'🥚', g:'protein'},
+ {w:'nsuomnam',    en:'fish',           f:'fish',       ic:'🐟', g:'protein'},
+ {w:'paanoo',      en:'bread',          f:'paanoo',     ic:'🍞', g:'made'},
+ {w:'nkyene',      en:'salt',           f:'salt',       ic:'🧂', g:'made'}
+];
+var FGROUP={root:'grows under the ground',grain:'a grain or seed',
+            veg:'a vegetable',protein:'from an animal',made:'made in a kitchen'};
+
+/* Real Ghanaian dishes. Getting the ingredients right is knowledge a child
+   picks up in their grandmother's kitchen, not from a word list. */
+var DISHES=[
+ {name:'Kontommire stew', tw:'Kontommire abomu',  ic:'🥬',
+  need:['kontommire','ntoosi','gyeene','mako']},
+ {name:'Light soup',      tw:'Nkrakra',           ic:'🍲',
+  need:['ntoosi','gyeene','mako','nsuomnam']},
+ {name:'Red red',         tw:'Adua ne borɔdeɛ',   ic:'🫘',
+  need:['adua','borɔdeɛ','ntoosi','gyeene']},
+ {name:'Fufu and soup',   tw:'Fufuo',             ic:'🥣',
+  need:['bankye','borɔdeɛ','nsuomnam','mako']},
+ {name:'Okro stew',       tw:'Nkuruma abomu',     ic:'🫑',
+  need:['nkuruma','ntoosi','mako','nsuomnam']}
+];
+var DNUM={1:'baako',2:'mmienu',3:'mmiensa',4:'ɛnan',5:'enum'};
+var DNUMF={1:'one',2:'two',3:'three',4:'four',5:'five'};
+var byFd={}; FD.forEach(function(x){byFd[x.w]=x});
+function sayFd(f){var a=new Audio('/audio?f=food/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  /* Spelling has exactly one right answer, which recipes do not. It also fills
+     a real gap - every other game is multiple choice, so nobody ever has to
+     produce ɛ or ɔ themselves. */
+  var pool=FD.filter(function(x){return x.w.replace(/\s/g,'').length<=9});
+  var quiz=shuffle(pool.slice()).slice(0,TOTAL);
+  var at=0,score=0,lock=false,marks=[],picked=[];
+  var wordEl=document.getElementById('word'),blanksEl=document.getElementById('blanks'),
+      tilesEl=document.getElementById('tiles'),statusEl=document.getElementById('status'),
+      dotsEl=document.getElementById('dots'),endEl=document.getElementById('end');
+
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+
+  function letters(w){ return w.split('').filter(function(c){return c!==' '}) }
+
+  function drawBlanks(){
+    var want=letters(quiz[at].w);
+    blanksEl.innerHTML='';
+    for(var i=0;i<want.length;i++){
+      var d=document.createElement('div');
+      d.className='bl'+(picked[i]?' full':'');
+      d.textContent=picked[i]||'';
+      blanksEl.appendChild(d);
+    }
+  }
+
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;picked=[];
+    var q=quiz[at];
+    wordEl.innerHTML='<span class="em">'+q.ic+'</span>'
+      +'<div class="en">'+q.en+'</div>'
+      +'<button class="spk" id="say" type="button">🔊 Hear it again</button>';
+    document.getElementById('say').onclick=function(){sayFd(q.f)};
+    sayFd(q.f);
+    statusEl.textContent='Tap the letters in order.';
+    drawBlanks();dots();
+
+    /* The right letters, plus a few extras so it cannot be solved by using
+       every tile on the board. */
+    var need=letters(q.w);
+    var extraPool='abdefghiklmnoprstuwyɛɔ'.split('');
+    var extras=shuffle(extraPool.filter(function(c){return need.indexOf(c)<0})).slice(0,4);
+    var board=shuffle(need.concat(extras));
+
+    tilesEl.innerHTML='';
+    board.forEach(function(c){
+      var b=document.createElement('button');b.className='tile';b.type='button';b.textContent=c;
+      b.onclick=function(){
+        if(lock)return;
+        if(picked.length>=need.length)return;
+        picked.push(c);b.classList.add('used');b.dataset.at=picked.length-1;
+        drawBlanks();
+      };
+      tilesEl.appendChild(b);
+    });
+  }
+
+  document.getElementById('undo').onclick=function(){
+    if(lock||!picked.length)return;
+    var i=picked.length-1;
+    picked.pop();
+    var t=tilesEl.querySelector('.tile.used[data-at="'+i+'"]');
+    if(t){t.classList.remove('used');t.removeAttribute('data-at')}
+    drawBlanks();
+  };
+
+  document.getElementById('check').onclick=function(){
+    if(lock)return;
+    var q=quiz[at], want=letters(q.w);
+    if(picked.length<want.length){
+      statusEl.textContent='Not finished yet — '+(want.length-picked.length)+' more to go.';
+      return;
+    }
+    lock=true;
+    var cells=blanksEl.children,allRight=true;
+    for(var i=0;i<want.length;i++){
+      var ok=picked[i]===want[i];
+      if(!ok)allRight=false;
+      cells[i].className='bl '+(ok?'ok':'no');
+      cells[i].textContent=want[i];
+    }
+    marks[at]=allRight;
+    if(allRight){score++;statusEl.textContent='✅ '+q.w+' — '+q.en}
+    else statusEl.textContent='❌ It is spelt '+q.w+'.';
+    sayFd(q.f);
+    dots();at++;setTimeout(show,2400);
+  };
+
+  function finish(){
+    dots();wordEl.innerHTML='<span class="em">🎉</span>';
+    blanksEl.innerHTML='';tilesEl.innerHTML='';
+    document.querySelector('.row4').style.display='none';
+    statusEl.textContent='You spelt '+score+' of '+TOTAL+' correctly.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

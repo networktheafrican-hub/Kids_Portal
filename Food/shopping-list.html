@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ama's Shopping List</title>
+<!-- Kids_Portal · Food/shopping-list.html · slug: food-memory -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .hear{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:18px;
+    margin:14px 0;min-height:150px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:10px}
+  .hear .em{font-size:3rem;line-height:1}
+  .hear .say{font-size:1.15rem;font-weight:bold}
+  .hear .list{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;font-size:2.4rem}
+  .hear .list span{opacity:.25;transition:opacity .2s}
+  .hear .list span.on{opacity:1}
+  .playbtn{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:10px 24px;
+    font-size:1.05rem;font-weight:bold;color:#4d2f12;cursor:pointer;font-family:inherit}
+  .slots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+  .slot{width:76px;height:76px;border-radius:20px;background:#fff;border:4px dashed #cb7b2c;
+    display:grid;place-items:center;font-size:2rem;color:#cb7b2c;font-weight:bold}
+  .slot.full{border-style:solid;border-color:#14563A;background:#EFE7D7}
+  .slot.ok{background:#d4edda;border-color:#14563A}
+  .slot.no{background:#f8d7da;border-color:#A81B1B}
+  .shelf{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:14px}
+  .it{background:#fff;border:4px solid #b48b3a;border-radius:18px;padding:8px 2px;cursor:pointer;
+    font-family:inherit;box-shadow:0 4px 0 #7a5a1f;text-align:center}
+  .it .ic{font-size:1.8rem;display:block;line-height:1}
+  .it .w{font-size:.62rem;font-weight:bold;color:#492f16;word-break:break-word}
+  .it.used{opacity:.3;pointer-events:none}
+  @media(min-width:600px){.shelf{grid-template-columns:repeat(9,1fr)}.it .ic{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🧠 Ama's Shopping List</h1>
+  <span class="sub">Listen, remember, and get them in order</span>
+  <div class="dots" id="dots"></div>
+  <div class="hear" id="hear"></div>
+  <div class="slots" id="slots"></div>
+  <div class="shelf" id="shelf"></div>
+  <p class="status" id="status"></p>
+  <div id="end"></div>
+</div>
+<script>
+var FD=[
+ {w:'bankye',      en:'cassava',        f:'cassava',    ic:'🥔', g:'root'},
+ {w:'borɔdeɛ',     en:'plantain',       f:'plantain',   ic:'🍌', g:'root'},
+ {w:'bayerɛ',      en:'yam',            f:'yam',        ic:'🍠', g:'root'},
+ {w:'mankani',     en:'cocoyam',        f:'cocoyam',    ic:'🟤', g:'root'},
+ {w:'aborɔdwomaa', en:'potato',         f:'potato',     ic:'🥔', g:'root'},
+ {w:'aburoo',      en:'maize',          f:'maize',      ic:'🌽', g:'grain'},
+ {w:'ɛmo',         en:'rice',           f:'rice',       ic:'🍚', g:'grain'},
+ {w:'gyeene',      en:'onion',          f:'onion',      ic:'🧅', g:'veg'},
+ {w:'mako',        en:'pepper',         f:'pepper',     ic:'🌶️', g:'veg'},
+ {w:'ntoosi',      en:'tomato',         f:'tomato',     ic:'🍅', g:'veg'},
+ {w:'nyaadewa',    en:'garden egg',     f:'gardenegg',  ic:'🍆', g:'veg'},
+ {w:'nkuruma',     en:'okro',           f:'okro',       ic:'🫑', g:'veg'},
+ {w:'kontommire',  en:'cocoyam leaves', f:'kontommire', ic:'🥬', g:'veg'},
+ {w:'adua',        en:'bean',           f:'bean',       ic:'🫘', g:'grain'},
+ {w:'kosua',       en:'egg',            f:'egg',        ic:'🥚', g:'protein'},
+ {w:'nsuomnam',    en:'fish',           f:'fish',       ic:'🐟', g:'protein'},
+ {w:'paanoo',      en:'bread',          f:'paanoo',     ic:'🍞', g:'made'},
+ {w:'nkyene',      en:'salt',           f:'salt',       ic:'🧂', g:'made'}
+];
+var FGROUP={root:'grows under the ground',grain:'a grain or seed',
+            veg:'a vegetable',protein:'from an animal',made:'made in a kitchen'};
+
+/* Real Ghanaian dishes. Getting the ingredients right is knowledge a child
+   picks up in their grandmother's kitchen, not from a word list. */
+var DISHES=[
+ {name:'Kontommire stew', tw:'Kontommire abomu',  ic:'🥬',
+  need:['kontommire','ntoosi','gyeene','mako']},
+ {name:'Light soup',      tw:'Nkrakra',           ic:'🍲',
+  need:['ntoosi','gyeene','mako','nsuomnam']},
+ {name:'Red red',         tw:'Adua ne borɔdeɛ',   ic:'🫘',
+  need:['adua','borɔdeɛ','ntoosi','gyeene']},
+ {name:'Fufu and soup',   tw:'Fufuo',             ic:'🥣',
+  need:['bankye','borɔdeɛ','nsuomnam','mako']},
+ {name:'Okro stew',       tw:'Nkuruma abomu',     ic:'🫑',
+  need:['nkuruma','ntoosi','mako','nsuomnam']}
+];
+var DNUM={1:'baako',2:'mmienu',3:'mmiensa',4:'ɛnan',5:'enum'};
+var DNUMF={1:'one',2:'two',3:'three',4:'four',5:'five'};
+var byFd={}; FD.forEach(function(x){byFd[x.w]=x});
+function sayFd(f){var a=new Audio('/audio?f=food/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var ROUNDS=5;
+  /* The list grows: three items, then four, then five. Order matters, so this
+     is real working memory in Twi, not recognition. */
+  var LENS=[3,3,4,4,5];
+  var quiz=LENS.map(function(n){ return shuffle(FD.slice()).slice(0,n) });
+  var at=0,score=0,lock=false,marks=[],given=[],playing=false;
+  var hearEl=document.getElementById('hear'),slotsEl=document.getElementById('slots'),
+      shelfEl=document.getElementById('shelf'),statusEl=document.getElementById('status'),
+      dotsEl=document.getElementById('dots'),endEl=document.getElementById('end');
+
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<ROUNDS;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+
+  function drawSlots(){
+    var want=quiz[at];
+    slotsEl.innerHTML='';
+    for(var i=0;i<want.length;i++){
+      var d=document.createElement('div');
+      d.className='slot'+(given[i]?' full':'');
+      d.textContent=given[i]?given[i].ic:(i+1);
+      slotsEl.appendChild(d);
+    }
+  }
+
+  /* Play the list aloud, lighting each one as it is said. */
+  function playList(){
+    if(playing)return;
+    playing=true;
+    var want=quiz[at],i=0;
+    var spans=hearEl.querySelectorAll('.list span');
+    statusEl.textContent='Listen…';
+    (function next(){
+      if(i>=want.length){
+        playing=false;
+        Array.prototype.forEach.call(spans,function(s){s.classList.remove('on')});
+        statusEl.textContent='Now tap them in the same order.';
+        return;
+      }
+      Array.prototype.forEach.call(spans,function(s,k){
+        s.classList.toggle('on',k===i)});
+      var a=sayFd(want[i].f);
+      var moved=false;
+      var go=function(){ if(moved)return; moved=true; i++; setTimeout(next,320) };
+      a.addEventListener('ended',go);
+      a.addEventListener('error',go);
+      setTimeout(go,1600);
+    })();
+  }
+
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;given=[];
+    var want=quiz[at];
+    hearEl.innerHTML='<span class="em">🗣️</span>'
+      +'<span class="say">Ama wants '+want.length+' things</span>'
+      +'<span class="list">'+want.map(function(){return '<span>❓</span>'}).join('')+'</span>'
+      +'<button class="playbtn" id="rep" type="button">🔊 Say it again</button>';
+    document.getElementById('rep').onclick=playList;
+    drawSlots();dots();
+    shelfEl.innerHTML='';
+    FD.forEach(function(x){
+      var b=document.createElement('button');b.className='it';b.type='button';
+      b.innerHTML='<span class="ic">'+x.ic+'</span><span class="w">'+x.w+'</span>';
+      b.onclick=function(){tap(b,x)};
+      shelfEl.appendChild(b);
+    });
+    setTimeout(playList,500);
+  }
+
+  function tap(btn,x){
+    if(lock||playing)return;
+    var want=quiz[at];
+    if(given.length>=want.length)return;
+    given.push(x);btn.classList.add('used');sayFd(x.f);
+    drawSlots();
+    if(given.length===want.length)judge();
+  }
+
+  function judge(){
+    lock=true;
+    var want=quiz[at],allRight=true;
+    var cells=slotsEl.children;
+    for(var i=0;i<want.length;i++){
+      var ok=given[i].w===want[i].w;
+      if(!ok)allRight=false;
+      cells[i].className='slot '+(ok?'ok':'no');
+    }
+    marks[at]=allRight;
+    if(allRight){score++;statusEl.textContent='✅ Exactly right, in order!'}
+    else statusEl.textContent='❌ She wanted: '+want.map(function(x){return x.w}).join(', ');
+    // reveal the true list
+    var spans=hearEl.querySelectorAll('.list span');
+    Array.prototype.forEach.call(spans,function(s,k){ s.textContent=want[k].ic; s.classList.add('on') });
+    at++;setTimeout(show,2600);
+  }
+
+  function finish(){
+    dots();hearEl.innerHTML='<span class="em">🎉</span>';
+    slotsEl.innerHTML='';shelfEl.innerHTML='';
+    statusEl.textContent='You remembered '+score+' of '+ROUNDS+' lists perfectly.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(Math.max(2,score+3),ROUNDS+3);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

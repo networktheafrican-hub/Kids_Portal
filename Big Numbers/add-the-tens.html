@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Add the Tens</title>
+<!-- Kids_Portal · Big Numbers/add-the-tens.html · slug: big-add -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .sum{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:20px 16px;
+    margin:14px 0;min-height:160px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:12px}
+  .sum .line{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+  .sum .box{background:#fff;color:#14563A;border-radius:18px;min-width:104px;padding:9px 12px;
+    font-size:1.9rem;font-weight:bold;line-height:1.1;text-align:center}
+  .sum .box small{display:block;font-size:.76rem;color:#5A6B60;font-weight:700;
+    word-break:break-word}
+  .sum .op{font-size:2.2rem;font-weight:bold;color:#f3d48a}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>➕ Add the Tens</h1>
+  <span class="sub">aduonu and du make what?</span>
+  <div class="dots" id="dots"></div>
+  <div class="sum" id="sum"></div>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div class="gramtip">Every ten has its own word, so adding them is really
+    remembering the next one along.</div>
+  <div id="end"></div>
+</div>
+<script>
+var TEENS=[
+ {n:11,w:'du baako',   f:'eleven',    part:'baako',  pf:'one'},
+ {n:12,w:'du mmienu',  f:'twelve',    part:'mmienu', pf:'two'},
+ {n:13,w:'du mmiensa', f:'thirteen',  part:'mmiensa',pf:'three'},
+ {n:14,w:'du nnan',    f:'fourteen',  part:'nnan',   pf:'four'},
+ {n:15,w:'du nnum',    f:'fifteen',   part:'nnum',   pf:'five'},
+ {n:16,w:'du nsia',    f:'sixteen',   part:'nsia',   pf:'six'},
+ {n:17,w:'du nson',    f:'seventeen', part:'nson',   pf:'seven'},
+ {n:18,w:'du nwɔtwe',  f:'eighteen',  part:'nwɔtwe', pf:'eight'},
+ {n:19,w:'du nkron',   f:'nineteen',  part:'nkron',  pf:'nine'}
+];
+var TENS=[
+ {n:20, w:'aduonu',    f:'twenty'},
+ {n:30, w:'aduasa',    f:'thirty'},
+ {n:40, w:'aduanan',   f:'forty'},
+ {n:50, w:'aduonum',   f:'fifty'},
+ {n:60, w:'aduosia',   f:'sixty'},
+ {n:70, w:'aduoson',   f:'seventy'},
+ {n:80, w:'aduowɔtwe', f:'eighty'},
+ {n:90, w:'aduokron',  f:'ninety'},
+ {n:100,w:'ɔha',       f:'hundred'}
+];
+var SMALL=[
+ {n:1,w:'baako',f:'one'},{n:2,w:'mmienu',f:'two'},{n:3,w:'mmiensa',f:'three'},
+ {n:4,w:'ɛnan',f:'four'},{n:5,w:'enum',f:'five'},{n:6,w:'nsia',f:'six'},
+ {n:7,w:'nson',f:'seven'},{n:8,w:'nwɔtwe',f:'eight'},{n:9,w:'nkron',f:'nine'},
+ {n:10,w:'du',f:'ten'}
+];
+var ALLBIG=TEENS.concat(TENS);
+var byN={}; ALLBIG.forEach(function(x){byN[x.n]=x});
+SMALL.forEach(function(x){ if(!byN[x.n])byN[x.n]=x });
+function sayBig(f){var a=new Audio('/audio?f=big-numbers/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function saySmall(f){var a=new Audio('/audio?f=twi-numbers/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* Small numbers live in one folder, big ones in another. */
+function sayAny(x){ return x.n<=10 ? saySmall(x.f) : sayBig(x.f) }
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  /* Only sums that land exactly on a ten we have a word for. */
+  var quiz=[],guard=0;
+  while(quiz.length<TOTAL&&guard<400){
+    guard++;
+    var a=TENS[Math.floor(Math.random()*TENS.length)];
+    var b=10+Math.floor(Math.random()*4)*10;
+    var total=a.n+b;
+    if(total>100)continue;
+    var t=ALLBIG.filter(function(x){return x.n===total})[0];
+    if(!t)continue;
+    quiz.push({a:a,b:b,t:t});
+  }
+  var at=0,score=0,lock=false,marks=[];
+  var sumEl=document.getElementById('sum'),optsEl=document.getElementById('opts'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function wordFor(n){var x=ALLBIG.concat(SMALL).filter(function(y){return y.n===n})[0];
+    return x?x.w:String(n)}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    sumEl.innerHTML='<div class="line">'
+      +'<span class="box">'+q.a.n+'<small>'+q.a.w+'</small></span>'
+      +'<span class="op">+</span>'
+      +'<span class="box">'+q.b+'<small>'+wordFor(q.b)+'</small></span>'
+      +'<span class="op">=</span><span class="box">?</span></div>';
+    statusEl.textContent='Say the answer in Twi.';dots();
+    var pool=ALLBIG.filter(function(x){return x.n!==q.t.n&&x.n>=20}).map(function(x){return x.w});
+    optsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([q.t.w])).forEach(function(o){
+      var b=document.createElement('button');b.className='opt';b.type='button';b.textContent=o;
+      b.onclick=function(){answer(b,o,q)};optsEl.appendChild(b)});
+  }
+  function answer(btn,chosen,q){
+    if(lock)return;lock=true;
+    var ok=chosen===q.t.w;marks[at]=ok;
+    sumEl.querySelectorAll('.box')[2].innerHTML=q.t.n+'<small>'+q.t.w+'</small>';
+    if(ok){score++;btn.classList.add('ok');
+      statusEl.textContent='✅ '+q.a.n+' + '+q.b+' = '+q.t.n+' — '+q.t.w}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===q.t.w)c.classList.add('ok')});
+      statusEl.textContent='❌ It is '+q.t.n+' — '+q.t.w+'.'}
+    sayBig(q.t.f);dots();at++;setTimeout(show,2100);
+  }
+  function finish(){
+    dots();sumEl.innerHTML='<div class="line"><span class="box">🎉</span></div>';
+    optsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

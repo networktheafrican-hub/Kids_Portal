@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Big Number Snap</title>
+<!-- Kids_Portal · Big Numbers/big-number-snap.html · slug: big-snap -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .pair{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:22px 16px;
+    margin:14px 0;min-height:164px;display:flex;align-items:center;justify-content:center;
+    gap:18px;flex-wrap:wrap}
+  .pair .d{font-size:4.2rem;font-weight:bold;line-height:1;background:#fff;color:#14563A;
+    border-radius:22px;min-width:112px;padding:6px 14px}
+  .pair .w{font-size:2rem;font-weight:bold;word-break:break-word}
+  .pair.right{box-shadow:0 0 0 6px #2f9e63}
+  .pair.wrong{background:#A81B1B;box-shadow:0 0 0 6px #e8674f;animation:shake .35s}
+  .snapbtns{display:flex;gap:14px;justify-content:center;margin-top:8px}
+  .sb{border:5px solid #3A2A1C;border-radius:26px;width:132px;padding:18px 0;font-size:2.2rem;
+    cursor:pointer;font-family:inherit;box-shadow:0 6px 0 #3A2A1C}
+  .sb:active{transform:translateY(4px);box-shadow:0 2px 0 #3A2A1C}
+  .sb.yes{background:#d4edda}
+  .sb.no{background:#f8d7da}
+  .timer{height:14px;border-radius:99px;background:#EFE7D7;border:3px solid #14563A;
+    overflow:hidden;margin-top:12px}
+  .timer i{display:block;height:100%;width:100%;background:#C8901E}
+  .score{font-size:1.05rem;font-weight:bold;color:#14563A;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>⚡ Big Number Snap</h1>
+  <span class="sub">Do they match? Be quick.</span>
+  <div class="dots" id="dots"></div>
+  <div class="pair" id="pair"></div>
+  <div class="timer"><i id="bar"></i></div>
+  <div class="snapbtns">
+    <button class="sb yes" id="yes" type="button">✅</button>
+    <button class="sb no" id="no" type="button">❌</button>
+  </div>
+  <p class="status" id="status">Tap ✅ if the number and the word match.</p>
+  <p class="score" id="score"></p>
+  <div id="end"></div>
+</div>
+<script>
+var TEENS=[
+ {n:11,w:'du baako',   f:'eleven',    part:'baako',  pf:'one'},
+ {n:12,w:'du mmienu',  f:'twelve',    part:'mmienu', pf:'two'},
+ {n:13,w:'du mmiensa', f:'thirteen',  part:'mmiensa',pf:'three'},
+ {n:14,w:'du nnan',    f:'fourteen',  part:'nnan',   pf:'four'},
+ {n:15,w:'du nnum',    f:'fifteen',   part:'nnum',   pf:'five'},
+ {n:16,w:'du nsia',    f:'sixteen',   part:'nsia',   pf:'six'},
+ {n:17,w:'du nson',    f:'seventeen', part:'nson',   pf:'seven'},
+ {n:18,w:'du nwɔtwe',  f:'eighteen',  part:'nwɔtwe', pf:'eight'},
+ {n:19,w:'du nkron',   f:'nineteen',  part:'nkron',  pf:'nine'}
+];
+var TENS=[
+ {n:20, w:'aduonu',    f:'twenty'},
+ {n:30, w:'aduasa',    f:'thirty'},
+ {n:40, w:'aduanan',   f:'forty'},
+ {n:50, w:'aduonum',   f:'fifty'},
+ {n:60, w:'aduosia',   f:'sixty'},
+ {n:70, w:'aduoson',   f:'seventy'},
+ {n:80, w:'aduowɔtwe', f:'eighty'},
+ {n:90, w:'aduokron',  f:'ninety'},
+ {n:100,w:'ɔha',       f:'hundred'}
+];
+var SMALL=[
+ {n:1,w:'baako',f:'one'},{n:2,w:'mmienu',f:'two'},{n:3,w:'mmiensa',f:'three'},
+ {n:4,w:'ɛnan',f:'four'},{n:5,w:'enum',f:'five'},{n:6,w:'nsia',f:'six'},
+ {n:7,w:'nson',f:'seven'},{n:8,w:'nwɔtwe',f:'eight'},{n:9,w:'nkron',f:'nine'},
+ {n:10,w:'du',f:'ten'}
+];
+var ALLBIG=TEENS.concat(TENS);
+var byN={}; ALLBIG.forEach(function(x){byN[x.n]=x});
+SMALL.forEach(function(x){ if(!byN[x.n])byN[x.n]=x });
+function sayBig(f){var a=new Audio('/audio?f=big-numbers/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function saySmall(f){var a=new Audio('/audio?f=twi-numbers/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* Small numbers live in one folder, big ones in another. */
+function sayAny(x){ return x.n<=10 ? saySmall(x.f) : sayBig(x.f) }
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=10, LIMIT=4500;
+  var quiz=[];
+  for(var i=0;i<TOTAL;i++){
+    var real=ALLBIG[Math.floor(Math.random()*ALLBIG.length)];
+    var same=i%2===0;
+    var shown=same?real:shuffle(ALLBIG.filter(function(x){return x.n!==real.n}))[0];
+    quiz.push({num:real,word:shown,match:same});
+  }
+  quiz=shuffle(quiz);
+  var at=0,score=0,lock=false,marks=[],t0=0,raf=null;
+  var pairEl=document.getElementById('pair'),barEl=document.getElementById('bar'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      scoreEl=document.getElementById('score'),endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function tick(){
+    var left=Math.max(0,LIMIT-(performance.now()-t0));
+    barEl.style.width=(left/LIMIT*100)+'%';
+    if(left<=0){answer(null);return}
+    raf=requestAnimationFrame(tick);
+  }
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    pairEl.className='pair';
+    pairEl.innerHTML='<span class="d">'+q.num.n+'</span><span class="w">'+q.word.w+'</span>';
+    statusEl.textContent='Do they match?';
+    scoreEl.textContent='Score: '+score;
+    dots();t0=performance.now();barEl.style.width='100%';
+    raf=requestAnimationFrame(tick);
+  }
+  function answer(said){
+    if(lock)return;lock=true;
+    if(raf)cancelAnimationFrame(raf);
+    var q=quiz[at];
+    var ok = said===null ? false : (said===q.match);
+    marks[at]=ok;
+    pairEl.className='pair '+(ok?'right':'wrong');
+    if(ok){score++;
+      statusEl.textContent=q.match?'✅ Yes — '+q.num.n+' is '+q.num.w
+        :'✅ Right, they do not match.';}
+    else statusEl.textContent = said===null ? '⏱ Too slow! '+q.num.n+' is '+q.num.w
+      : (q.match?'❌ They did match.':'❌ '+q.num.n+' is '+q.num.w+'.');
+    sayBig(q.num.f);
+    scoreEl.textContent='Score: '+score;
+    dots();at++;setTimeout(show,1500);
+  }
+  document.getElementById('yes').onclick=function(){answer(true)};
+  document.getElementById('no').onclick=function(){answer(false)};
+  function finish(){
+    dots();barEl.style.width='0%';pairEl.className='pair';
+    pairEl.innerHTML='<span class="w">'+(score===TOTAL?'🏆':score>=6?'🎉':'💪')+'</span>';
+    document.querySelector('.snapbtns').style.display='none';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    scoreEl.textContent='';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

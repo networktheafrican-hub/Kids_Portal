@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>What Was Where?</title>
+<!-- Kids_Portal · House/what-was-where.html · slug: house-memory -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .room{background:#EFE7D7;border:5px solid #14563A;border-radius:26px;padding:14px;margin:14px 0;
+    position:relative;min-height:230px}
+  .shelfline{position:absolute;left:8%;right:8%;height:12px;background:#8B6238;border:3px solid #3A2A1C;
+    border-radius:5px}
+  .shelfline.s1{top:70px}
+  .shelfline.s2{top:150px}
+  .spot{position:absolute;font-size:2.4rem;line-height:1;transform:translate(-50%,-100%)}
+  .cover{position:absolute;inset:0;background:#14563A;border-radius:20px;display:flex;
+    align-items:center;justify-content:center;flex-direction:column;gap:8px;color:#fff;
+    font-weight:bold;font-size:1.1rem}
+  .cover .em{font-size:2.6rem}
+  .ask{background:#14563A;color:#fff;border:4px solid #f3d48a;border-radius:20px;padding:13px;
+    font-size:1.15rem;font-weight:bold;margin-top:4px}
+  .peek{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:9px 20px;
+    font-size:.95rem;font-weight:bold;color:#2d1b0a;box-shadow:0 4px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🧠 What Was Where?</h1>
+  <span class="sub">Look at the room, then remember</span>
+  <div class="dots" id="dots"></div>
+  <div class="room" id="room"></div>
+  <p class="ask" id="ask"></p>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div class="gramtip">Twi puts the place word after the thing:
+    <b>didipono so</b> — on the table, <b>didipono ase</b> — under it.</div>
+  <div id="end"></div>
+</div>
+<script>
+var H=[
+ {w:'piam',      en:'bedroom',      f:'bedroom',     ic:'😴', g:'room'},
+ {w:'mukaase',   en:'kitchen',      f:'kitchen',     ic:'🍳', g:'room'},
+ {w:'adwareeɛ',  en:'bathroom',     f:'bathroom',    ic:'🚿', g:'room'},
+ {w:'adidibea',  en:'dining place', f:'diningplace', ic:'🍛', g:'room'},
+ {w:'asa so',    en:'hall',         f:'hall',        ic:'🛋️', g:'room'},
+ {w:'abranaa so',en:'veranda',      f:'veranda',     ic:'🏡', g:'room'},
+ {w:'ɛpono',     en:'door',         f:'door',        ic:'🚪', g:'room'},
+ {w:'mpoma',     en:'window',       f:'window',      ic:'🪟', g:'room'},
+ {w:'mpa',       en:'bed',          f:'bed',         ic:'🛏️', g:'thing'},
+ {w:'sumiiɛ',    en:'pillow',       f:'pillow',      ic:'🛌', g:'thing'},
+ {w:'kɛtɛ',      en:'mat',          f:'mat',         ic:'🟫', g:'thing'},
+ {w:'kuntu',     en:'blanket',      f:'blanket',     ic:'🧣', g:'thing'},
+ {w:'akonnwa',   en:'chair',        f:'chair',       ic:'🪑', g:'thing'},
+ {w:'didipono',  en:'eating table', f:'table',       ic:'🍽️', g:'thing'},
+ {w:'kanea',     en:'lantern',      f:'lantern',     ic:'🏮', g:'thing'},
+ {w:'ahwehwɛ',   en:'mirror',       f:'mirror',      ic:'🪞', g:'thing'},
+ {w:'praeɛ',     en:'broom',        f:'broom',       ic:'🧹', g:'thing'},
+ {w:'bokiti',    en:'bucket',       f:'bucket',      ic:'🪣', g:'thing'},
+ {w:'kyiniiɛ',   en:'umbrella',     f:'umbrella',    ic:'☂️', g:'thing'},
+ {w:'atere',     en:'spoon',        f:'spoon',       ic:'🥄', g:'kitchen'},
+ {w:'adinam',    en:'fork',         f:'fork',        ic:'🍴', g:'kitchen'},
+ {w:'sekammoa',  en:'knife',        f:'knife',       ic:'🔪', g:'kitchen'},
+ {w:'prɛte',     en:'plate',        f:'plate',       ic:'🥘', g:'kitchen'},
+ {w:'tɔmmɛ',     en:'glass',        f:'glass',       ic:'🥛', g:'kitchen'},
+ {w:'waduro',    en:'mortar',       f:'mortar',      ic:'🫙', g:'kitchen'},
+ {w:'wɔma',      en:'pestle',       f:'pestle',      ic:'🏏', g:'kitchen'}
+];
+var WHERE=[{w:'wɔ',e:'is at',f:'isat'},{w:'mu',e:'inside',f:'inside'},
+           {w:'so',e:'on top',f:'ontop'},{w:'ase',e:'under',f:'under'}];
+var ADJ=[{w:'kɛseɛ',e:'big',f:'big'},{w:'ketewa',e:'small',f:'small'},
+         {w:'foforɔ',e:'new',f:'new'},{w:'dada',e:'old',f:'old'}];
+
+/* What each thing is for. A learner who knows the word but not the use has
+   only half of it. */
+var USES=[
+ {q:'You sweep the floor with a…',  w:'praeɛ',     ic:'🧹'},
+ {q:'You sleep on a…',              w:'mpa',       ic:'😴'},
+ {q:'You rest your head on a…',     w:'sumiiɛ',    ic:'🛌'},
+ {q:'You cover yourself with a…',   w:'kuntu',     ic:'🥶'},
+ {q:'You sit on a…',                w:'akonnwa',   ic:'🪑'},
+ {q:'You eat your food from a…',    w:'prɛte',     ic:'🍛'},
+ {q:'You drink water from a…',      w:'tɔmmɛ',     ic:'💧'},
+ {q:'You cut meat with a…',         w:'sekammoa',  ic:'🥩'},
+ {q:'You pound fufu in a…',         w:'waduro',    ic:'🥣'},
+ {q:'You pound it with a…',         w:'wɔma',      ic:'💪'},
+ {q:'You fetch water in a…',        w:'bokiti',    ic:'💦'},
+ {q:'You look at your face in a…',  w:'ahwehwɛ',   ic:'🙂'},
+ {q:'You keep off the rain with a…',w:'kyiniiɛ',   ic:'🌧️'},
+ {q:'You light the dark with a…',   w:'kanea',     ic:'🌙'},
+ {q:'You stir the soup with a…',    w:'atere',     ic:'🍲'}
+];
+var byH={}; H.forEach(function(x){byH[x.f]=x; byH[x.w]=x});
+function sayH(f){var a=new Audio('/audio?f=house/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function sayHPair(f1,f2){var a=sayH(f1);
+  a.addEventListener('ended',function(){sayH(f2)});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var ROUNDS=6, PEEK=3200;
+  /* Things are placed on a shelf, on a table, or under it. The room is then
+     covered and one question asked - so a learner has to hold both the object
+     and its place in mind, in Twi. */
+  var SPOTS=[
+   {k:'shelf', label:'so',  desc:'on the shelf',  top:70,  x:30},
+   {k:'shelf2',label:'so',  desc:'on the shelf',  top:70,  x:70},
+   {k:'table', label:'so',  desc:'on the table',  top:150, x:35},
+   {k:'under', label:'ase', desc:'under the table',top:222, x:65}
+ ];
+  var quiz=[];
+  for(var r=0;r<ROUNDS;r++){
+    var things=shuffle(H.filter(function(x){return x.g!=='room'})).slice(0,4);
+    var placed=SPOTS.map(function(s,i){return {sp:s,it:things[i]}});
+    quiz.push({placed:placed, askAt:Math.floor(Math.random()*placed.length)});
+  }
+  var at=0,score=0,lock=false,marks=[];
+  var roomEl=document.getElementById('room'),optsEl=document.getElementById('opts'),
+      askEl=document.getElementById('ask'),statusEl=document.getElementById('status'),
+      dotsEl=document.getElementById('dots'),endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<ROUNDS;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function drawRoom(q,covered){
+    var html='<div class="shelfline s1"></div><div class="shelfline s2"></div>';
+    q.placed.forEach(function(p){
+      html+='<span class="spot" style="top:'+p.sp.top+'px;left:'+p.sp.x+'%">'+p.it.ic+'</span>';
+    });
+    if(covered)html+='<div class="cover"><span class="em">🙈</span>'
+      +'<span>What was where?</span>'
+      +'<button class="peek" id="peek" type="button">👁️ Look again</button></div>';
+    roomEl.innerHTML=html;
+    if(covered){
+      document.getElementById('peek').onclick=function(){
+        drawRoom(q,false);
+        setTimeout(function(){ if(!lock)drawRoom(q,true) },1600);
+      };
+    }
+  }
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    askEl.textContent='Look carefully…';optsEl.innerHTML='';
+    drawRoom(q,false);dots();
+    q.placed.forEach(function(p,i){ setTimeout(function(){sayH(p.it.f)}, i*700) });
+    setTimeout(function(){ askIt(q) }, PEEK);
+  }
+  function askIt(q){
+    drawRoom(q,true);
+    var target=q.placed[q.askAt];
+    askEl.textContent='Which one was '+target.sp.desc+'?';
+    statusEl.textContent='Tap what you remember.';
+    var others=q.placed.filter(function(p){return p.it.w!==target.it.w})
+      .map(function(p){return p.it.w});
+    optsEl.innerHTML='';
+    shuffle(others.concat([target.it.w])).forEach(function(o){
+      var b=document.createElement('button');b.className='opt';b.type='button';b.textContent=o;
+      b.onclick=function(){answer(b,o,target,q)};optsEl.appendChild(b)});
+  }
+  function answer(btn,chosen,target,q){
+    if(lock)return;lock=true;
+    var ok=chosen===target.it.w;marks[at]=ok;
+    drawRoom(q,false);
+    if(ok){score++;btn.classList.add('ok');
+      statusEl.textContent='✅ '+target.it.w+' '+target.sp.label+' — '+target.sp.desc+'.'}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===target.it.w)c.classList.add('ok')});
+      statusEl.textContent='❌ It was '+target.it.w+' '+target.sp.label+'.'}
+    sayH(target.it.f);
+    dots();at++;setTimeout(show,2400);
+  }
+  function finish(){
+    dots();roomEl.innerHTML='';askEl.textContent='🎉';optsEl.innerHTML='';
+    statusEl.textContent='You remembered '+score+' of '+ROUNDS+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,ROUNDS);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

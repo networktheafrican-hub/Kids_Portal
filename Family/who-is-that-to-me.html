@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Who Is That To Me?</title>
+<!-- Kids_Portal · Family/who-is-that-to-me.html · slug: fam-riddle -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .q{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:22px 16px;
+    font-size:1.1rem;font-weight:bold;margin:14px 0;min-height:150px;display:flex;
+    align-items:center;justify-content:center;flex-direction:column;gap:8px}
+  .q .huge{font-size:1.65rem;line-height:1.35;word-break:break-word;max-width:420px}
+  .q .em{font-size:3rem;line-height:1}
+  .q .lab{font-size:.76rem;opacity:.75;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+  .result{font-size:1.35rem;font-weight:bold;color:#14563A;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🧩 Who Is That To Me?</h1>
+  <span class="sub">Work out the relative</span>
+  <div class="dots" id="dots"></div>
+  <div class="q" id="q"></div>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div class="gramtip">In Akan, your mother's sister is also called
+    <b>sewaa</b>, and your uncle's wife is <b>sewaa</b> too — family reaches wider
+    than in English.</div>
+  <div id="end"></div>
+</div>
+<script>
+var F=[
+ {w:'papa',      en:'father',     f:'father',      ic:'👨',   sex:'m', gen:'up'},
+ {w:'agya',      en:'father',     f:'father2',     ic:'👨',   sex:'m', gen:'up', reg:'respect'},
+ {w:'maame',     en:'mother',     f:'mother',      ic:'👩',   sex:'f', gen:'up'},
+ {w:'ɛna',       en:'mother',     f:'mother2',     ic:'👩',   sex:'f', gen:'up', reg:'respect'},
+ {w:'nana',      en:'grandparent',f:'grandparent', ic:'🧓',   sex:'e', gen:'top'},
+ {w:'wɔfa',      en:'uncle',      f:'uncle',       ic:'👨‍🦱', sex:'m', gen:'up'},
+ {w:'sewaa',     en:'aunt',       f:'aunt',        ic:'👩‍🦱', sex:'f', gen:'up'},
+ {w:'nua',       en:'sibling',    f:'sibling',     ic:'🧑',   sex:'e', gen:'same'},
+ {w:'nuabarima', en:'brother',    f:'brother',     ic:'👦',   sex:'m', gen:'same'},
+ {w:'nuabaa',    en:'sister',     f:'sister',      ic:'👧',   sex:'f', gen:'same'},
+ {w:'adamfo',    en:'friend',     f:'friend',      ic:'🤝',   sex:'e', gen:'same', noGen:1},
+ {w:'ɔba',       en:'child',      f:'child',       ic:'🧒',   sex:'e', gen:'down'},
+ {w:'abɔfra',    en:'little child',f:'littlechild',ic:'👶',   sex:'e', gen:'down'},
+ {w:'ɔbarima',   en:'man',        f:'man',         ic:'🧔',   sex:'m', gen:'up', noGen:1},
+ {w:'ɔbaa',      en:'woman',      f:'woman',       ic:'👩‍🦰', sex:'f', gen:'up', noGen:1},
+ {w:'akwakoraa', en:'old man',    f:'oldman',      ic:'👴',   sex:'m', gen:'top'},
+ {w:'aberewa',   en:'old woman',  f:'oldwoman',    ic:'👵',   sex:'f', gen:'top'}
+];
+var SEX=[{k:'m',t:'Ɔbarima',en:'a man',ic:'🧔'},
+         {k:'f',t:'Ɔbaa',   en:'a woman',ic:'👩‍🦰'},
+         {k:'e',t:'Ɛmu biara',en:'either one',ic:'🧑'}];
+var GEN=[{k:'top', t:'Panin',   en:'the oldest', ic:'🧓'},
+         {k:'up',  t:'Awofoɔ',  en:'my parents’ age', ic:'👨'},
+         {k:'same',t:'Me berɛ', en:'my own age', ic:'🧑'},
+         {k:'down',t:'Mmɔfra',  en:'younger than me', ic:'🧒'}];
+
+/* Relationship puzzles. Working out who someone is to you takes real thought,
+   and it is the way family is actually talked about. */
+var RIDDLES=[
+ {q:'My father’s father',            a:'nana',      why:'Your parent’s parent is your nana.'},
+ {q:'My mother’s mother',            a:'nana',      why:'Your parent’s parent is your nana.'},
+ {q:'My father’s brother',           a:'wɔfa',      why:'Your father’s brother is your wɔfa.'},
+ {q:'My mother’s sister',            a:'sewaa',     why:'Your mother’s sister is your sewaa.'},
+ {q:'My mother’s son, not me',       a:'nuabarima', why:'Your mother’s other son is your brother.'},
+ {q:'My father’s daughter, not me',  a:'nuabaa',    why:'Your father’s other daughter is your sister.'},
+ {q:'My nana’s daughter',            a:'maame',     why:'Your grandmother’s daughter can be your own mother.'},
+ {q:'The child my maame carries',      a:'abɔfra',    why:'A very small child is an abɔfra.'},
+ {q:'Not family, but always with me',  a:'adamfo',    why:'A friend is adamfo — chosen, not born.'},
+ {q:'My wɔfa’s wife',                a:'sewaa',     why:'Your uncle’s wife is called sewaa too.'}
+];
+var byF={}; F.forEach(function(x){byF[x.w]=x});
+function sayF(f){var a=new Audio('/audio?f=family/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  var quiz=shuffle(RIDDLES.slice()).slice(0,TOTAL);
+  var at=0,score=0,lock=false,marks=[];
+  var qEl=document.getElementById('q'),optsEl=document.getElementById('opts'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    qEl.innerHTML='<span class="em">🤔</span><span class="lab">Who is this?</span>'
+      +'<span class="huge">'+q.q+'</span>';
+    statusEl.textContent='Answer in Twi.';dots();
+    var pool=F.filter(function(x){return x.w!==q.a&&!x.reg}).map(function(x){return x.w});
+    optsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([q.a])).forEach(function(o){
+      var b=document.createElement('button');b.className='opt';b.type='button';b.textContent=o;
+      b.onclick=function(){answer(b,o,q)};optsEl.appendChild(b)});
+  }
+  function answer(btn,chosen,q){
+    if(lock)return;lock=true;
+    var ok=chosen===q.a;marks[at]=ok;
+    if(ok){score++;btn.classList.add('ok');statusEl.textContent='✅ '+q.a+' — '+q.why}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===q.a)c.classList.add('ok')});
+      statusEl.textContent='❌ It is '+q.a+'. '+q.why}
+    var p=byF[q.a]; if(p)sayF(p.f);
+    dots();at++;setTimeout(show,2500);
+  }
+  function finish(){
+    dots();qEl.innerHTML='<span class="em">🎉</span>';optsEl.innerHTML='';
+    statusEl.textContent='You worked out '+score+' of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

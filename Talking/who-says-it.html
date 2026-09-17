@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Who Says It?</title>
+<!-- Kids_Portal · Talking/who-says-it.html · slug: talk-who -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .line2{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:22px 16px;
+    margin:14px 0;min-height:140px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:7px}
+  .line2 .said{font-size:2rem;font-weight:bold;word-break:break-word}
+  .line2 .en{font-size:.92rem;opacity:.86;font-weight:700}
+  .two2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  .side{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:16px 8px;
+    font-size:1.05rem;font-weight:bold;color:#1f3a2f;font-family:inherit;cursor:pointer;
+    box-shadow:0 5px 0 #7a5a1f}
+  .side .ic{font-size:2.4rem;display:block;line-height:1.1}
+  .side .en{font-size:.74rem;font-weight:700;opacity:.7;display:block}
+  .side.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .side.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🚪 Who Says It?</h1>
+  <span class="sub">The one at home, or the one arriving?</span>
+  <div class="dots" id="dots"></div>
+  <div class="line2" id="line2"></div>
+  <div class="two2" id="sides"></div>
+  <p class="status" id="status"></p>
+  <div class="gramtip">In Akan the host says <b>Akwaaba</b> and the visitor answers
+    <b>Medaase</b>. Knowing which side you are on is half of good manners.</div>
+  <div id="end"></div>
+</div>
+<script>
+var T=[
+ {w:'Wo din de sɛn?', e:'What is your name?',  f:'whatname',  ask:1, pair:'myname'},
+ {w:'Me din de…',     e:'My name is…',         f:'myname'},
+ {w:'Wo ho te sɛn?',  e:'How are you?',        f:'howareyou', ask:1, pair:'imfine'},
+ {w:'Me ho yɛ',       e:'I am fine',           f:'imfine'},
+ {w:'Na wo nso ɛ?',   e:'And you?',            f:'andyou',    ask:1},
+ {w:'Ɛhe na wofiri?', e:'Where are you from?', f:'wherefrom', ask:1, pair:'imfrom'},
+ {w:'Mefiri…',        e:'I am from…',          f:'imfrom'},
+ {w:'Wote he?',       e:'Where do you live?',  f:'wherelive', ask:1, pair:'ilive'},
+ {w:'Mete…',          e:'I live at…',          f:'ilive'},
+ {w:'Medaase',        e:'Thank you',           f:'thanks'},
+ {w:'Mepa wo kyɛw',   e:'Please, excuse me',   f:'please'},
+ {w:'Aane',           e:'Yes',                 f:'yes'},
+ {w:'Daabi',          e:'No',                  f:'no'},
+ {w:'Kafra',          e:'Sorry',               f:'sorry'},
+ {w:'Akwaaba',        e:'Welcome',             f:'welcome'},
+ {w:'Nante yie',      e:'Goodbye, go well',    f:'goodbye'},
+ {w:'Yɛbɛhyia',       e:'See you again',       f:'seeyou'},
+ {w:'Mewɔ…',          e:'I have…',             f:'ihave'},
+ {w:'Mepɛ…',          e:'I like…',             f:'ilike'}
+];
+var byF={}; T.forEach(function(x){byF[x.f]=x});
+
+/* Whole conversations, in their true order. Scrambling these is far harder
+   than matching single phrases, because the learner must hold the shape of a
+   meeting in their head. */
+var CONVOS=[
+ {title:'A visitor arrives',
+  lines:['welcome','thanks','whatname','myname','howareyou','imfine']},
+ {title:'Meeting a stranger',
+  lines:['whatname','myname','wherefrom','imfrom','wherelive','ilive']},
+ {title:'Saying goodbye',
+  lines:['howareyou','imfine','andyou','goodbye','seeyou','thanks']},
+ {title:'A small mistake',
+  lines:['sorry','thanks','howareyou','imfine','goodbye','seeyou']}
+];
+
+/* Who speaks first in a meeting: the one at home, or the one arriving. */
+var SPEAKER=[
+ {f:'welcome', who:'host',    why:'The person at home welcomes the visitor.'},
+ {f:'thanks',  who:'visitor', why:'The visitor thanks them for the welcome.'},
+ {f:'sorry',   who:'visitor', why:'The one who made the mistake says kafra.'},
+ {f:'please',  who:'visitor', why:'The one asking for something says mepa wo kyɛw.'},
+ {f:'goodbye', who:'host',    why:'The one staying tells the other to go well.'},
+ {f:'seeyou',  who:'visitor', why:'The one leaving says they will meet again.'}
+];
+
+function sayT(f){var a=new Audio('/audio?f=talking/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var quiz=shuffle(SPEAKER.slice());
+  var TOTAL=quiz.length;
+  var SIDES=[{k:'host',t:'Ɔwura',en:'the one at home',ic:'🏠'},
+             {k:'visitor',t:'Ɔhɔhoɔ',en:'the one arriving',ic:'🚶'}];
+  var at=0,score=0,lock=false,marks=[];
+  var lineEl=document.getElementById('line2'),sidesEl=document.getElementById('sides'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at],p=byF[q.f];
+    lineEl.innerHTML='<span class="said">'+p.w+'</span><span class="en">'+p.e+'</span>';
+    statusEl.textContent='Who would say this?';dots();sayT(p.f);
+    sidesEl.innerHTML='';
+    SIDES.forEach(function(s){
+      var b=document.createElement('button');b.className='side';b.type='button';b.dataset.k=s.k;
+      b.innerHTML='<span class="ic">'+s.ic+'</span>'+s.t+'<span class="en">'+s.en+'</span>';
+      b.onclick=function(){answer(b,s,q,p)};sidesEl.appendChild(b);
+    });
+  }
+  function answer(btn,s,q,p){
+    if(lock)return;lock=true;
+    var ok=s.k===q.who;marks[at]=ok;
+    if(ok){score++;btn.classList.add('ok');statusEl.textContent='✅ '+q.why}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(sidesEl.children,function(c){
+        if(c.dataset.k===q.who)c.classList.add('ok')});
+      statusEl.textContent='❌ '+q.why}
+    dots();at++;setTimeout(show,2300);
+  }
+  function finish(){
+    dots();lineEl.innerHTML='<span class="said">🎉</span>';sidesEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(Math.max(2,score+2),TOTAL+2);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

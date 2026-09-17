@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ask the Question</title>
+<!-- Kids_Portal · Talking/ask-the-question.html · slug: talk-backwards -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .ans{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:22px 16px;
+    margin:14px 0;min-height:150px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:8px}
+  .ans .em{font-size:2.6rem;line-height:1}
+  .ans .said{font-size:1.9rem;font-weight:bold;word-break:break-word}
+  .ans .en{font-size:.92rem;opacity:.86;font-weight:700}
+  .ans .lab{font-size:.78rem;opacity:.75;font-weight:800;letter-spacing:.1em;
+    text-transform:uppercase}
+  .opt{text-align:left}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>❓ Ask the Question</h1>
+  <span class="sub">You hear the answer. What was asked?</span>
+  <div class="dots" id="dots"></div>
+  <div class="ans" id="ans"></div>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div class="gramtip">Working backwards is harder than forwards — and it is what
+    you must do in a real conversation.</div>
+  <div id="end"></div>
+</div>
+<script>
+var T=[
+ {w:'Wo din de sɛn?', e:'What is your name?',  f:'whatname',  ask:1, pair:'myname'},
+ {w:'Me din de…',     e:'My name is…',         f:'myname'},
+ {w:'Wo ho te sɛn?',  e:'How are you?',        f:'howareyou', ask:1, pair:'imfine'},
+ {w:'Me ho yɛ',       e:'I am fine',           f:'imfine'},
+ {w:'Na wo nso ɛ?',   e:'And you?',            f:'andyou',    ask:1},
+ {w:'Ɛhe na wofiri?', e:'Where are you from?', f:'wherefrom', ask:1, pair:'imfrom'},
+ {w:'Mefiri…',        e:'I am from…',          f:'imfrom'},
+ {w:'Wote he?',       e:'Where do you live?',  f:'wherelive', ask:1, pair:'ilive'},
+ {w:'Mete…',          e:'I live at…',          f:'ilive'},
+ {w:'Medaase',        e:'Thank you',           f:'thanks'},
+ {w:'Mepa wo kyɛw',   e:'Please, excuse me',   f:'please'},
+ {w:'Aane',           e:'Yes',                 f:'yes'},
+ {w:'Daabi',          e:'No',                  f:'no'},
+ {w:'Kafra',          e:'Sorry',               f:'sorry'},
+ {w:'Akwaaba',        e:'Welcome',             f:'welcome'},
+ {w:'Nante yie',      e:'Goodbye, go well',    f:'goodbye'},
+ {w:'Yɛbɛhyia',       e:'See you again',       f:'seeyou'},
+ {w:'Mewɔ…',          e:'I have…',             f:'ihave'},
+ {w:'Mepɛ…',          e:'I like…',             f:'ilike'}
+];
+var byF={}; T.forEach(function(x){byF[x.f]=x});
+
+/* Whole conversations, in their true order. Scrambling these is far harder
+   than matching single phrases, because the learner must hold the shape of a
+   meeting in their head. */
+var CONVOS=[
+ {title:'A visitor arrives',
+  lines:['welcome','thanks','whatname','myname','howareyou','imfine']},
+ {title:'Meeting a stranger',
+  lines:['whatname','myname','wherefrom','imfrom','wherelive','ilive']},
+ {title:'Saying goodbye',
+  lines:['howareyou','imfine','andyou','goodbye','seeyou','thanks']},
+ {title:'A small mistake',
+  lines:['sorry','thanks','howareyou','imfine','goodbye','seeyou']}
+];
+
+/* Who speaks first in a meeting: the one at home, or the one arriving. */
+var SPEAKER=[
+ {f:'welcome', who:'host',    why:'The person at home welcomes the visitor.'},
+ {f:'thanks',  who:'visitor', why:'The visitor thanks them for the welcome.'},
+ {f:'sorry',   who:'visitor', why:'The one who made the mistake says kafra.'},
+ {f:'please',  who:'visitor', why:'The one asking for something says mepa wo kyɛw.'},
+ {f:'goodbye', who:'host',    why:'The one staying tells the other to go well.'},
+ {f:'seeyou',  who:'visitor', why:'The one leaving says they will meet again.'}
+];
+
+function sayT(f){var a=new Audio('/audio?f=talking/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  /* Backwards: the answer is given, the question must be found. Harder than
+     the usual direction, and closer to real listening. */
+  var asks=T.filter(function(x){return x.ask&&x.pair});
+  var quiz=[];
+  for(var i=0;i<TOTAL;i++) quiz.push(asks[i%asks.length]);
+  quiz=shuffle(quiz);
+  var at=0,score=0,lock=false,marks=[];
+  var ansEl=document.getElementById('ans'),optsEl=document.getElementById('opts'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at],a=byF[q.pair];
+    ansEl.innerHTML='<span class="em">🧑</span><span class="lab">She answered</span>'
+      +'<span class="said">'+a.w+'</span><span class="en">'+a.e+'</span>';
+    statusEl.textContent='What did you ask her?';dots();sayT(a.f);
+    var pool=T.filter(function(x){return x.ask&&x.f!==q.f}).map(function(x){return x.w});
+    optsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([q.w])).forEach(function(o){
+      var b=document.createElement('button');b.className='opt';b.type='button';b.textContent=o;
+      b.onclick=function(){answer(b,o,q,a)};optsEl.appendChild(b)});
+  }
+  function answer(btn,chosen,q,a){
+    if(lock)return;lock=true;
+    var ok=chosen===q.w;marks[at]=ok;
+    if(ok){score++;btn.classList.add('ok');
+      statusEl.textContent='✅ '+q.w+' → '+a.w}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===q.w)c.classList.add('ok')});
+      statusEl.textContent='❌ You asked: '+q.w+' — '+q.e}
+    sayT(q.f);dots();at++;setTimeout(show,2200);
+  }
+  function finish(){
+    dots();ansEl.innerHTML='<span class="em">🎉</span>';optsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

@@ -3,155 +3,155 @@
 "c": 1,
 "w": "Akoma",
 "e": "heart",
-"d": "twi-alphabet",
-"f": "letter-a"
+"d": "alphabet-words",
+"f": "akoma"
 },
 {
 "c": 1,
 "w": "Bankye",
 "e": "cassava",
-"d": "twi-alphabet",
-"f": "letter-b"
+"d": "alphabet-words",
+"f": "bankye"
 },
 {
 "c": 1,
 "w": "Dadeɛ",
 "e": "metal",
-"d": "twi-alphabet",
-"f": "letter-d"
+"d": "alphabet-words",
+"f": "dadee"
 },
 {
 "c": 1,
 "w": "Ekuro",
 "e": "wound",
-"d": "twi-alphabet",
-"f": "letter-e"
+"d": "alphabet-words",
+"f": "ekuro"
 },
 {
 "c": 1,
 "w": "Ɛkɔm",
 "e": "hunger",
-"d": "twi-alphabet",
-"f": "letter-ɛ"
+"d": "alphabet-words",
+"f": "ekom"
 },
 {
 "c": 1,
 "w": "Fitaa",
 "e": "white",
-"d": "twi-alphabet",
-"f": "letter-f"
+"d": "alphabet-words",
+"f": "fitaa"
 },
 {
 "c": 1,
 "w": "Gogo",
 "e": "loose",
-"d": "twi-alphabet",
-"f": "letter-g"
+"d": "alphabet-words",
+"f": "gogo"
 },
 {
 "c": 1,
 "w": "Hunu",
 "e": "see",
-"d": "twi-alphabet",
-"f": "letter-h"
+"d": "alphabet-words",
+"f": "hunu"
 },
 {
 "c": 1,
 "w": "Di",
 "e": "eat",
-"d": "twi-alphabet",
-"f": "letter-i"
+"d": "alphabet-words",
+"f": "di"
 },
 {
 "c": 1,
 "w": "Kuruwa",
 "e": "cup",
-"d": "twi-alphabet",
-"f": "letter-k"
+"d": "alphabet-words",
+"f": "kuruwa"
 },
 {
 "c": 1,
 "w": "Lɔre",
 "e": "lorry",
-"d": "twi-alphabet",
-"f": "letter-l"
+"d": "alphabet-words",
+"f": "lore"
 },
 {
 "c": 1,
 "w": "Mukaase",
 "e": "kitchen",
-"d": "twi-alphabet",
-"f": "letter-m"
+"d": "alphabet-words",
+"f": "mukaase"
 },
 {
 "c": 1,
 "w": "Nante",
 "e": "walk",
-"d": "twi-alphabet",
-"f": "letter-n"
+"d": "alphabet-words",
+"f": "nante"
 },
 {
 "c": 1,
 "w": "Osuro",
 "e": "fear",
-"d": "twi-alphabet",
-"f": "letter-o"
+"d": "alphabet-words",
+"f": "osuro"
 },
 {
 "c": 1,
 "w": "Ɔwɔ",
 "e": "snake",
-"d": "twi-alphabet",
-"f": "letter-ɔ"
+"d": "alphabet-words",
+"f": "owo"
 },
 {
 "c": 1,
 "w": "Pra",
 "e": "sweep",
-"d": "twi-alphabet",
-"f": "letter-p"
+"d": "alphabet-words",
+"f": "pra"
 },
 {
 "c": 1,
 "w": "Raw",
 "e": "scratch",
-"d": "twi-alphabet",
-"f": "letter-r"
+"d": "alphabet-words",
+"f": "raw"
 },
 {
 "c": 1,
 "w": "Samina",
 "e": "soap",
-"d": "twi-alphabet",
-"f": "letter-s"
+"d": "alphabet-words",
+"f": "samina"
 },
 {
 "c": 1,
 "w": "Tafere",
 "e": "lick",
-"d": "twi-alphabet",
-"f": "letter-t"
+"d": "alphabet-words",
+"f": "tafere"
 },
 {
 "c": 1,
 "w": "Wukuada",
 "e": "Wednesday",
-"d": "twi-alphabet",
-"f": "letter-u"
+"d": "alphabet-words",
+"f": "wukuada"
 },
 {
 "c": 1,
 "w": "Wie",
 "e": "finish",
-"d": "twi-alphabet",
-"f": "letter-w"
+"d": "alphabet-words",
+"f": "wie"
 },
 {
 "c": 1,
 "w": "Yoma",
 "e": "camel",
-"d": "twi-alphabet",
-"f": "letter-y"
+"d": "alphabet-words",
+"f": "yoma"
 },
 {
 "c": 2,
@@ -443,84 +443,84 @@
 {
 "c": 4,
 "w": "abɔ nnɔnkoro",
-"e": "1 oclock",
+"e": "1 o'clock",
 "d": "time",
 "f": "oneoclock"
 },
 {
 "c": 4,
 "w": "abɔ nnɔnmienu",
-"e": "2 oclock",
+"e": "2 o'clock",
 "d": "time",
 "f": "twooclock"
 },
 {
 "c": 4,
 "w": "abɔ nnɔnmiensa",
-"e": "3 oclock",
+"e": "3 o'clock",
 "d": "time",
 "f": "threeoclock"
 },
 {
 "c": 4,
 "w": "abɔ nnɔnnan",
-"e": "4 oclock",
+"e": "4 o'clock",
 "d": "time",
 "f": "fouroclock"
 },
 {
 "c": 4,
 "w": "abɔ nnɔnnum",
-"e": "5 oclock",
+"e": "5 o'clock",
 "d": "time",
 "f": "fiveoclock"
 },
 {
 "c": 4,
 "w": "abɔ nnɔnsia",
-"e": "6 oclock",
+"e": "6 o'clock",
 "d": "time",
 "f": "sixoclock"
 },
 {
 "c": 4,
 "w": "abɔ nnɔnson",
-"e": "7 oclock",
+"e": "7 o'clock",
 "d": "time",
 "f": "sevenoclock"
 },
 {
 "c": 4,
 "w": "abɔ nnɔnwɔtwe",
-"e": "8 oclock",
+"e": "8 o'clock",
 "d": "time",
 "f": "eightoclock"
 },
 {
 "c": 4,
 "w": "abɔ nnɔnkron",
-"e": "9 oclock",
+"e": "9 o'clock",
 "d": "time",
 "f": "nineoclock"
 },
 {
 "c": 4,
 "w": "abɔ nnɔndu",
-"e": "10 oclock",
+"e": "10 o'clock",
 "d": "time",
 "f": "tenoclock"
 },
 {
 "c": 4,
 "w": "abɔ nnɔndubaako",
-"e": "11 oclock",
+"e": "11 o'clock",
 "d": "time",
 "f": "elevenoclock"
 },
 {
 "c": 4,
 "w": "abɔ nnɔndummienu",
-"e": "12 oclock",
+"e": "12 o'clock",
 "d": "time",
 "f": "twelveoclock"
 },
@@ -1121,6 +1121,55 @@
 },
 {
 "c": 10,
+"w": "me",
+"e": "I",
+"d": "verbs",
+"f": "me"
+},
+{
+"c": 10,
+"w": "wo",
+"e": "you",
+"d": "verbs",
+"f": "wo"
+},
+{
+"c": 10,
+"w": "ɔno",
+"e": "he / she",
+"d": "verbs",
+"f": "ono"
+},
+{
+"c": 10,
+"w": "yɛn",
+"e": "we",
+"d": "verbs",
+"f": "yen"
+},
+{
+"c": 10,
+"w": "mo",
+"e": "you all",
+"d": "verbs",
+"f": "mo"
+},
+{
+"c": 10,
+"w": "wɔn",
+"e": "they",
+"d": "verbs",
+"f": "won"
+},
+{
+"c": 10,
+"w": "ɛno",
+"e": "it",
+"d": "verbs",
+"f": "eno"
+},
+{
+"c": 10,
 "w": "didi",
 "e": "eat",
 "d": "verbs",
@@ -1174,55 +1223,6 @@
 "e": "bath",
 "d": "verbs",
 "f": "dware"
-},
-{
-"c": 10,
-"w": "me",
-"e": "I",
-"d": "verbs",
-"f": "me"
-},
-{
-"c": 10,
-"w": "wo",
-"e": "you",
-"d": "verbs",
-"f": "wo"
-},
-{
-"c": 10,
-"w": "ɔno",
-"e": "he / she",
-"d": "verbs",
-"f": "ono"
-},
-{
-"c": 10,
-"w": "yɛn",
-"e": "we",
-"d": "verbs",
-"f": "yen"
-},
-{
-"c": 10,
-"w": "mo",
-"e": "you (all)",
-"d": "verbs",
-"f": "mo"
-},
-{
-"c": 10,
-"w": "wɔn",
-"e": "they",
-"d": "verbs",
-"f": "won"
-},
-{
-"c": 10,
-"w": "ɛno",
-"e": "it",
-"d": "verbs",
-"f": "eno"
 },
 {
 "c": 11,
@@ -1356,160 +1356,6 @@
 "e": "I like…",
 "d": "talking",
 "f": "ilike"
-},
-{
-"c": 1,
-"w": "Akoma",
-"e": "heart",
-"d": "alphabet-words",
-"f": "akoma"
-},
-{
-"c": 1,
-"w": "Bankye",
-"e": "cassava",
-"d": "alphabet-words",
-"f": "bankye"
-},
-{
-"c": 1,
-"w": "Dadeɛ",
-"e": "metal",
-"d": "alphabet-words",
-"f": "dadee"
-},
-{
-"c": 1,
-"w": "Ekuro",
-"e": "wound",
-"d": "alphabet-words",
-"f": "ekuro"
-},
-{
-"c": 1,
-"w": "Ɛkɔm",
-"e": "hunger",
-"d": "alphabet-words",
-"f": "ekom"
-},
-{
-"c": 1,
-"w": "Fitaa",
-"e": "white",
-"d": "alphabet-words",
-"f": "fitaa"
-},
-{
-"c": 1,
-"w": "Gogo",
-"e": "loose",
-"d": "alphabet-words",
-"f": "gogo"
-},
-{
-"c": 1,
-"w": "Hunu",
-"e": "see",
-"d": "alphabet-words",
-"f": "hunu"
-},
-{
-"c": 1,
-"w": "Di",
-"e": "eat",
-"d": "alphabet-words",
-"f": "di"
-},
-{
-"c": 1,
-"w": "Kuruwa",
-"e": "cup",
-"d": "alphabet-words",
-"f": "kuruwa"
-},
-{
-"c": 1,
-"w": "Lɔre",
-"e": "lorry",
-"d": "alphabet-words",
-"f": "lore"
-},
-{
-"c": 1,
-"w": "Mukaase",
-"e": "kitchen",
-"d": "alphabet-words",
-"f": "mukaase"
-},
-{
-"c": 1,
-"w": "Nante",
-"e": "walk",
-"d": "alphabet-words",
-"f": "nante"
-},
-{
-"c": 1,
-"w": "Osuro",
-"e": "fear",
-"d": "alphabet-words",
-"f": "osuro"
-},
-{
-"c": 1,
-"w": "Ɔwɔ",
-"e": "snake",
-"d": "alphabet-words",
-"f": "owo"
-},
-{
-"c": 1,
-"w": "Pra",
-"e": "sweep",
-"d": "alphabet-words",
-"f": "pra"
-},
-{
-"c": 1,
-"w": "Raw",
-"e": "scratch",
-"d": "alphabet-words",
-"f": "raw"
-},
-{
-"c": 1,
-"w": "Samina",
-"e": "soap",
-"d": "alphabet-words",
-"f": "samina"
-},
-{
-"c": 1,
-"w": "Tafere",
-"e": "lick",
-"d": "alphabet-words",
-"f": "tafere"
-},
-{
-"c": 1,
-"w": "Wukuada",
-"e": "Wednesday",
-"d": "alphabet-words",
-"f": "wukuada"
-},
-{
-"c": 1,
-"w": "Wie",
-"e": "finish",
-"d": "alphabet-words",
-"f": "wie"
-},
-{
-"c": 1,
-"w": "Yoma",
-"e": "camel",
-"d": "alphabet-words",
-"f": "yoma"
 },
 {
 "c": 12,
@@ -1909,5 +1755,271 @@
 "e": "old",
 "d": "house",
 "f": "old"
+},
+{
+"c": 14,
+"w": "du baako",
+"e": "eleven",
+"d": "big-numbers",
+"f": "eleven"
+},
+{
+"c": 14,
+"w": "du mmienu",
+"e": "twelve",
+"d": "big-numbers",
+"f": "twelve"
+},
+{
+"c": 14,
+"w": "du mmiensa",
+"e": "thirteen",
+"d": "big-numbers",
+"f": "thirteen"
+},
+{
+"c": 14,
+"w": "du nnan",
+"e": "fourteen",
+"d": "big-numbers",
+"f": "fourteen"
+},
+{
+"c": 14,
+"w": "du nnum",
+"e": "fifteen",
+"d": "big-numbers",
+"f": "fifteen"
+},
+{
+"c": 14,
+"w": "du nsia",
+"e": "sixteen",
+"d": "big-numbers",
+"f": "sixteen"
+},
+{
+"c": 14,
+"w": "du nson",
+"e": "seventeen",
+"d": "big-numbers",
+"f": "seventeen"
+},
+{
+"c": 14,
+"w": "du nwɔtwe",
+"e": "eighteen",
+"d": "big-numbers",
+"f": "eighteen"
+},
+{
+"c": 14,
+"w": "du nkron",
+"e": "nineteen",
+"d": "big-numbers",
+"f": "nineteen"
+},
+{
+"c": 14,
+"w": "aduonu",
+"e": "twenty",
+"d": "big-numbers",
+"f": "twenty"
+},
+{
+"c": 14,
+"w": "aduasa",
+"e": "thirty",
+"d": "big-numbers",
+"f": "thirty"
+},
+{
+"c": 14,
+"w": "aduanan",
+"e": "forty",
+"d": "big-numbers",
+"f": "forty"
+},
+{
+"c": 14,
+"w": "aduonum",
+"e": "fifty",
+"d": "big-numbers",
+"f": "fifty"
+},
+{
+"c": 14,
+"w": "aduosia",
+"e": "sixty",
+"d": "big-numbers",
+"f": "sixty"
+},
+{
+"c": 14,
+"w": "aduoson",
+"e": "seventy",
+"d": "big-numbers",
+"f": "seventy"
+},
+{
+"c": 14,
+"w": "aduowɔtwe",
+"e": "eighty",
+"d": "big-numbers",
+"f": "eighty"
+},
+{
+"c": 14,
+"w": "aduokron",
+"e": "ninety",
+"d": "big-numbers",
+"f": "ninety"
+},
+{
+"c": 14,
+"w": "ɔha",
+"e": "a hundred",
+"d": "big-numbers",
+"f": "hundred"
+},
+{
+"c": 15,
+"w": "Meretɔ…",
+"e": "I'm buying…",
+"d": "market",
+"f": "imbuying"
+},
+{
+"c": 15,
+"w": "Mepɛ…",
+"e": "I want…",
+"d": "market",
+"f": "iwant"
+},
+{
+"c": 15,
+"w": "Wɔwɔ…?",
+"e": "Do you have…?",
+"d": "market",
+"f": "doyouhave"
+},
+{
+"c": 15,
+"w": "Aane, mewɔ bi",
+"e": "Yes, I have some",
+"d": "market",
+"f": "yesihave"
+},
+{
+"c": 15,
+"w": "Dabi, menni bi",
+"e": "No, I don't have",
+"d": "market",
+"f": "nodonthave"
+},
+{
+"c": 15,
+"w": "wei",
+"e": "this",
+"d": "market",
+"f": "this"
+},
+{
+"c": 15,
+"w": "wei yɛ",
+"e": "this is",
+"d": "market",
+"f": "thisis"
+},
+{
+"c": 15,
+"w": "Wei yɛ sɛn?",
+"e": "How much is this?",
+"d": "market",
+"f": "howmuchthis"
+},
+{
+"c": 15,
+"w": "Ne boɔ yɛ sɛn?",
+"e": "How much does it cost?",
+"d": "market",
+"f": "howmuchcost"
+},
+{
+"c": 15,
+"w": "Ɛyɛ sɛn?",
+"e": "How much?",
+"d": "market",
+"f": "howmuch"
+},
+{
+"c": 15,
+"w": "Ne boɔ yɛ den",
+"e": "It is expensive",
+"d": "market",
+"f": "expensive"
+},
+{
+"c": 15,
+"w": "Ne boɔ yɛ den dodo",
+"e": "It is too expensive",
+"d": "market",
+"f": "tooexpensive"
+},
+{
+"c": 15,
+"w": "Mepa wo kyɛw, te so",
+"e": "Please, reduce it",
+"d": "market",
+"f": "reduce"
+},
+{
+"c": 15,
+"w": "Mɛma wo…",
+"e": "I will give you…",
+"d": "market",
+"f": "illgive"
+},
+{
+"c": 15,
+"w": "Mɛtɔ wei",
+"e": "I'll take this",
+"d": "market",
+"f": "illtake"
+},
+{
+"c": 15,
+"w": "Medaase",
+"e": "Thank you",
+"d": "market",
+"f": "thanks"
+},
+{
+"c": 15,
+"w": "Merekɔ",
+"e": "I am going",
+"d": "market",
+"f": "imgoing"
+},
+{
+"c": 15,
+"w": "sika",
+"e": "money",
+"d": "market",
+"f": "money"
+},
+{
+"c": 15,
+"w": "sidi",
+"e": "cedi",
+"d": "market",
+"f": "cedi"
+},
+{
+"c": 15,
+"w": "pesewa",
+"e": "pesewa",
+"d": "market",
+"f": "pesewa"
 }
 ]

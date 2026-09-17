@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Who Am I?</title>
+<!-- Kids_Portal · Animals/who-am-i.html · slug: animal-riddle -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .riddle{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:22px 18px;
+    margin:14px 0;min-height:160px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:10px}
+  .riddle .em{font-size:2.6rem;line-height:1}
+  .riddle .txt{font-size:1.3rem;line-height:1.45;max-width:420px;font-weight:bold}
+  .riddle .facts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+  .riddle .fact{background:rgba(255,255,255,.16);border-radius:30px;padding:4px 13px;
+    font-size:.82rem;font-weight:700}
+  .picks{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:6px}
+  .pk{background:#fff;border:4px solid #b48b3a;border-radius:20px;padding:12px 6px;cursor:pointer;
+    font-family:inherit;box-shadow:0 5px 0 #7a5a1f;text-align:center}
+  .pk .ic{font-size:2.3rem;display:block;line-height:1}
+  .pk .w{font-size:.88rem;font-weight:bold;color:#492f16;margin-top:3px;word-break:break-word}
+  .pk.ok{background:#14563A;border-color:#0d3a26}
+  .pk.ok .w{color:#fff}
+  .pk.no{background:#A81B1B;border-color:#6E1111;animation:shake .35s}
+  .pk.no .w{color:#fff}
+  @media(min-width:520px){.picks{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🕵️ Who Am I?</h1>
+  <span class="sub">Read the clue, then find me</span>
+  <div class="dots" id="dots"></div>
+  <div class="riddle" id="riddle"></div>
+  <div class="picks" id="picks"></div>
+  <p class="status" id="status"></p>
+  <div id="end"></div>
+</div>
+<script>
+var A=[
+ {w:'akokɔ',     en:'chicken',   f:'chicken',   ic:'🐔', move:'walk', legs:2, size:3, home:'farm'},
+ {w:'odwan',     en:'sheep',     f:'sheep',     ic:'🐑', move:'walk', legs:4, size:5, home:'farm'},
+ {w:'abirekyie', en:'goat',      f:'goat',      ic:'🐐', move:'walk', legs:4, size:5, home:'farm'},
+ {w:'nantwie',   en:'cow',       f:'cow',       ic:'🐄', move:'walk', legs:4, size:7, home:'farm'},
+ {w:'prako',     en:'pig',       f:'pig',       ic:'🐖', move:'walk', legs:4, size:5, home:'farm'},
+ {w:'pɔnkɔ',     en:'horse',     f:'horse',     ic:'🐎', move:'walk', legs:4, size:7, home:'farm'},
+ {w:'kraman',    en:'dog',       f:'dog',       ic:'🐕', move:'walk', legs:4, size:4, home:'farm'},
+ {w:'agyinamoa', en:'cat',       f:'cat',       ic:'🐈', move:'walk', legs:4, size:3, home:'farm'},
+ {w:'gyata',     en:'lion',      f:'lion',      ic:'🦁', move:'walk', legs:4, size:7, home:'bush'},
+ {w:'ɔsono',     en:'elephant',  f:'elephant',  ic:'🐘', move:'walk', legs:4, size:9, home:'bush'},
+ {w:'adoe',      en:'monkey',    f:'monkey',    ic:'🐒', move:'walk', legs:4, size:4, home:'bush'},
+ {w:'akyekyedeɛ',en:'tortoise',  f:'tortoise',  ic:'🐢', move:'walk', legs:4, size:3, home:'bush'},
+ {w:'ɔwɔ',       en:'snake',     f:'snake',     ic:'🐍', move:'crawl',legs:0, size:4, home:'bush'},
+ {w:'adanko',    en:'rabbit',    f:'rabbit',    ic:'🐇', move:'walk', legs:4, size:3, home:'bush'},
+ {w:'kɔtɔkɔ',    en:'porcupine', f:'porcupine', ic:'🦔', move:'walk', legs:4, size:3, home:'bush'},
+ {w:'ɔdɛnkyɛm',  en:'crocodile', f:'crocodile', ic:'🐊', move:'swim', legs:4, size:7, home:'water'},
+ {w:'anomaa',    en:'bird',      f:'bird',      ic:'🐦', move:'fly',  legs:2, size:2, home:'sky'},
+ {w:'akorɔma',   en:'hawk',      f:'hawk',      ic:'🦅', move:'fly',  legs:2, size:4, home:'sky'},
+ {w:'ananse',    en:'spider',    f:'spider',    ic:'🕷️', move:'crawl',legs:8, size:1, home:'house'},
+ {w:'ntontom',   en:'mosquito',  f:'mosquito',  ic:'🦟', move:'fly',  legs:6, size:1, home:'house'},
+ {w:'nwansena',  en:'housefly',  f:'housefly',  ic:'🪰', move:'fly',  legs:6, size:1, home:'house'},
+ {w:'kɔtɔ',      en:'crab',      f:'crab',      ic:'🦀', move:'crawl',legs:8, size:2, home:'water'},
+ {w:'nsuomnam',  en:'fish',      f:'fish',      ic:'🐟', move:'swim', legs:0, size:2, home:'water'},
+ {w:'akura',     en:'mouse',     f:'mouse',     ic:'🐁', move:'walk', legs:4, size:1, home:'house'}
+];
+var MOVE=[
+ {k:'walk', t:'Ɛnante',  en:'it walks',  ic:'🚶'},
+ {k:'fly',  t:'Ɛtu',     en:'it flies',  ic:'🕊️'},
+ {k:'swim', t:'Ɛdware',  en:'it swims',  ic:'🌊'},
+ {k:'crawl',t:'Ɛwea',    en:'it crawls', ic:'〰️'}
+];
+/* One true, distinctive fact per animal, so a riddle has exactly one answer.
+   These are the things a Ghanaian child would say about them. */
+var CLUE={
+ 'akokɔ':'I wake the whole house at dawn',
+ 'odwan':'My coat is wool, and people make blankets from it',
+ 'abirekyie':'I have a beard and I climb on anything',
+ 'nantwie':'People drink my milk',
+ 'prako':'I love to roll in the mud',
+ 'pɔnkɔ':'People ride on my back',
+ 'kraman':'I guard the house and I am your friend',
+ 'agyinamoa':'I catch mice and I purr',
+ 'gyata':'They call me the king of the bush',
+ 'ɔsono':'I am the biggest, and my nose is long',
+ 'adoe':'I swing in the trees and I love bananas',
+ 'akyekyedeɛ':'I carry my house on my back',
+ 'ɔwɔ':'I have no legs at all, and I hiss',
+ 'adanko':'My ears are long and I hop',
+ 'kɔtɔkɔ':'My back is full of sharp spines',
+ 'ɔdɛnkyɛm':'I wait in the river with big teeth',
+ 'anomaa':'I sing in the morning and build a nest',
+ 'akorɔma':'I circle high up and swoop on chickens',
+ 'ananse':'I have eight legs and a hundred stories',
+ 'ntontom':'I bite you at night and you scratch',
+ 'nwansena':'I sit on the food and you wave me away',
+ 'kɔtɔ':'I walk sideways and I have claws',
+ 'nsuomnam':'I live in water and I never close my eyes',
+ 'akura':'I am small and grey, and the cat wants me'
+};
+var byA={}; A.forEach(function(x){byA[x.w]=x});
+var ANUM={0:'hwee',2:'mmienu',4:'ɛnan',6:'nsia',8:'nwɔtwe'};
+function sayA(f){var a=new Audio('/audio?f=animals/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  var quiz=shuffle(A.slice()).slice(0,TOTAL);
+  var at=0,score=0,lock=false,marks=[];
+  var ridEl=document.getElementById('riddle'),picksEl=document.getElementById('picks'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function legWord(n){ return n===0?'no legs':(n+' legs') }
+  function moveWord(k){
+    var m=MOVE.filter(function(x){return x.k===k})[0]; return m?m.en:k;
+  }
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    ridEl.innerHTML='<span class="em">❓</span>'
+      +'<span class="txt">"'+CLUE[q.w]+'."</span>'
+      +'<span class="facts"><span class="fact">'+legWord(q.legs)+'</span>'
+      +'<span class="fact">'+moveWord(q.move)+'</span></span>';
+    statusEl.textContent='Who am I?';dots();
+    /* Distractors share a trait with the answer, so the clue has to be read
+       rather than guessed from the pictures. */
+    var near=A.filter(function(x){
+      return x.w!==q.w && (x.home===q.home||x.legs===q.legs||x.move===q.move)});
+    if(near.length<3)near=A.filter(function(x){return x.w!==q.w});
+    var opts=shuffle(near.slice()).slice(0,3).concat([q]);
+    picksEl.innerHTML='';
+    shuffle(opts).forEach(function(x){
+      var b=document.createElement('button');b.className='pk';b.type='button';b.dataset.w=x.w;
+      b.innerHTML='<span class="ic">'+x.ic+'</span><span class="w">'+x.w+'</span>';
+      b.onclick=function(){answer(b,x,q)};picksEl.appendChild(b);
+    });
+  }
+  function answer(btn,x,q){
+    if(lock)return;lock=true;
+    var ok=x.w===q.w;marks[at]=ok;
+    if(ok){score++;btn.classList.add('ok');statusEl.textContent='✅ '+q.w+' — '+q.en}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(picksEl.children,function(c){
+        if(c.dataset.w===q.w)c.classList.add('ok')});
+      statusEl.textContent='❌ It was '+q.w+' — '+q.en+'.'}
+    sayA(q.f);dots();at++;setTimeout(show,2200);
+  }
+  function finish(){
+    dots();ridEl.innerHTML='<span class="em">🎉</span>';picksEl.innerHTML='';
+    statusEl.textContent='You solved '+score+' of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Plan the Journey</title>
+<!-- Kids_Portal · Travel/plan-the-journey.html · slug: trv-plan -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .steps{display:flex;flex-direction:column;gap:7px;align-items:center;margin:14px 0;
+    background:#EFE7D7;border:5px solid #14563A;border-radius:26px;padding:14px 10px}
+  .rung{width:100%;max-width:340px;min-height:52px;border-radius:16px;background:#fff;
+    border:3px dashed #597b8f;display:flex;align-items:center;gap:10px;padding:8px 12px;
+    font-size:1rem;font-weight:bold;color:#003153}
+  .rung.filled{background:#C8901E;color:#fff;border:3px solid #14563A}
+  .rung .ic{font-size:1.6rem}
+  .rung .n{font-size:.78rem;opacity:.75}
+  .pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .tile{background:#fef7e6;border:4px solid #b48b3a;border-radius:20px;padding:10px 14px;
+    font-size:.98rem;font-weight:bold;color:#1f3a2f;font-family:inherit;cursor:pointer;
+    box-shadow:0 5px 0 #7a5a1f;display:flex;align-items:center;gap:6px}
+  .tile.gone{opacity:.22;pointer-events:none}
+  .tile.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🧳 Plan the Journey</h1>
+  <span class="sub">What comes first, and what last?</span>
+  <div class="steps" id="steps"></div>
+  <div class="pool" id="pool"></div>
+  <p class="status" id="status">What do you need before you can travel at all?</p>
+  <div class="gramtip">Passport, ticket, luggage, airport, aeroplane —
+    that is the order of any journey abroad.</div>
+  <div id="end"></div>
+</div>
+<script>
+var T=[
+ {w:'akwantuo',          e:'journey, travel', f:'journey',   g:'ride',  ic:'🗺️'},
+ {w:'wiemhyɛn',          e:'airplane',        f:'plane',     g:'ride',  ic:'✈️'},
+ {w:'wiemhyɛn gyinabea', e:'airport',         f:'airport',   g:'place', ic:'🛫'},
+ {w:'bɔso',              e:'bus',             f:'bus',       g:'ride',  ic:'🚌'},
+ {w:'keteke',            e:'train',           f:'train',     g:'ride',  ic:'🚆'},
+ {w:'hyɛn',              e:'ship, boat',      f:'boat',      g:'ride',  ic:'🚢'},
+ {w:'taksi',             e:'taxi',            f:'taxi',      g:'ride',  ic:'🚕'},
+ {w:'tikiti',            e:'ticket',          f:'ticket',    g:'carry', ic:'🎫'},
+ {w:'nneɛma',            e:'luggage',         f:'luggage',   g:'carry', ic:'🧳'},
+ {w:'paspɔto',           e:'passport',        f:'passport',  g:'carry', ic:'🛂'},
+
+ {w:'kwan',              e:'road, path',      f:'road',      g:'way',   ic:'🛣️'},
+ {w:'kwankyerɛ',         e:'directions',      f:'direction', g:'way',   ic:'🧭'},
+ {w:'kɔ',                e:'go',              f:'go',        g:'move',  ic:'🚶'},
+ {w:'bra',               e:'come',            f:'come',      g:'move',  ic:'🤙'},
+ {w:'gyae',              e:'stop',            f:'stop',      g:'move',  ic:'🛑'},
+ {w:'gyina',             e:'wait, stand',     f:'wait',      g:'move',  ic:'🧍'},
+ {w:'twa mu',            e:'cross over',      f:'crossover', g:'move',  ic:'🚸'},
+ {w:'fa',                e:'take',            f:'take',      g:'move',  ic:'👉'},
+ {w:'hwɛ',               e:'look',            f:'look',      g:'move',  ic:'👀'},
+
+ {w:'benkum',            e:'left',            f:'left',      g:'dir',   ic:'⬅️'},
+ {w:'nifa',              e:'right',           f:'right',     g:'dir',   ic:'➡️'},
+ {w:'tee',               e:'straight ahead',  f:'straight',  g:'dir',   ic:'⬆️'},
+ {w:'anim',              e:'in front',        f:'front',     g:'dir',   ic:'🔜'},
+ {w:'akyi',              e:'behind',          f:'behind',    g:'dir',   ic:'🔙'},
+ {w:'mfimfini',          e:'the middle',      f:'middle',    g:'dir',   ic:'🔘'},
+
+ {w:'ahɔhodan',          e:'hotel',           f:'hotel',     g:'place', ic:'🏨'},
+ {w:'sika korabea',      e:'bank',            f:'bank',      g:'place', ic:'🏦'},
+ {w:'ayaresabea',        e:'hospital',        f:'hospital',  g:'place', ic:'🏥'},
+ {w:'asɔredan',          e:'church',          f:'church',    g:'place', ic:'⛪'},
+ {w:'fie',               e:'home',            f:'home',      g:'place', ic:'🏠'},
+
+ {w:'Mepa wo kyɛw, ɛhe na…?', e:'Please, where is…?',   f:'whereis',     g:'ask', ask:1, stem:1, ic:'🙋'},
+ {w:'Wɔfrɛ ha sɛn?',          e:'What is this place called?', f:'whatplace', g:'ask', ask:1, ic:'❔'},
+ {w:'Sika bɛn na wobɛgye?',   e:'How much will you charge?',  f:'howmuchfare', g:'ask', ask:1, ic:'💰'},
+ {w:'Mepɛ sɛ mekɔ…',          e:'I want to go to…',     f:'iwantgo',     g:'ask', stem:1, ic:'🎯'}
+];
+var TGRP={ride:'How you travel',carry:'What you carry',way:'The road',
+          move:'Words for moving',dir:'Which way',place:'Places to go',ask:'Asking your way'};
+var PLACES=T.filter(function(x){return x.g==='place'});
+var DIRS=T.filter(function(x){return x.g==='dir'});
+/* Vehicles, and the journeys they suit. Used by the matching game. */
+var RIDES=[
+ {f:'plane', far:'abroad', why:'Only the aeroplane crosses the sea to another country.'},
+ {f:'boat',  far:'water',  why:'A boat is for crossing water.'},
+ {f:'train', far:'city',   why:'The train runs city to city on rails.'},
+ {f:'bus',   far:'city',   why:'A bus carries many people between towns.'},
+ {f:'taxi',  far:'town',   why:'A taxi is for a short trip inside town.'}
+];
+var TRIPS=[
+ {em:'🌍', s:'From Accra to London',        k:'abroad'},
+ {em:'🇬🇭', s:'From Kumasi to Accra',        k:'city'},
+ {em:'🌊', s:'Across the Volta river',      k:'water'},
+ {em:'🏘️', s:'Just to the next street',     k:'town'},
+ {em:'✈️', s:'To another country',          k:'abroad'},
+ {em:'🛤️', s:'On the rails to Tema',        k:'city'}
+];
+/* Opposites - the pairs a learner most often mixes up. */
+var OPPOS=[
+ {a:'left', b:'right'},
+ {a:'front', b:'behind'},
+ {a:'go', b:'come'},
+ {a:'stop', b:'wait'}
+];
+var byT={}; T.forEach(function(x){byT[x.f]=x; byT[x.w]=x});
+function sayT(f){var a=new Audio('/audio?f=travel/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* "mepɛ sɛ mekɔ" then the place - a stem joined to a real recording. */
+function sayStem(stemF,f){
+  var a=sayT(stemF);
+  a.addEventListener('ended',function(){sayT(f)});
+  return a;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  /* The order a journey abroad really happens in. */
+  var ORDER=['passport','ticket','luggage','airport','plane','journey'];
+  var LABEL={passport:'you get it long before',ticket:'you buy it next',
+             luggage:'you pack it at home',airport:'you go there on the day',
+             plane:'you board it',journey:'and this is what you are on'};
+  var placed=0,wrong=0;
+  var stepsEl=document.getElementById('steps'),poolEl=document.getElementById('pool'),
+      statusEl=document.getElementById('status'),endEl=document.getElementById('end');
+  function draw(){
+    stepsEl.innerHTML='';
+    ORDER.forEach(function(f,i){
+      var x=byT[f];
+      var r=document.createElement('div');
+      r.className='rung'+(i<placed?' filled':'');
+      r.innerHTML=i<placed
+        ? '<span class="ic">'+x.ic+'</span><span>'+x.w+'</span>'
+          +'<span class="n">'+LABEL[f]+'</span>'
+        : '<span class="n">'+(i+1)+'</span>';
+      stepsEl.appendChild(r);
+    });
+  }
+  function drawPool(){
+    poolEl.innerHTML='';
+    shuffle(ORDER.slice()).forEach(function(f){
+      var x=byT[f];
+      var b=document.createElement('button');b.className='tile';b.type='button';
+      b.innerHTML='<span>'+x.ic+'</span><span>'+x.w+'</span>';
+      b.onclick=function(){tap(b,f)};poolEl.appendChild(b);
+    });
+  }
+  function tap(btn,f){
+    if(placed>=ORDER.length)return;
+    var want=ORDER[placed];
+    if(f===want){
+      btn.classList.add('gone');placed++;sayT(f);draw();
+      statusEl.textContent=placed<ORDER.length
+        ? '✅ '+byT[f].w+'. What is next?'
+        : '🎉 That is the whole journey, in order!';
+      if(placed===ORDER.length)finish();
+    }else{
+      wrong++;btn.classList.add('no');sayT(want);
+      statusEl.textContent='❌ Something comes before '+byT[f].w+'.';
+      setTimeout(function(){btn.classList.remove('no')},430);
+    }
+  }
+  function finish(){
+    poolEl.innerHTML='';
+    statusEl.textContent=wrong===0?'Perfect — no mistakes!'
+      :('Finished with '+wrong+(wrong===1?' mistake.':' mistakes.'));
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(Math.max(3,ORDER.length-wrong),ORDER.length);
+  }
+  draw();drawPool();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Follow the Directions</title>
+<!-- Kids_Portal · Travel/follow-directions.html · slug: trv-dir -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .map{background:#d9e9b0;border:5px solid #14563A;border-radius:26px;padding:14px;margin:14px 0;
+    position:relative;height:250px;overflow:hidden}
+  .road{position:absolute;background:#9aa3a8;border:2px solid #6d757a}
+  .roadv{width:46px;top:0;bottom:0;left:50%;transform:translateX(-50%)}
+  .roadh{height:46px;left:0;right:0;top:100px}
+  .spot{position:absolute;font-size:1.9rem;line-height:1;transform:translate(-50%,-50%);
+    background:#fff;border:3px solid #14563A;border-radius:14px;padding:3px 5px}
+  .me{position:absolute;font-size:2rem;left:50%;bottom:8px;transform:translateX(-50%)}
+  .cmd{background:#14563A;color:#fff;border:4px solid #f3d48a;border-radius:20px;padding:14px;
+    font-size:1.3rem;font-weight:bold;text-align:center}
+  .cmd small{display:block;font-size:.82rem;opacity:.85;font-weight:700;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🧭 Follow the Directions</h1>
+  <span class="sub">She tells you the way. Where do you end up?</span>
+  <div class="dots" id="dots"></div>
+  <div class="map" id="map"></div>
+  <p class="cmd" id="cmd"></p>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div class="gramtip"><b>fa benkum</b> — take the left. <b>kɔ tee</b> — go straight.</div>
+  <div id="end"></div>
+</div>
+<script>
+var T=[
+ {w:'akwantuo',          e:'journey, travel', f:'journey',   g:'ride',  ic:'🗺️'},
+ {w:'wiemhyɛn',          e:'airplane',        f:'plane',     g:'ride',  ic:'✈️'},
+ {w:'wiemhyɛn gyinabea', e:'airport',         f:'airport',   g:'place', ic:'🛫'},
+ {w:'bɔso',              e:'bus',             f:'bus',       g:'ride',  ic:'🚌'},
+ {w:'keteke',            e:'train',           f:'train',     g:'ride',  ic:'🚆'},
+ {w:'hyɛn',              e:'ship, boat',      f:'boat',      g:'ride',  ic:'🚢'},
+ {w:'taksi',             e:'taxi',            f:'taxi',      g:'ride',  ic:'🚕'},
+ {w:'tikiti',            e:'ticket',          f:'ticket',    g:'carry', ic:'🎫'},
+ {w:'nneɛma',            e:'luggage',         f:'luggage',   g:'carry', ic:'🧳'},
+ {w:'paspɔto',           e:'passport',        f:'passport',  g:'carry', ic:'🛂'},
+
+ {w:'kwan',              e:'road, path',      f:'road',      g:'way',   ic:'🛣️'},
+ {w:'kwankyerɛ',         e:'directions',      f:'direction', g:'way',   ic:'🧭'},
+ {w:'kɔ',                e:'go',              f:'go',        g:'move',  ic:'🚶'},
+ {w:'bra',               e:'come',            f:'come',      g:'move',  ic:'🤙'},
+ {w:'gyae',              e:'stop',            f:'stop',      g:'move',  ic:'🛑'},
+ {w:'gyina',             e:'wait, stand',     f:'wait',      g:'move',  ic:'🧍'},
+ {w:'twa mu',            e:'cross over',      f:'crossover', g:'move',  ic:'🚸'},
+ {w:'fa',                e:'take',            f:'take',      g:'move',  ic:'👉'},
+ {w:'hwɛ',               e:'look',            f:'look',      g:'move',  ic:'👀'},
+
+ {w:'benkum',            e:'left',            f:'left',      g:'dir',   ic:'⬅️'},
+ {w:'nifa',              e:'right',           f:'right',     g:'dir',   ic:'➡️'},
+ {w:'tee',               e:'straight ahead',  f:'straight',  g:'dir',   ic:'⬆️'},
+ {w:'anim',              e:'in front',        f:'front',     g:'dir',   ic:'🔜'},
+ {w:'akyi',              e:'behind',          f:'behind',    g:'dir',   ic:'🔙'},
+ {w:'mfimfini',          e:'the middle',      f:'middle',    g:'dir',   ic:'🔘'},
+
+ {w:'ahɔhodan',          e:'hotel',           f:'hotel',     g:'place', ic:'🏨'},
+ {w:'sika korabea',      e:'bank',            f:'bank',      g:'place', ic:'🏦'},
+ {w:'ayaresabea',        e:'hospital',        f:'hospital',  g:'place', ic:'🏥'},
+ {w:'asɔredan',          e:'church',          f:'church',    g:'place', ic:'⛪'},
+ {w:'fie',               e:'home',            f:'home',      g:'place', ic:'🏠'},
+
+ {w:'Mepa wo kyɛw, ɛhe na…?', e:'Please, where is…?',   f:'whereis',     g:'ask', ask:1, stem:1, ic:'🙋'},
+ {w:'Wɔfrɛ ha sɛn?',          e:'What is this place called?', f:'whatplace', g:'ask', ask:1, ic:'❔'},
+ {w:'Sika bɛn na wobɛgye?',   e:'How much will you charge?',  f:'howmuchfare', g:'ask', ask:1, ic:'💰'},
+ {w:'Mepɛ sɛ mekɔ…',          e:'I want to go to…',     f:'iwantgo',     g:'ask', stem:1, ic:'🎯'}
+];
+var TGRP={ride:'How you travel',carry:'What you carry',way:'The road',
+          move:'Words for moving',dir:'Which way',place:'Places to go',ask:'Asking your way'};
+var PLACES=T.filter(function(x){return x.g==='place'});
+var DIRS=T.filter(function(x){return x.g==='dir'});
+var byT={}; T.forEach(function(x){byT[x.f]=x; byT[x.w]=x});
+function sayT(f){var a=new Audio('/audio?f=travel/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* "mepɛ sɛ mekɔ" then the place - a stem joined to a real recording. */
+function sayStem(stemF,f){
+  var a=sayT(stemF);
+  a.addEventListener('ended',function(){sayT(f)});
+  return a;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  /* A crossroads with a place at each arm. The instruction decides which one
+     you reach - so the direction word has to be understood, not guessed. */
+  var ARMS=[
+   {k:'left',  cmd:'fa benkum',  en:'take the left',     x:14, y:100},
+   {k:'right', cmd:'fa nifa',    en:'take the right',    x:86, y:100},
+   {k:'straight',cmd:'kɔ tee',   en:'go straight ahead', x:50, y:22}
+  ];
+  var quiz=[];
+  for(var i=0;i<TOTAL;i++){
+    var spots=shuffle(PLACES.slice()).slice(0,3);
+    quiz.push({spots:spots, arm:ARMS[i%ARMS.length]});
+  }
+  quiz=shuffle(quiz);
+  var at=0,score=0,lock=false,marks=[];
+  var mapEl=document.getElementById('map'),cmdEl=document.getElementById('cmd'),
+      optsEl=document.getElementById('opts'),statusEl=document.getElementById('status'),
+      dotsEl=document.getElementById('dots'),endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function draw(q){
+    var html='<div class="road roadv"></div><div class="road roadh"></div>';
+    ARMS.forEach(function(a,i){
+      var p=q.spots[i];
+      html+='<span class="spot" style="left:'+a.x+'%;top:'+a.y+'px">'+p.ic+'</span>';
+    });
+    html+='<span class="me">🧍</span>';
+    mapEl.innerHTML=html;
+  }
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    draw(q);
+    cmdEl.innerHTML='🗣️ "'+q.arm.cmd+'"<small>'+q.arm.en+'</small>';
+    /* Say the direction word itself. */
+    var dirFile={left:'left',right:'right',straight:'straight'}[q.arm.k];
+    sayT('take');
+    setTimeout(function(){sayT(dirFile)},800);
+    statusEl.textContent='Which place do you reach?';dots();
+    var idx=ARMS.map(function(a){return a.k}).indexOf(q.arm.k);
+    var want=q.spots[idx];
+    optsEl.innerHTML='';
+    shuffle(q.spots.slice()).forEach(function(p){
+      var b=document.createElement('button');b.className='opt';b.type='button';
+      b.textContent=p.ic+' '+p.w;b.dataset.w=p.w;
+      b.onclick=function(){answer(b,p,want)};optsEl.appendChild(b)});
+  }
+  function answer(btn,p,want){
+    if(lock)return;lock=true;
+    var ok=p.w===want.w;marks[at]=ok;
+    if(ok){score++;btn.classList.add('ok');statusEl.textContent='✅ '+want.w+' — the '+want.e+'.'}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.dataset.w===want.w)c.classList.add('ok')});
+      statusEl.textContent='❌ That way is the '+want.e+' — '+want.w+'.'}
+    sayT(want.f);dots();at++;setTimeout(show,2100);
+  }
+  function finish(){
+    dots();mapEl.innerHTML='<span class="me">🎉</span>';cmdEl.textContent='';optsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

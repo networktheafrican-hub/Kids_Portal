@@ -4,203 +4,117 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>My Body in Twi</title>
-<!-- Kids_Portal · Body Parts/body-lesson.html · slug: body-lesson -->
+<!-- Kids_Portal · Body Parts/body-lesson.html · slug: body-lesson
+     Picture-first: every part shows a big picture, the Twi word and the
+     English. Tapping plays the real recording, not a robot voice. -->
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
-    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
-  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
-    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
-  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
-  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
-    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
-  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
-    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  body{background:linear-gradient(160deg,#fde8b3 0%,#fcc8d0 52%,#c0e8e0 100%);
+    font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center;min-height:100vh}
+  .card{max-width:760px;margin:0 auto;background:rgba(255,250,240,.86);
+    border-radius:34px;padding:20px 14px 26px;border:6px solid #f59e5b;
+    box-shadow:0 14px 30px rgba(0,0,0,.16)}
+  h1{font-size:1.8rem;color:#9b2c2c;text-shadow:3px 3px 0 #ffd966}
+  .sub{font-size:1rem;color:#1e3a1e;background:#d9f99d;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #65a30d;font-weight:bold}
+  .grp{font-size:1.05rem;color:#9a3412;font-weight:bold;margin-top:20px;
+    background:#ffedd5;border-radius:30px;padding:5px 16px;display:inline-block;
+    border:2px dashed #fdba74}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));
+    gap:12px;margin-top:10px}
+  .part{background:#fffaf0;border-radius:30px 30px 22px 22px;padding:12px 6px 10px;
+    display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
+    border:3px solid #ffe0b5;box-shadow:0 9px 0 #d4a373;font-family:inherit;
+    transition:transform .08s}
+  .part:active{transform:translateY(6px);box-shadow:0 3px 0 #d4a373}
+  .part .pic{font-size:3.2rem;line-height:1.1}
+  .part .tw{font-size:1.14rem;font-weight:900;color:#7b341e;background:#fef3c7;
+    padding:2px 11px;border-radius:30px;border:2px dotted #d97706;word-break:break-word}
+  .part .en{font-size:.74rem;color:#4b3a2b;font-weight:bold;text-transform:uppercase;
+    background:#e9d8c0;padding:1px 10px;border-radius:30px}
+  .part.playing{border-color:#14563A;box-shadow:0 0 0 4px #14563A}
+  .part.got .tw{background:#dcfce7;border-color:#22c55e}
+  .bar{height:16px;border-radius:99px;background:#fff;border:3px solid #9b2c2c;
+    overflow:hidden;margin:18px auto 0;max-width:420px}
+  .bar i{display:block;height:100%;width:0;background:#f97316;transition:width .3s}
+  .status{background:#dcfce7;border:3px dashed #22c55e;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:12px auto 0;max-width:470px;min-height:2.6em;
+    color:#164e3b}
   .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
-    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
-    font-family:inherit;margin-top:16px}
-  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
-  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
-  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
-  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
-  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
-    min-width:96px;font-size:1.25rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
-    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
-  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
-  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
-  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
-  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
-    75%{transform:translateX(7px)}}
-  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
-  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-  @media(min-width:700px){h1{font-size:2.2rem}}
-
-  .fig{position:relative;width:236px;margin:12px auto;touch-action:manipulation}
-  .fig svg{width:100%;height:auto;display:block}
-  .fig .hot{position:absolute;transform:translate(-50%,-50%);border-radius:50%;border:none;
-    background:transparent;cursor:pointer;padding:0}
-  .fig .hot:hover{background:rgba(200,144,30,.32)}
-  .fig .hot.ok{background:rgba(20,86,58,.55);box-shadow:0 0 0 4px #14563A}
-  .fig .hot.no{background:rgba(168,27,27,.5);box-shadow:0 0 0 4px #A81B1B;animation:shake .35s}
-  .fig .hot.show{background:rgba(20,86,58,.42);box-shadow:0 0 0 4px #14563A}
-  .swap{background:#fef7e6;border:3px solid #b48b3a;border-radius:30px;padding:7px 18px;
-    font-size:.95rem;font-weight:bold;font-family:inherit;cursor:pointer;color:#1f3a2f}
-
-  .list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-top:12px}
-  .it{background:#fff;border:3px solid #efc48c;border-radius:22px;padding:9px 12px;cursor:pointer;
-    font-family:inherit;box-shadow:0 4px 0 #b6956a;text-align:left;display:flex;flex-direction:column}
-  .it b{font-size:1.05rem;color:#492f16}
-  .it small{font-size:.8rem;color:#5A6B60;font-weight:bold}
-  .it.playing{box-shadow:0 0 0 4px #14563A}
-  .grp{font-size:1.05rem;color:#A81B1B;font-weight:bold;margin-top:16px}
-  .hint{font-size:.95rem;font-weight:bold;color:#4d2f12;background:#fff1c7;padding:7px 16px;
-    border-radius:40px;max-width:430px;margin:10px auto 0;border:3px solid #f7b86a}
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;
+    cursor:pointer;font-family:inherit;margin-top:14px}
+  :focus-visible{outline:3px solid #9b2c2c;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media(max-width:560px){
+    h1{font-size:1.45rem}
+    .part .pic{font-size:2.6rem}
+    .part .tw{font-size:1rem}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:9px}
+  }
 </style>
 </head>
 <body>
 <div class="card">
   <h1>🧍 My Body in Twi</h1>
-  <span class="sub">Nipadua — honam akwaa</span>
-  <p class="hint">🔊 Tap the picture or any word to hear it</p>
-  <button class="swap" id="swap" type="button">👧 Show the boy</button>
-  <div class="fig" id="fig"></div>
-  <p class="grp">Head and face</p>
-  <div class="list" id="g1"></div>
-  <p class="grp">Arms and hands</p>
-  <div class="list" id="g2"></div>
-  <p class="grp">Body and legs</p>
-  <div class="list" id="g3"></div>
-  <p class="status" id="status">Tap them all, then try the games.</p>
+  <span class="sub">🔊 Tap a picture to hear it</span>
+  <div id="groups"></div>
+  <div class="bar"><i id="bar"></i></div>
+  <p class="status" id="status">Tap every part to hear its name.</p>
   <div id="end"></div>
 </div>
 <script>
-var B=[
- {w:'etire',     en:'head',     f:'head',     core:1, spot:{x:150,y:52,r:34}},
- {w:'nwi',       en:'hair',     f:'hair',     core:1, spot:{x:150,y:24,r:26}},
- {w:'anim',      en:'face',     f:'face',     core:1, spot:{x:150,y:60,r:22}},
- {w:'ani',       en:'eye',      f:'eye',      core:1, spot:{x:138,y:52,r:12}},
- {w:'ɛhwene',    en:'nose',     f:'nose',     core:1, spot:{x:150,y:62,r:11}},
- {w:'aso',       en:'ear',      f:'ear',      core:1, spot:{x:117,y:56,r:13}},
- {w:'ano',       en:'mouth',    f:'mouth',    core:1, spot:{x:150,y:75,r:13}},
- {w:'ɛse',       en:'tooth',    f:'tooth',    core:1, spot:null},
- {w:'tɛkyerɛma', en:'tongue',   f:'tongue',   core:1, spot:null},
- {w:'ɛkɔn',      en:'neck',     f:'neck',     core:1, spot:{x:150,y:100,r:16}},
- {w:'abasa',     en:'arm',      f:'arm',      core:1, spot:{x:97,y:165,r:22}},
- {w:'nsa',       en:'hand',     f:'hand',     core:1, spot:{x:82,y:216,r:19}},
- {w:'nsateaa',   en:'finger',   f:'finger',   core:1, spot:{x:78,y:236,r:15}},
- {w:'ɛnan',      en:'leg',      f:'leg',      core:1, spot:{x:129,y:296,r:22}},
- {w:'abatire',   en:'shoulder', f:'shoulder', core:0, spot:{x:115,y:122,r:19}},
- {w:'kotodwe',   en:'knee',     f:'knee',     core:0, spot:{x:129,y:283,r:17}},
- {w:'nantabono', en:'foot',     f:'foot',     core:0, spot:{x:127,y:352,r:19}},
- {w:'yafunu',    en:'belly',    f:'belly',    core:0, spot:{x:150,y:180,r:24}},
- {w:'afono',     en:'cheek',    f:'cheek',    core:0, spot:{x:127,y:70,r:13}},
- {w:'moma',      en:'forehead', f:'forehead', core:0, spot:{x:150,y:38,r:18}}
-];
-var BCORE=B.filter(function(x){return x.core});
-var BSPOT=B.filter(function(x){return x.spot});
-function sayB(f){var a=new Audio('/audio?f=body/'+encodeURIComponent(f+'.m4a'));
-  a.play().catch(function(){});return a}
-function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
-  var t=a[i];a[i]=a[j];a[j]=t}return a}
-function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
-  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
-
-/* A simple child, drawn in code. Girl and boy differ only in hair and clothes.
-   Skin and outline come from the Speak Ghana palette. */
-function child(girl){
-  var SK='#8D5524', HAIR='#241C18', SH=girl?'#C8901E':'#14563A', LN='#3A2A1C';
-  var hair = girl
-    ? '<circle cx="150" cy="34" r="40" fill="'+HAIR+'"/>'
-      +'<circle cx="112" cy="30" r="15" fill="'+HAIR+'"/><circle cx="188" cy="30" r="15" fill="'+HAIR+'"/>'
-    : '<path d="M110 44 A40 40 0 0 1 190 44 L190 30 L110 30 Z" fill="'+HAIR+'"/>'
-      +'<circle cx="150" cy="34" r="38" fill="'+HAIR+'"/>';
-  var body = girl
-    ? '<path d="M150 108 L196 128 L206 232 L94 232 L104 128 Z" fill="'+SH+'"/>'
-      +'<path d="M104 232 L196 232 L214 286 L86 286 Z" fill="'+SH+'"/>'
-    : '<path d="M150 108 L196 128 L200 214 L100 214 L104 128 Z" fill="'+SH+'"/>'
-      +'<rect x="106" y="214" width="88" height="62" fill="'+SH+'"/>';
-  return '<svg viewBox="0 0 300 380" xmlns="http://www.w3.org/2000/svg">'
-    + hair
-    + '<ellipse cx="150" cy="58" rx="34" ry="38" fill="'+SK+'"/>'
-    + '<ellipse cx="117" cy="58" rx="7" ry="11" fill="'+SK+'"/>'
-    + '<ellipse cx="183" cy="58" rx="7" ry="11" fill="'+SK+'"/>'
-    + '<ellipse cx="138" cy="52" rx="5" ry="6" fill="#fff"/><circle cx="138" cy="52" r="3" fill="'+LN+'"/>'
-    + '<ellipse cx="162" cy="52" rx="5" ry="6" fill="#fff"/><circle cx="162" cy="52" r="3" fill="'+LN+'"/>'
-    + '<path d="M147 60 Q150 68 154 66" fill="none" stroke="'+LN+'" stroke-width="2.5" stroke-linecap="round"/>'
-    + '<path d="M140 76 Q150 84 160 76" fill="none" stroke="'+LN+'" stroke-width="3" stroke-linecap="round"/>'
-    + '<rect x="140" y="92" width="20" height="18" fill="'+SK+'"/>'
-    + body
-    + '<path d="M112 128 L92 200 L84 226" fill="none" stroke="'+SK+'" stroke-width="17" stroke-linecap="round"/>'
-    + '<path d="M188 128 L208 200 L216 226" fill="none" stroke="'+SK+'" stroke-width="17" stroke-linecap="round"/>'
-    + '<circle cx="80" cy="234" r="12" fill="'+SK+'"/><circle cx="220" cy="234" r="12" fill="'+SK+'"/>'
-    + '<path d="M129 '+(girl?286:276)+' L129 348" fill="none" stroke="'+SK+'" stroke-width="20" stroke-linecap="round"/>'
-    + '<path d="M171 '+(girl?286:276)+' L171 348" fill="none" stroke="'+SK+'" stroke-width="20" stroke-linecap="round"/>'
-    + '<ellipse cx="127" cy="358" rx="17" ry="10" fill="'+LN+'"/>'
-    + '<ellipse cx="173" cy="358" rx="17" ry="10" fill="'+LN+'"/>'
-    + '</svg>';
-}
-
+var B=[{"w": "etire", "e": "head", "ic": "🧠", "g": "head", "f": "head"}, {"w": "nwi", "e": "hair", "ic": "💇🏾", "g": "head", "f": "hair"}, {"w": "anim", "e": "face", "ic": "😊", "g": "head", "f": "face"}, {"w": "ani", "e": "eye", "ic": "👁️", "g": "head", "f": "eye"}, {"w": "ɛhwene", "e": "nose", "ic": "👃🏾", "g": "head", "f": "nose"}, {"w": "aso", "e": "ear", "ic": "👂🏾", "g": "head", "f": "ear"}, {"w": "ano", "e": "mouth", "ic": "👄", "g": "head", "f": "mouth"}, {"w": "ɛse", "e": "tooth", "ic": "🦷", "g": "head", "f": "tooth"}, {"w": "tɛkyerɛma", "e": "tongue", "ic": "👅", "g": "head", "f": "tongue"}, {"w": "moma", "e": "forehead", "ic": "🙂", "g": "head", "f": "forehead"}, {"w": "afono", "e": "cheek", "ic": "😄", "g": "head", "f": "cheek"}, {"w": "ɛkɔn", "e": "neck", "ic": "🧣", "g": "arm", "f": "neck"}, {"w": "abatire", "e": "shoulder", "ic": "🤷🏾", "g": "arm", "f": "shoulder"}, {"w": "abasa", "e": "arm", "ic": "💪🏾", "g": "arm", "f": "arm"}, {"w": "nsa", "e": "hand", "ic": "🖐🏾", "g": "arm", "f": "hand"}, {"w": "nsateaa", "e": "finger", "ic": "👆🏾", "g": "arm", "f": "finger"}, {"w": "yafunu", "e": "belly", "ic": "🫃🏾", "g": "leg", "f": "belly"}, {"w": "kotodwe", "e": "knee", "ic": "🦿", "g": "leg", "f": "knee"}, {"w": "ɛnan", "e": "leg", "ic": "🦵🏾", "g": "leg", "f": "leg"}, {"w": "nantabono", "e": "foot", "ic": "🦶🏾", "g": "leg", "f": "foot"}];
 (function(){
+  var GROUP={head:'Wo tiri — your head and face',
+             arm:'Wo basa — your neck and arms',
+             leg:'Wo nipadua — your body and legs'};
+  var heard={},cur=null,curEl=null;
+  var groupsEl=document.getElementById('groups'),statusEl=document.getElementById('status'),
+      barEl=document.getElementById('bar'),endEl=document.getElementById('end');
 
-  /* Hotspots are placed as a percentage of the 300x380 viewBox, so they stay
-     on the right body part at any screen size. */
-  function placeHots(figEl,parts,onTap){
-    parts.forEach(function(p){
-      var b=document.createElement('button');
-      b.className='hot';b.type='button';b.dataset.en=p.en;
-      b.setAttribute('aria-label',p.en);
-      b.style.left=(p.spot.x/300*100)+'%';
-      b.style.top=(p.spot.y/380*100)+'%';
-      b.style.width=(p.spot.r*2/300*100)+'%';
-      b.style.height=(p.spot.r*2/380*100)+'%';
-      b.onclick=function(){onTap(b,p)};
-      figEl.appendChild(b);
+  /* The real recording, not the browser's robot voice - it mangles ɛ and ɔ. */
+  function say(f){
+    var a=new Audio('/audio?f=body/'+encodeURIComponent(f+'.m4a'));
+    a.play().catch(function(){});
+    return a;
+  }
+
+  ['head','arm','leg'].forEach(function(g){
+    var h=document.createElement('p');h.className='grp';h.textContent=GROUP[g];
+    groupsEl.appendChild(h);
+    var wrap=document.createElement('div');wrap.className='grid';
+    B.filter(function(x){return x.g===g}).forEach(function(x){
+      var b=document.createElement('button');b.className='part';b.type='button';
+      b.setAttribute('aria-label',x.w+', '+x.e);
+      b.innerHTML='<span class="pic">'+x.ic+'</span>'
+        +'<span class="tw">'+x.w+'</span><span class="en">'+x.e+'</span>';
+      b.onclick=function(){
+        if(cur)cur.pause();
+        if(curEl)curEl.classList.remove('playing');
+        cur=say(x.f);curEl=b;b.classList.add('playing');
+        cur.addEventListener('ended',function(){b.classList.remove('playing')});
+        cur.addEventListener('error',function(){b.classList.remove('playing')});
+        b.classList.add('got');
+        heard[x.f]=1;
+        var n=Object.keys(heard).length;
+        barEl.style.width=Math.round(n/B.length*100)+'%';
+        statusEl.textContent = n<B.length
+          ? '🔊 '+x.w+' — '+x.e+'  ·  '+n+' of '+B.length
+          : '🎉 You heard every part!';
+        if(n>=B.length&&!endEl.innerHTML){
+          endEl.innerHTML='<button class="fin" id="done">✅ I know my body words</button>';
+          document.getElementById('done').onclick=function(){
+            if(window.parent===window)return;
+            parent.postMessage({type:'sg:complete',score:5,maxScore:5},'*');
+            document.getElementById('done').textContent='Saved ⭐';
+            document.getElementById('done').disabled=true;
+          };
+        }
+      };
+      wrap.appendChild(b);
     });
-  }
-
-  var girl=true,heard={},cur=null,curEl=null;
-  var figEl=document.getElementById('fig'),statusEl=document.getElementById('status'),
-      endEl=document.getElementById('end'),swapEl=document.getElementById('swap');
-
-  function tick(en){
-    heard[en]=1;
-    var n=Object.keys(heard).length;
-    statusEl.textContent=n<B.length?('You have heard '+n+' of '+B.length+'.'):'You heard them all! 🎉';
-    if(n>=B.length&&!endEl.innerHTML){
-      endEl.innerHTML='<button class="fin" id="done">✅ I know my body</button>';
-      document.getElementById('done').onclick=function(){report(5,5)};
-    }
-  }
-  function play(p,el){
-    if(cur)cur.pause(); if(curEl)curEl.classList.remove('playing');
-    cur=sayB(p.f);curEl=el;if(el)el.classList.add('playing');
-    cur.addEventListener('ended',function(){if(el)el.classList.remove('playing')});
-    cur.addEventListener('error',function(){if(el)el.classList.remove('playing')});
-    tick(p.en);
-  }
-  function drawFig(){
-    figEl.innerHTML=child(girl);
-    placeHots(figEl,BSPOT,function(b,p){
-      play(p,null);
-      b.classList.add('show');
-      statusEl.textContent=p.w+' — '+p.en;
-      setTimeout(function(){b.classList.remove('show')},700);
-    });
-  }
-  swapEl.onclick=function(){girl=!girl;swapEl.textContent=girl?'👦 Show the boy':'👧 Show the girl';drawFig()};
-  drawFig();
-
-  var GROUPS={g1:['head','hair','face','eye','nose','ear','mouth','tooth','tongue','forehead','cheek'],
-              g2:['neck','shoulder','arm','hand','finger'],
-              g3:['belly','knee','leg','foot']};
-  Object.keys(GROUPS).forEach(function(g){
-    GROUPS[g].forEach(function(en){
-      var p=B.filter(function(x){return x.en===en})[0]; if(!p)return;
-      var b=document.createElement('button');b.className='it';b.type='button';
-      b.innerHTML='<b>'+p.w+'</b><small>'+p.en+'</small>';
-      b.onclick=function(){play(p,b)};
-      document.getElementById(g).appendChild(b);
-    });
+    groupsEl.appendChild(wrap);
   });
 })();
 </script>

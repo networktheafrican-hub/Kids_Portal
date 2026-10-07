@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>What Did You Do?</title>
+<!-- Kids_Portal · Routine/what-did-you-do.html · slug: rt-build -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.15rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .built{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:22px 16px;
+    margin:14px 0;min-height:126px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:7px}
+  .built .s{font-size:1.75rem;font-weight:bold;word-break:break-word;text-align:center}
+  .built .en{font-size:.92rem;opacity:.86;font-weight:700}
+  .want{background:#fff;border:4px dashed #cb7b2c;border-radius:20px;padding:12px;
+    font-size:1.05rem;font-weight:bold;color:#492f16}
+  .lbl{font-size:.85rem;font-weight:800;color:#4d2f12;margin-top:12px}
+  .row{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:5px}
+  .tok{background:#fef7e6;border:4px solid #b48b3a;border-radius:18px;padding:9px 13px;
+    font-size:.96rem;font-weight:bold;color:#1f3a2f;font-family:inherit;cursor:pointer;
+    box-shadow:0 4px 0 #7a5a1f}
+  .tok.on{background:#14563A;color:#fff;border-color:#0d3a26}
+  .go2{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:11px 26px;
+    font-size:1rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📖 What Did You Do?</h1>
+  <span class="sub">Who, when, and what happened</span>
+  <div class="dots" id="dots"></div>
+  <p class="want" id="want"></p>
+  <div class="built" id="built"></div>
+  <p class="lbl">1. Who?</p><div class="row" id="rWho"></div>
+  <p class="lbl">2. When?</p><div class="row" id="rWhen"></div>
+  <p class="lbl">3. Did what?</p><div class="row" id="rVerb"></div>
+  <button class="go2" id="check" type="button">✅ Check my sentence</button>
+  <p class="status" id="status"></p>
+  <div class="gramtip">The time word decides the verb:
+    <b>ɛnnora</b> takes the past, <b>ɛnnɛ</b> takes the present.</div>
+  <div id="end"></div>
+</div>
+<script>
+/* Present and past. The past is the present with its last sound drawn out,
+   or -ee added on the longer verbs - one rule, not eighteen. */
+var V=[
+ {w:'sɔre',      p:'sɔree',      e:'wake up',     pe:'woke up',    f:'wake',   pf:'wake2',   ic:'🌅', g:'day'},
+ {w:'dware',     p:'dwaree',     e:'bath',        pe:'bathed',     f:'bath',   pf:'bath2',   ic:'🚿', g:'day'},
+ {w:'hyɛ ntadeɛ',p:'hyɛɛ ntadeɛ',e:'get dressed', pe:'got dressed',f:'dress',  pf:'dress2',  ic:'👕', g:'day'},
+ {w:'didi',      p:'didii',      e:'eat',         pe:'ate',        f:'eat',    pf:'eat2',    ic:'🍚', g:'day'},
+ {w:'nom',       p:'nomm',       e:'drink',       pe:'drank',      f:'drink',  pf:'drink2',  ic:'🥤', g:'day'},
+ {w:'kɔ',        p:'kɔɔ',        e:'go',          pe:'went',       f:'go',     pf:'go2',     ic:'🚶', g:'day'},
+ {w:'ba',        p:'baa',        e:'come',        pe:'came',       f:'come',   pf:'come2',   ic:'🤙', g:'day'},
+ {w:'san ba',    p:'san baa',    e:'return',      pe:'returned',   f:'return', pf:'return2', ic:'🔙', g:'day'},
+ {w:'yɛ adwuma', p:'yɛɛ adwuma', e:'work',        pe:'worked',     f:'work',   pf:'work2',   ic:'🛠️', g:'day'},
+ {w:'da',        p:'daa',        e:'sleep',       pe:'slept',      f:'sleep',  pf:'sleep2',  ic:'😴', g:'day'},
+ {w:'tɔ',        p:'tɔɔ',        e:'buy',         pe:'bought',     f:'buy',    pf:'buy2',    ic:'🛒', g:'more'},
+ {w:'tɔn',       p:'tɔnee',      e:'sell',        pe:'sold',       f:'sell',   pf:'sell2',   ic:'💰', g:'more'},
+ {w:'kenkan',    p:'kenkanee',   e:'read',        pe:'read',       f:'read',   pf:'read2',   ic:'📖', g:'more'},
+ {w:'kyerɛw',    p:'kyerɛwee',   e:'write',       pe:'wrote',      f:'write',  pf:'write2',  ic:'✍️', g:'more'},
+ {w:'sua',       p:'suaa',       e:'learn',       pe:'learnt',     f:'learn',  pf:'learn2',  ic:'🎓', g:'more'},
+ {w:'tie',       p:'tiee',       e:'listen',      pe:'listened',   f:'listen', pf:'listen2', ic:'👂', g:'more'},
+ {w:'ka',        p:'kaa',        e:'say',         pe:'said',       f:'say',    pf:'say2',    ic:'🗣️', g:'more'},
+ {w:'boa',       p:'boaa',       e:'help',        pe:'helped',     f:'help',   pf:'help2',   ic:'🤝', g:'more'}
+];
+var ADV=[
+ {w:'ntɛm',   e:'quickly',   f:'quickly',  ic:'⚡'},
+ {w:'brɛoo',  e:'slowly',    f:'slowly',   ic:'🐢'},
+ {w:'daa',    e:'every day', f:'everyday', ic:'📅'},
+ {w:'ɛtɔ da', e:'sometimes', f:'sometimes',ic:'🎲'},
+ {w:'seisei', e:'now',       f:'now',      ic:'⏰'}
+];
+/* Here and there: a learner points as well as names. */
+var PLACEW=[
+ {w:'ha', e:'here',  f:'here',  ic:'📍'},
+ {w:'hɔ', e:'there', f:'there', ic:'👉'}
+];
+/* Time words from chapter 4 decide which form of the verb is needed. */
+var WHEN=[
+ {w:'ɛnnɛ',   e:'today',     d:'time', f:'today',     past:false},
+ {w:'ɛnnora', e:'yesterday', d:'time', f:'yesterday', past:true},
+ {w:'ɔkyena', e:'tomorrow',  d:'time', f:'tomorrow',  past:false}
+];
+var PRON=[
+ {s:'me', e:'I'},{s:'wo', e:'you'},{s:'ɔ', e:'he / she'},
+ {s:'yɛ', e:'we'},{s:'wɔ', e:'they'}
+];
+var byV={}; V.forEach(function(x){byV[x.f]=x; byV[x.w]=x});
+function sayR(f){var a=new Audio('/audio?f=routine/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function sayFrom(d,f){var a=new Audio('/audio?f='+d+'/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  var quiz=[];
+  for(var i=0;i<TOTAL;i++){
+    quiz.push({who:PRON[Math.floor(Math.random()*PRON.length)],
+               when:WHEN[Math.floor(Math.random()*WHEN.length)],
+               v:V[Math.floor(Math.random()*V.length)]});
+  }
+  var at=0,score=0,lock=false,marks=[],wSel=null,tSel=null,vSel=null,vPast=null;
+  var wantEl=document.getElementById('want'),builtEl=document.getElementById('built'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function form(){ return vSel?(vPast?vSel.p:vSel.w):'…' }
+  function drawBuilt(){
+    var s=(tSel?tSel.w+' ':'')+(wSel?wSel.s:'…')+' '+form();
+    builtEl.innerHTML='<span class="s">'+s+'</span>'
+      +'<span class="en">'+((wSel&&tSel&&vSel)
+        ? tSel.e+', '+wSel.e+' '+(vPast?vSel.pe:vSel.e) : 'pick one from each row')+'</span>';
+  }
+  function fill(id,list,render,pick){
+    var el=document.getElementById(id);el.innerHTML='';
+    list.forEach(function(x){
+      var b=document.createElement('button');b.className='tok';b.type='button';
+      b.textContent=render(x);
+      b.onclick=function(){
+        if(lock)return;
+        Array.prototype.forEach.call(el.children,function(c){c.classList.remove('on')});
+        b.classList.add('on');pick(x);drawBuilt();
+      };el.appendChild(b);
+    });
+  }
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;wSel=null;tSel=null;vSel=null;vPast=null;
+    var q=quiz[at];
+    wantEl.innerHTML='🗣️ Say: <b>'+q.when.e+', '+q.who.e+' '
+      +(q.when.past?q.v.pe:q.v.e)+'</b> '+q.v.ic;
+    drawBuilt();dots();
+    statusEl.textContent='Choose all three, then check.';
+    fill('rWho',shuffle(PRON.slice()),function(x){return x.s},function(x){wSel=x});
+    fill('rWhen',shuffle(WHEN.slice()),function(x){return x.w},function(x){tSel=x});
+    var opts=[{v:q.v,past:false},{v:q.v,past:true}];
+    shuffle(V.filter(function(x){return x.w!==q.v.w})).slice(0,2).forEach(function(x){
+      opts.push({v:x,past:q.when.past});
+    });
+    fill('rVerb',shuffle(opts),function(o){return o.past?o.v.p:o.v.w},
+      function(o){vSel=o.v;vPast=o.past});
+  }
+  document.getElementById('check').onclick=function(){
+    if(lock)return;
+    if(!wSel||!tSel||!vSel){statusEl.textContent='Pick one from each row first.';return}
+    lock=true;
+    var q=quiz[at];
+    var ok=wSel.s===q.who.s&&tSel.w===q.when.w&&vSel.w===q.v.w&&vPast===q.when.past;
+    marks[at]=ok;
+    var right=q.when.w+' '+q.who.s+' '+(q.when.past?q.v.p:q.v.w);
+    if(ok){score++;statusEl.textContent='✅ '+right}
+    else if(vSel.w===q.v.w&&vPast!==q.when.past)
+      statusEl.textContent='❌ '+q.when.w+' needs the '+(q.when.past?'past':'present')
+        +' form: '+right;
+    else statusEl.textContent='❌ It should be: '+right;
+    builtEl.innerHTML='<span class="s">'+right+'</span>'
+      +'<span class="en">'+q.when.e+', '+q.who.e+' '+(q.when.past?q.v.pe:q.v.e)+'</span>';
+    sayR(q.when.past?q.v.pf:q.v.f);
+    dots();at++;setTimeout(show,2600);
+  };
+  function finish(){
+    dots();wantEl.textContent='';builtEl.innerHTML='<span class="s">🎉</span>';
+    ['rWho','rWhen','rVerb'].forEach(function(id){document.getElementById(id).innerHTML=''});
+    document.getElementById('check').style.display='none';
+    Array.prototype.forEach.call(document.querySelectorAll('.lbl'),function(l){l.style.display='none'});
+    statusEl.textContent='You built '+score+' of '+TOTAL+' correctly.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

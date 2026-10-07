@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Here or There?</title>
+<!-- Kids_Portal · Routine/here-or-there.html · slug: rt-place -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.15rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .scene{background:#d9e9b0;border:5px solid #14563A;border-radius:26px;padding:18px;margin:14px 0;
+    position:relative;height:200px}
+  .me2{position:absolute;left:22%;bottom:16px;font-size:2.6rem;transform:translateX(-50%)}
+  .thing2{position:absolute;font-size:2.6rem;transform:translateX(-50%)}
+  .label{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);font-size:.72rem;
+    font-weight:bold;color:#14563A;background:#fff;border-radius:20px;padding:1px 8px;
+    border:2px solid #14563A}
+  .wrap2{position:absolute;bottom:16px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📍 Here or There?</h1>
+  <span class="sub">ha and hɔ</span>
+  <div class="dots" id="dots"></div>
+  <div class="scene" id="scene"></div>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div class="gramtip"><b>ha</b> is beside you. <b>hɔ</b> is away from you.</div>
+  <div id="end"></div>
+</div>
+<script>
+/* Present and past. The past is the present with its last sound drawn out,
+   or -ee added on the longer verbs - one rule, not eighteen. */
+var V=[
+ {w:'sɔre',      p:'sɔree',      e:'wake up',     pe:'woke up',    f:'wake',   pf:'wake2',   ic:'🌅', g:'day'},
+ {w:'dware',     p:'dwaree',     e:'bath',        pe:'bathed',     f:'bath',   pf:'bath2',   ic:'🚿', g:'day'},
+ {w:'hyɛ ntadeɛ',p:'hyɛɛ ntadeɛ',e:'get dressed', pe:'got dressed',f:'dress',  pf:'dress2',  ic:'👕', g:'day'},
+ {w:'didi',      p:'didii',      e:'eat',         pe:'ate',        f:'eat',    pf:'eat2',    ic:'🍚', g:'day'},
+ {w:'nom',       p:'nomm',       e:'drink',       pe:'drank',      f:'drink',  pf:'drink2',  ic:'🥤', g:'day'},
+ {w:'kɔ',        p:'kɔɔ',        e:'go',          pe:'went',       f:'go',     pf:'go2',     ic:'🚶', g:'day'},
+ {w:'ba',        p:'baa',        e:'come',        pe:'came',       f:'come',   pf:'come2',   ic:'🤙', g:'day'},
+ {w:'san ba',    p:'san baa',    e:'return',      pe:'returned',   f:'return', pf:'return2', ic:'🔙', g:'day'},
+ {w:'yɛ adwuma', p:'yɛɛ adwuma', e:'work',        pe:'worked',     f:'work',   pf:'work2',   ic:'🛠️', g:'day'},
+ {w:'da',        p:'daa',        e:'sleep',       pe:'slept',      f:'sleep',  pf:'sleep2',  ic:'😴', g:'day'},
+ {w:'tɔ',        p:'tɔɔ',        e:'buy',         pe:'bought',     f:'buy',    pf:'buy2',    ic:'🛒', g:'more'},
+ {w:'tɔn',       p:'tɔnee',      e:'sell',        pe:'sold',       f:'sell',   pf:'sell2',   ic:'💰', g:'more'},
+ {w:'kenkan',    p:'kenkanee',   e:'read',        pe:'read',       f:'read',   pf:'read2',   ic:'📖', g:'more'},
+ {w:'kyerɛw',    p:'kyerɛwee',   e:'write',       pe:'wrote',      f:'write',  pf:'write2',  ic:'✍️', g:'more'},
+ {w:'sua',       p:'suaa',       e:'learn',       pe:'learnt',     f:'learn',  pf:'learn2',  ic:'🎓', g:'more'},
+ {w:'tie',       p:'tiee',       e:'listen',      pe:'listened',   f:'listen', pf:'listen2', ic:'👂', g:'more'},
+ {w:'ka',        p:'kaa',        e:'say',         pe:'said',       f:'say',    pf:'say2',    ic:'🗣️', g:'more'},
+ {w:'boa',       p:'boaa',       e:'help',        pe:'helped',     f:'help',   pf:'help2',   ic:'🤝', g:'more'}
+];
+var ADV=[
+ {w:'ntɛm',   e:'quickly',   f:'quickly',  ic:'⚡'},
+ {w:'brɛoo',  e:'slowly',    f:'slowly',   ic:'🐢'},
+ {w:'daa',    e:'every day', f:'everyday', ic:'📅'},
+ {w:'ɛtɔ da', e:'sometimes', f:'sometimes',ic:'🎲'},
+ {w:'seisei', e:'now',       f:'now',      ic:'⏰'}
+];
+/* Here and there: a learner points as well as names. */
+var PLACEW=[
+ {w:'ha', e:'here',  f:'here',  ic:'📍'},
+ {w:'hɔ', e:'there', f:'there', ic:'👉'}
+];
+/* Time words from chapter 4 decide which form of the verb is needed. */
+var WHEN=[
+ {w:'ɛnnɛ',   e:'today',     d:'time', f:'today',     past:false},
+ {w:'ɛnnora', e:'yesterday', d:'time', f:'yesterday', past:true},
+ {w:'ɔkyena', e:'tomorrow',  d:'time', f:'tomorrow',  past:false}
+];
+var PRON=[
+ {s:'me', e:'I'},{s:'wo', e:'you'},{s:'ɔ', e:'he / she'},
+ {s:'yɛ', e:'we'},{s:'wɔ', e:'they'}
+];
+var byV={}; V.forEach(function(x){byV[x.f]=x; byV[x.w]=x});
+function sayR(f){var a=new Audio('/audio?f=routine/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function sayFrom(d,f){var a=new Audio('/audio?f='+d+'/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  var THINGS=['🧺','🪣','📖','🥭','🪑','🧹','🎒','🍲'];
+  var quiz=[];
+  for(var i=0;i<TOTAL;i++){
+    quiz.push({ic:THINGS[i%THINGS.length], near:i%2===0});
+  }
+  quiz=shuffle(quiz);
+  var at=0,score=0,lock=false,marks=[];
+  var sceneEl=document.getElementById('scene'),optsEl=document.getElementById('opts'),
+      statusEl=document.getElementById('status'),dotsEl=document.getElementById('dots'),
+      endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    sceneEl.innerHTML='<span class="me2">🧍</span>'
+      +'<span class="thing2 wrap2" style="left:'+(q.near?'34%':'82%')+'">'+q.ic+'</span>';
+    statusEl.textContent=q.near?'The thing is right beside you.'
+      :'The thing is far across the yard.';
+    dots();
+    optsEl.innerHTML='';
+    shuffle(PLACEW.slice()).forEach(function(p){
+      var b=document.createElement('button');b.className='opt';b.type='button';
+      b.style.minWidth='140px';b.textContent=p.ic+' '+p.w;b.dataset.f=p.f;
+      b.onclick=function(){answer(b,p,q)};optsEl.appendChild(b)});
+  }
+  function answer(btn,p,q){
+    if(lock)return;lock=true;
+    var wantF=q.near?'here':'there';
+    var ok=p.f===wantF;marks[at]=ok;
+    var want=PLACEW.filter(function(x){return x.f===wantF})[0];
+    if(ok){score++;btn.classList.add('ok');statusEl.textContent='✅ '+want.w+' — '+want.e}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.dataset.f===wantF)c.classList.add('ok')});
+      statusEl.textContent='❌ That one is '+want.w+' — '+want.e+'.'}
+    sayR(want.f);dots();at++;setTimeout(show,1900);
+  }
+  function finish(){
+    dots();sceneEl.innerHTML='<span class="me2">🎉</span>';optsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

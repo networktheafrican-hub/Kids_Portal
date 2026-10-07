@@ -154,6 +154,13 @@
 "f": "yoma"
 },
 {
+"c": 1,
+"w": "nyame",
+"e": "God",
+"d": "digraphs",
+"f": "god"
+},
+{
 "c": 2,
 "w": "baako",
 "e": "one",
@@ -1989,13 +1996,6 @@
 },
 {
 "c": 15,
-"w": "Medaase",
-"e": "Thank you",
-"d": "market",
-"f": "thanks"
-},
-{
-"c": 15,
 "w": "Merekɔ",
 "e": "I am going",
 "d": "market",
@@ -2021,5 +2021,551 @@
 "e": "pesewa",
 "d": "market",
 "f": "pesewa"
+},
+{
+"c": 16,
+"w": "akwantuo",
+"e": "journey, travel",
+"d": "travel",
+"f": "journey"
+},
+{
+"c": 16,
+"w": "wiemhyɛn",
+"e": "airplane",
+"d": "travel",
+"f": "plane"
+},
+{
+"c": 16,
+"w": "wiemhyɛn gyinabea",
+"e": "airport",
+"d": "travel",
+"f": "airport"
+},
+{
+"c": 16,
+"w": "bɔso",
+"e": "bus",
+"d": "travel",
+"f": "bus"
+},
+{
+"c": 16,
+"w": "keteke",
+"e": "train",
+"d": "travel",
+"f": "train"
+},
+{
+"c": 16,
+"w": "hyɛn",
+"e": "ship, boat",
+"d": "travel",
+"f": "boat"
+},
+{
+"c": 16,
+"w": "taksi",
+"e": "taxi",
+"d": "travel",
+"f": "taxi"
+},
+{
+"c": 16,
+"w": "tikiti",
+"e": "ticket",
+"d": "travel",
+"f": "ticket"
+},
+{
+"c": 16,
+"w": "nneɛma",
+"e": "luggage",
+"d": "travel",
+"f": "luggage"
+},
+{
+"c": 16,
+"w": "paspɔto",
+"e": "passport",
+"d": "travel",
+"f": "passport"
+},
+{
+"c": 16,
+"w": "kwan",
+"e": "road, path",
+"d": "travel",
+"f": "road"
+},
+{
+"c": 16,
+"w": "kwankyerɛ",
+"e": "directions",
+"d": "travel",
+"f": "direction"
+},
+{
+"c": 16,
+"w": "kɔ",
+"e": "go",
+"d": "travel",
+"f": "go"
+},
+{
+"c": 16,
+"w": "bra",
+"e": "come",
+"d": "travel",
+"f": "come"
+},
+{
+"c": 16,
+"w": "gyae",
+"e": "stop",
+"d": "travel",
+"f": "stop"
+},
+{
+"c": 16,
+"w": "gyina",
+"e": "wait, stand",
+"d": "travel",
+"f": "wait"
+},
+{
+"c": 16,
+"w": "twa mu",
+"e": "cross over",
+"d": "travel",
+"f": "crossover"
+},
+{
+"c": 16,
+"w": "fa",
+"e": "take",
+"d": "travel",
+"f": "take"
+},
+{
+"c": 16,
+"w": "hwɛ",
+"e": "look",
+"d": "travel",
+"f": "look"
+},
+{
+"c": 16,
+"w": "benkum",
+"e": "left",
+"d": "travel",
+"f": "left"
+},
+{
+"c": 16,
+"w": "nifa",
+"e": "right",
+"d": "travel",
+"f": "right"
+},
+{
+"c": 16,
+"w": "tee",
+"e": "straight ahead",
+"d": "travel",
+"f": "straight"
+},
+{
+"c": 16,
+"w": "anim",
+"e": "in front",
+"d": "travel",
+"f": "front"
+},
+{
+"c": 16,
+"w": "akyi",
+"e": "behind",
+"d": "travel",
+"f": "behind"
+},
+{
+"c": 16,
+"w": "mfimfini",
+"e": "the middle",
+"d": "travel",
+"f": "middle"
+},
+{
+"c": 16,
+"w": "ahɔhodan",
+"e": "hotel",
+"d": "travel",
+"f": "hotel"
+},
+{
+"c": 16,
+"w": "sika korabea",
+"e": "bank",
+"d": "travel",
+"f": "bank"
+},
+{
+"c": 16,
+"w": "ayaresabea",
+"e": "hospital",
+"d": "travel",
+"f": "hospital"
+},
+{
+"c": 16,
+"w": "asɔredan",
+"e": "church",
+"d": "travel",
+"f": "church"
+},
+{
+"c": 16,
+"w": "fie",
+"e": "home",
+"d": "travel",
+"f": "home"
+},
+{
+"c": 16,
+"w": "Mepa wo kyɛw, ɛhe na…?",
+"e": "Please, where is…?",
+"d": "travel",
+"f": "whereis"
+},
+{
+"c": 16,
+"w": "Wɔfrɛ ha sɛn?",
+"e": "What is this place called?",
+"d": "travel",
+"f": "whatplace"
+},
+{
+"c": 16,
+"w": "Sika bɛn na wobɛgye?",
+"e": "How much will you charge?",
+"d": "travel",
+"f": "howmuchfare"
+},
+{
+"c": 16,
+"w": "Mepɛ sɛ mekɔ…",
+"e": "I want to go to…",
+"d": "travel",
+"f": "iwantgo"
+},
+{
+"c": 17,
+"w": "sɔre",
+"e": "wake up",
+"d": "routine",
+"f": "wake"
+},
+{
+"c": 17,
+"w": "dware",
+"e": "bath",
+"d": "routine",
+"f": "bath"
+},
+{
+"c": 17,
+"w": "hyɛ ntadeɛ",
+"e": "get dressed",
+"d": "routine",
+"f": "dress"
+},
+{
+"c": 17,
+"w": "didi",
+"e": "eat",
+"d": "routine",
+"f": "eat"
+},
+{
+"c": 17,
+"w": "nom",
+"e": "drink",
+"d": "routine",
+"f": "drink"
+},
+{
+"c": 17,
+"w": "kɔ",
+"e": "go",
+"d": "routine",
+"f": "go"
+},
+{
+"c": 17,
+"w": "ba",
+"e": "come",
+"d": "routine",
+"f": "come"
+},
+{
+"c": 17,
+"w": "san ba",
+"e": "return",
+"d": "routine",
+"f": "return"
+},
+{
+"c": 17,
+"w": "yɛ adwuma",
+"e": "work",
+"d": "routine",
+"f": "work"
+},
+{
+"c": 17,
+"w": "da",
+"e": "sleep",
+"d": "routine",
+"f": "sleep"
+},
+{
+"c": 17,
+"w": "tɔ",
+"e": "buy",
+"d": "routine",
+"f": "buy"
+},
+{
+"c": 17,
+"w": "tɔn",
+"e": "sell",
+"d": "routine",
+"f": "sell"
+},
+{
+"c": 17,
+"w": "kenkan",
+"e": "read",
+"d": "routine",
+"f": "read"
+},
+{
+"c": 17,
+"w": "kyerɛw",
+"e": "write",
+"d": "routine",
+"f": "write"
+},
+{
+"c": 17,
+"w": "sua",
+"e": "learn",
+"d": "routine",
+"f": "learn"
+},
+{
+"c": 17,
+"w": "tie",
+"e": "listen",
+"d": "routine",
+"f": "listen"
+},
+{
+"c": 17,
+"w": "ka",
+"e": "say",
+"d": "routine",
+"f": "say"
+},
+{
+"c": 17,
+"w": "boa",
+"e": "help",
+"d": "routine",
+"f": "help"
+},
+{
+"c": 17,
+"w": "sɔree",
+"e": "woke up (past)",
+"d": "routine",
+"f": "wake2"
+},
+{
+"c": 17,
+"w": "dwaree",
+"e": "bathed (past)",
+"d": "routine",
+"f": "bath2"
+},
+{
+"c": 17,
+"w": "hyɛɛ ntadeɛ",
+"e": "got dressed (past)",
+"d": "routine",
+"f": "dress2"
+},
+{
+"c": 17,
+"w": "didii",
+"e": "ate (past)",
+"d": "routine",
+"f": "eat2"
+},
+{
+"c": 17,
+"w": "nomm",
+"e": "drank (past)",
+"d": "routine",
+"f": "drink2"
+},
+{
+"c": 17,
+"w": "kɔɔ",
+"e": "went (past)",
+"d": "routine",
+"f": "go2"
+},
+{
+"c": 17,
+"w": "baa",
+"e": "came (past)",
+"d": "routine",
+"f": "come2"
+},
+{
+"c": 17,
+"w": "san baa",
+"e": "returned (past)",
+"d": "routine",
+"f": "return2"
+},
+{
+"c": 17,
+"w": "yɛɛ adwuma",
+"e": "worked (past)",
+"d": "routine",
+"f": "work2"
+},
+{
+"c": 17,
+"w": "daa",
+"e": "slept (past)",
+"d": "routine",
+"f": "sleep2"
+},
+{
+"c": 17,
+"w": "tɔɔ",
+"e": "bought (past)",
+"d": "routine",
+"f": "buy2"
+},
+{
+"c": 17,
+"w": "tɔnee",
+"e": "sold (past)",
+"d": "routine",
+"f": "sell2"
+},
+{
+"c": 17,
+"w": "kenkanee",
+"e": "read (past)",
+"d": "routine",
+"f": "read2"
+},
+{
+"c": 17,
+"w": "kyerɛwee",
+"e": "wrote (past)",
+"d": "routine",
+"f": "write2"
+},
+{
+"c": 17,
+"w": "suaa",
+"e": "learnt (past)",
+"d": "routine",
+"f": "learn2"
+},
+{
+"c": 17,
+"w": "tiee",
+"e": "listened (past)",
+"d": "routine",
+"f": "listen2"
+},
+{
+"c": 17,
+"w": "kaa",
+"e": "said (past)",
+"d": "routine",
+"f": "say2"
+},
+{
+"c": 17,
+"w": "boaa",
+"e": "helped (past)",
+"d": "routine",
+"f": "help2"
+},
+{
+"c": 17,
+"w": "ntɛm",
+"e": "quickly",
+"d": "routine",
+"f": "quickly"
+},
+{
+"c": 17,
+"w": "brɛoo",
+"e": "slowly",
+"d": "routine",
+"f": "slowly"
+},
+{
+"c": 17,
+"w": "daa",
+"e": "every day",
+"d": "routine",
+"f": "everyday"
+},
+{
+"c": 17,
+"w": "ɛtɔ da",
+"e": "sometimes",
+"d": "routine",
+"f": "sometimes"
+},
+{
+"c": 17,
+"w": "seisei",
+"e": "now",
+"d": "routine",
+"f": "now"
+},
+{
+"c": 17,
+"w": "ha",
+"e": "here",
+"d": "routine",
+"f": "here"
+},
+{
+"c": 17,
+"w": "hɔ",
+"e": "there",
+"d": "routine",
+"f": "there"
+},
+{
+"c": 17,
+"w": "daakye",
+"e": "the future",
+"d": "routine",
+"f": "future"
 }
 ]

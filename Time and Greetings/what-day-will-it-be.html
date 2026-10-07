@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>What Day Will It Be?</title>
+<!-- Kids_Portal · Time and Greetings/what-day-will-it-be.html · slug: time-days2 -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.15rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:11px 14px;margin-top:14px;
+    border:3px solid #C8901E;font-size:.86rem;font-weight:700;line-height:1.5}
+  .gramtip b{color:#E9C97A}
+
+  .q{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:26px;padding:20px 16px;
+    font-size:1.1rem;font-weight:bold;margin:14px 0;min-height:160px;display:flex;
+    align-items:center;justify-content:center;flex-direction:column;gap:8px}
+  .q .huge{font-size:1.7rem;line-height:1.3;word-break:break-word;max-width:430px}
+  .q .em{font-size:3.4rem;line-height:1}
+  .q .en{font-size:.9rem;opacity:.85;font-weight:700}
+  .result{font-size:1.35rem;font-weight:bold;color:#14563A;margin-top:12px}
+
+  .strip{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+  .strip i{width:40px;height:40px;border-radius:12px;background:#EFE7D7;border:3px solid #14563A;
+    display:grid;place-items:center;font-size:.76rem;font-weight:bold;color:#14563A;
+    font-style:normal}
+  .strip i.from{background:#C8901E;color:#fff}
+  .strip i.to{background:#14563A;color:#fff}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📆 What Day Will It Be?</h1>
+  <span class="sub">ɛnnora, ɛnnɛ, ɔkyena</span>
+  <div class="dots" id="dots"></div>
+  <div class="q" id="q"></div>
+  <div class="strip" id="strip"></div>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <div class="gramtip">After <b>Kwasiada</b> the week starts again
+    at <b>Ɛdwoada</b>.</div>
+  <div id="end"></div>
+</div>
+<script>
+/* Chapter 4 audio all lives in audio/time. */
+var CLOCK=[
+ {h:1, w:'abɔ nnɔnkoro',      f:'oneoclock'},
+ {h:2, w:'abɔ nnɔnmienu',     f:'twooclock'},
+ {h:3, w:'abɔ nnɔnmiensa',    f:'threeoclock'},
+ {h:4, w:'abɔ nnɔnnan',       f:'fouroclock'},
+ {h:5, w:'abɔ nnɔnnum',       f:'fiveoclock'},
+ {h:6, w:'abɔ nnɔnsia',       f:'sixoclock'},
+ {h:7, w:'abɔ nnɔnson',       f:'sevenoclock'},
+ {h:8, w:'abɔ nnɔnwɔtwe',     f:'eightoclock'},
+ {h:9, w:'abɔ nnɔnkron',      f:'nineoclock'},
+ {h:10,w:'abɔ nnɔndu',        f:'tenoclock'},
+ {h:11,w:'abɔ nnɔndubaako',   f:'elevenoclock'},
+ {h:12,w:'abɔ nnɔndummienu',  f:'twelveoclock'}
+];
+/* Each part of the day, the hours it covers, and the greeting that goes with it. */
+var PART=[
+ {w:'anɔpa',     e:'morning',   f:'morning',   ic:'🌅',
+  greet:'maakye', gf:'goodmorning', ge:'good morning',  from:5,  to:11},
+ {w:'awia',      e:'afternoon', f:'afternoon', ic:'☀️',
+  greet:'maaha',  gf:'goodafternoon', ge:'good afternoon', from:12, to:17},
+ {w:'anwummerɛ', e:'evening',   f:'evening',   ic:'🌇',
+  greet:'maadwo', gf:'goodevening', ge:'good evening',  from:18, to:20},
+ {w:'anadwo',    e:'night',     f:'night',     ic:'🌙',
+  greet:'maadwo', gf:'goodevening', ge:'good evening',  from:21, to:4}
+];
+var DAYW=[
+ {w:'ɛnnora', e:'yesterday', f:'yesterday', off:-1, ic:'⬅️'},
+ {w:'ɛnnɛ',   e:'today',     f:'today',     off:0,  ic:'⭐'},
+ {w:'ɔkyena', e:'tomorrow',  f:'tomorrow',  off:1,  ic:'➡️'}
+];
+var DAYS=['Ɛdwoada','Ɛbenada','Wukuada','Yawoada','Efiada','Memeneda','Kwasiada'];
+var DAYF=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+var byH={}; CLOCK.forEach(function(x){byH[x.h]=x});
+function sayT(f){var a=new Audio('/audio?f=time/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+function sayK(f){var a=new Audio('/audio?f=kradin/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* A clock face, drawn - the hand position is the question, so it has to be
+   exact rather than an emoji that only shows round hours. */
+function clockFace(h,size){
+  var r=50, ang=(h%12)*30;
+  var hx=r+Math.sin(ang*Math.PI/180)*(r*0.44);
+  var hy=r-Math.cos(ang*Math.PI/180)*(r*0.44);
+  var ticks='';
+  for(var i=1;i<=12;i++){
+    var a=i*30*Math.PI/180;
+    var tx=r+Math.sin(a)*(r*0.80), ty=r-Math.cos(a)*(r*0.80);
+    ticks+='<text x="'+tx.toFixed(1)+'" y="'+(ty+4).toFixed(1)+'" text-anchor="middle" '
+      +'font-size="11" font-weight="bold" fill="#14563A">'+i+'</text>';
+  }
+  return '<svg viewBox="0 0 100 100" style="width:'+(size||120)+'px;height:'+(size||120)+'px">'
+    +'<circle cx="50" cy="50" r="45" fill="#fff" stroke="#14563A" stroke-width="5"/>'
+    +ticks
+    +'<line x1="50" y1="50" x2="50" y2="21" stroke="#A81B1B" stroke-width="3.5" stroke-linecap="round"/>'
+    +'<line x1="50" y1="50" x2="'+hx.toFixed(1)+'" y2="'+hy.toFixed(1)+'" stroke="#14563A" '
+    +'stroke-width="6" stroke-linecap="round"/>'
+    +'<circle cx="50" cy="50" r="3.5" fill="#C8901E"/></svg>';
+}
+function partFor(h24){
+  for(var i=0;i<PART.length;i++){
+    var p=PART[i];
+    if(p.from<=p.to){ if(h24>=p.from&&h24<=p.to)return p }
+    else if(h24>=p.from||h24<=p.to)return p;
+  }
+  return PART[0];
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=8;
+  var quiz=[];
+  for(var i=0;i<TOTAL;i++){
+    var w=DAYW[i%DAYW.length];
+    if(w.off===0){ w=DAYW[(i%2===0)?0:2] }   /* "today" asks nothing */
+    quiz.push({today:Math.floor(Math.random()*7), when:w});
+  }
+  quiz=shuffle(quiz);
+  var at=0,score=0,lock=false,marks=[];
+  var qEl=document.getElementById('q'),stripEl=document.getElementById('strip'),
+      optsEl=document.getElementById('opts'),statusEl=document.getElementById('status'),
+      dotsEl=document.getElementById('dots'),endEl=document.getElementById('end');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function idx(q){ return ((q.today+q.when.off)%7+7)%7 }
+  function drawStrip(q,reveal){
+    stripEl.innerHTML='';
+    for(var k=0;k<7;k++){
+      var e=document.createElement('i');
+      e.textContent=DAYS[k].slice(0,2);
+      if(k===q.today)e.className='from';
+      if(reveal&&k===idx(q))e.className='to';
+      stripEl.appendChild(e);
+    }
+  }
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;var q=quiz[at];
+    qEl.innerHTML='<span class="em">'+q.when.ic+'</span>'
+      +'<span class="huge">Ɛnnɛ is '+DAYS[q.today]+'</span>'
+      +'<span class="en">So what is '+q.when.w+'?</span>';
+    statusEl.textContent='Which day?';dots();
+    drawStrip(q,false);
+    sayT(q.when.f);
+    var want=DAYS[idx(q)];
+    var pool=DAYS.filter(function(d){return d!==want});
+    optsEl.innerHTML='';
+    shuffle(shuffle(pool).slice(0,3).concat([want])).forEach(function(d){
+      var b=document.createElement('button');b.className='opt';b.type='button';b.textContent=d;
+      b.onclick=function(){answer(b,d,want,q)};optsEl.appendChild(b)});
+  }
+  function answer(btn,chosen,want,q){
+    if(lock)return;lock=true;
+    var ok=chosen===want;marks[at]=ok;
+    drawStrip(q,true);
+    if(ok){score++;btn.classList.add('ok');
+      statusEl.textContent='✅ '+q.when.w+' is '+want+'.'}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.textContent===want)c.classList.add('ok')});
+      statusEl.textContent='❌ '+q.when.w+' is '+want+'.'}
+    sayK(DAYF[idx(q)]);
+    dots();at++;setTimeout(show,2200);
+  }
+  function finish(){
+    dots();qEl.innerHTML='<span class="em">🎉</span>';stripEl.innerHTML='';optsEl.innerHTML='';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Which Sound Was It?</title>
+<!-- Kids_Portal · Twi Alphabets/which-sound.html · slug: digraph-pairs -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FBF6EC;font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',cursive,sans-serif;
+    padding:16px 12px 40px;color:#2d1b0a;text-align:center}
+  .card{max-width:660px;margin:0 auto;background:#FFF8E6;border-radius:30px;padding:20px 16px 26px;
+    border:6px solid #C8901E;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  h1{font-size:1.7rem;color:#A81B1B;text-shadow:2px 2px 0 #feda7a}
+  .sub{font-size:1rem;color:#4d2f12;background:#ffe39c;padding:6px 18px;border-radius:40px;
+    display:inline-block;margin:10px 0;border:3px solid #f8b86a}
+  .status{background:#fff1c7;border:3px solid #f7b86a;border-radius:40px;padding:9px 16px;
+    font-weight:bold;font-size:1rem;margin:16px auto 0;max-width:470px;min-height:2.8em}
+  .fin{background:#f5c542;border:4px solid #af6f2a;border-radius:40px;padding:12px 30px;
+    font-size:1.15rem;font-weight:bold;color:#2d1b0a;box-shadow:0 5px 0 #7a4d1a;cursor:pointer;
+    font-family:inherit;margin-top:16px}
+  .dots{display:flex;gap:5px;justify-content:center;margin:12px 0 4px}
+  .dots i{width:20px;height:11px;border-radius:4px;background:#EFE7D7;border:2px solid #14563A}
+  .dots i.hit{background:#14563A}.dots i.miss{background:#A81B1B;border-color:#6E1111}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .opt{background:#fef7e6;border:4px solid #b48b3a;border-radius:22px;padding:12px 18px;
+    min-width:96px;font-size:1.3rem;font-weight:bold;color:#1f3a2f;font-family:inherit;
+    cursor:pointer;box-shadow:0 5px 0 #7a5a1f;transition:.12s}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #7a5a1f}
+  .opt.ok{background:#14563A;color:#fff;border-color:#0d3a26}
+  .opt.no{background:#A81B1B;color:#fff;border-color:#6E1111;animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}}
+  :focus-visible{outline:3px solid #A81B1B;outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:700px){h1{font-size:2.2rem}}
+
+  .gramtip{background:#21274D;color:#fff;border-radius:18px;padding:13px 16px;margin:14px 0;
+    border:4px solid #C8901E;font-size:.92rem;font-weight:700;line-height:1.6}
+  .gramtip b{color:#E9C97A}
+  .gramtip .big{font-size:1.5rem;display:block;margin-top:4px;letter-spacing:2px}
+
+  .big2{background:#14563A;color:#fff;border:5px solid #f3d48a;border-radius:30px;
+    font-size:1.2rem;font-weight:bold;padding:24px;margin:14px auto;max-width:430px;
+    cursor:pointer;font-family:inherit;display:block;width:100%;box-shadow:0 6px 0 #0d3a26}
+  .big2 .em{font-size:2.8rem;display:block}
+  .opt{font-size:2rem;min-width:124px;letter-spacing:2px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>👂 Which Sound Was It?</h1>
+  <span class="sub">These two are easy to mix up</span>
+  <div class="dots" id="dots"></div>
+  <button class="big2" id="play"><span class="em">🔊</span>Tap to hear the sound</button>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status">Tap the speaker, then choose.</p>
+  <div class="gramtip">Listen for the second letter —
+    <b>kw</b> and <b>ky</b> start the same but end differently.</div>
+  <div id="end"></div>
+</div>
+<script>
+/* Nine digraphs: two letters that make one sound. The recording teaches the
+   sound; the example word shows it doing its work in a real word. */
+var D=[
+ {d:'dw', f:'dw', w:'dware',      wf:'bath',       e:'bath',        ic:'🚿'},
+ {d:'gy', f:'gy', w:'gyae',       wf:'stop',       e:'stop',        ic:'🛑'},
+ {d:'hw', f:'hw', w:'hwɛ',        wf:'look',       e:'look',        ic:'👀'},
+ {d:'hy', f:'hy', w:'hyɛ ntadeɛ', wf:'getdressed', e:'get dressed', ic:'👕'},
+ {d:'kw', f:'kw', w:'kwan',       wf:'road',       e:'road',        ic:'🛣️'},
+ {d:'ky', f:'ky', w:'kyerɛw',     wf:'write',      e:'write',       ic:'✍️'},
+ {d:'nw', f:'nw', w:'nwansena',   wf:'housefly',   e:'housefly',    ic:'🪰'},
+ {d:'ny', f:'ny', w:'nyame',      wf:'god',        e:'God',         ic:'🙏'},
+ {d:'tw', f:'tw', w:'twa mu',     wf:'crossover',  e:'cross over',  ic:'🚸'}
+];
+/* The pairs a learner actually confuses - same first letter, different second. */
+var PAIRS=[['kw','ky'],['dw','tw'],['hw','hy'],['nw','ny']];
+var byD={}; D.forEach(function(x){byD[x.d]=x});
+function sayD(f){var a=new Audio('/audio?f=digraphs/'+encodeURIComponent(f+'.m4a'));
+  a.play().catch(function(){});return a}
+/* The sound, then the word that uses it. */
+function sayBoth(x){
+  var a=sayD(x.f);
+  a.addEventListener('ended',function(){sayD(x.wf)});
+  return a;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t}return a}
+function report(s,m){if(window.__sent||window.parent===window)return;window.__sent=1;
+  parent.postMessage({type:'sg:complete',score:s,maxScore:m},'*')}
+
+(function(){
+  var TOTAL=10;
+  /* Only the confusable pairs, so the ear is tested rather than the memory. */
+  var quiz=[];
+  for(var i=0;i<TOTAL;i++){
+    var pair=PAIRS[i%PAIRS.length];
+    var want=pair[Math.floor(Math.random()*2)];
+    quiz.push({pair:pair, want:want});
+  }
+  quiz=shuffle(quiz);
+  var at=0,score=0,lock=false,heard=false,marks=[];
+  var optsEl=document.getElementById('opts'),statusEl=document.getElementById('status'),
+      dotsEl=document.getElementById('dots'),endEl=document.getElementById('end'),
+      playEl=document.getElementById('play');
+  function dots(){dotsEl.innerHTML='';for(var k=0;k<TOTAL;k++){var e=document.createElement('i');
+    if(marks[k]===true)e.className='hit';else if(marks[k]===false)e.className='miss';
+    dotsEl.appendChild(e)}}
+  function show(){
+    if(at>=quiz.length)return finish();
+    lock=false;heard=false;var q=quiz[at];
+    dots();statusEl.textContent='Tap the speaker, then pick what you heard.';
+    optsEl.innerHTML='';
+    shuffle(q.pair.slice()).forEach(function(d){
+      var b=document.createElement('button');b.className='opt';b.type='button';
+      b.textContent=d;b.dataset.d=d;
+      b.onclick=function(){pick(b,d,q)};optsEl.appendChild(b)});
+  }
+  playEl.onclick=function(){heard=true;sayD(byD[quiz[at].want].f);
+    statusEl.textContent='Now pick what you heard.'};
+  function pick(btn,d,q){
+    if(lock)return;
+    if(!heard){statusEl.textContent='👂 Listen first — tap the speaker.';return}
+    lock=true;
+    var ok=d===q.want;marks[at]=ok;
+    var x=byD[q.want];
+    if(ok){score++;btn.classList.add('ok')}
+    else{btn.classList.add('no');
+      Array.prototype.forEach.call(optsEl.children,function(c){
+        if(c.dataset.d===q.want)c.classList.add('ok')})}
+    statusEl.textContent=(ok?'✅ ':'❌ ')+q.want+' — as in '+x.w+', '+x.e+'.';
+    sayBoth(x);dots();at++;setTimeout(show,2300);
+  }
+  function finish(){
+    dots();optsEl.innerHTML='';playEl.style.display='none';
+    statusEl.textContent='You got '+score+' out of '+TOTAL+'.';
+    endEl.innerHTML='<button class="fin" id="again">🔄 Play again</button>';
+    document.getElementById('again').onclick=function(){location.reload()};
+    report(score,TOTAL);
+  }
+  show();
+})();
+</script>
+</body>
+</html>
